@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;FireandForest/models/tressandfire.gaml&apos;" deleteContents="false" description="Delete resource &apos;FireandForest/models/tressandfire.gaml&apos;" element1="/FireandForest/models/tressandfire.gaml" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1561676141233"/>
+</session>
