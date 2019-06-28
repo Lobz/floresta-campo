@@ -33,7 +33,7 @@ global {
 	}
 	
 	init {
-		create tree number: 1;
+		create tree number: 10;
 	}
 
 }
@@ -113,7 +113,7 @@ species tree {
 	reflex reproduce when: height > tree_adult_height{
 		if( flip(tree_reproductionrate)){
 			create tree {
-				geometry circ <- circle(5) translated_to myself.location;
+				geometry circ <- circle(1) translated_to myself.location;
 				write circ.location;
 				write circ;
 				location <- myself.location + {rnd(-30.0,30.0),rnd(-30.0,30.0)};//any_location_in(circ);

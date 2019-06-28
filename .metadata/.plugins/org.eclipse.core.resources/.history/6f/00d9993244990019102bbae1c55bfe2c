@@ -33,7 +33,7 @@ global {
 	}
 	
 	init {
-		create tree number: 1;
+		create tree number: 10;
 	}
 
 }

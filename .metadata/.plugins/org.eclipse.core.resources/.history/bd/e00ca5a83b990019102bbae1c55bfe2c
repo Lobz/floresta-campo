@@ -21,10 +21,6 @@ global {
 	float grass_flamability_ratio <- 0.7;
 	
 	// Tree parameters
-	float tree_adult_height <- 0.5; // minimum height to be an adult
-	float tree_max_height <- 1;
-	float tree_deathrate <- 0.0 parameter: true;
-	float tree_reproductionrate <- 0.3 parameter: true;
 	float tree_growthrate <- 0.01;
 
 	action click {
@@ -33,7 +29,7 @@ global {
 	}
 	
 	init {
-		create tree number: 1;
+		create tree number: 10;
 	}
 
 }
@@ -95,29 +91,23 @@ grid grass height:size width:size neighbors: 4 {
 species tree {
 	grass place <- first (grass overlapping self);
 	float height <- 0.0;
-	float flamability <- 1.0;
+	float flamability <- 0.1;
 	
 	reflex grow {
 		height <- height + tree_growthrate;
 	}
 	
-	reflex burn when: place.last_burned < 2 and flip(flamability) {
+	reflex burn when: place.last_burned < 1 and flip(flamability) {
 		height <- 0.0;
-		if(flip(1)){do die;}
 	}
 	
 	reflex die when: flip(0.0001){
 		do die;
 	}
 	
-	reflex reproduce when: height > tree_adult_height{
-		if( flip(tree_reproductionrate)){
-			create tree {
-				geometry circ <- circle(5) translated_to myself.location;
-				write circ.location;
-				write circ;
-				location <- myself.location + {rnd(-30.0,30.0),rnd(-30.0,30.0)};//any_location_in(circ);
-			}
+	reflex reproduce when: flip(0.1) {
+		create tree {
+			
 		}
 	}
 	
