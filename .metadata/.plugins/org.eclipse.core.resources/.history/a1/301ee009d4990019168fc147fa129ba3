@@ -101,13 +101,13 @@ species tree {
 	float height <- 0.0;
 	float flamability <- 1.0;
 	list<tree> neighbors;
-	float shade_ratio <- 1;
+	float shade_ratio;
 	
 	init {
 		place.here <- place.here + self;
 	}
 	
-	reflex shade {
+	action shade {
 		neighbors <- place.here where(each.height > self.height);
 		float tot_height <- sum(neighbors collect each.height);
 		if(tot_height > tree_threshold0){
@@ -124,7 +124,7 @@ species tree {
 	}
 	
 	reflex grow {
-		height <- height + tree_growthrate*shade_ratio;
+		height <- height + tree_growthrate;
 	}
 	
 	action burn {
