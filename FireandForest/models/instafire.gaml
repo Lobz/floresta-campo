@@ -14,6 +14,7 @@ global {
 	// float carrying_capacity <- 1.0; // normalized
 	
 	int size <- 30;
+	int initial_tree_pop <- 10;
 	
 	// Grass parameters
 	float grass_growthrate <- 0.1;
@@ -24,7 +25,6 @@ global {
 	float tree_adult_height <- 0.5; // minimum height to be an adult
 	float tree_max_height <- 1;
 	float tree_deathrate <- 0.0 parameter: true;
-	float tree_reproductionrate <- 0.3 parameter: true;
 	float tree_growthrate <- 0.01;
 	float tree_threshold0 <- 0.5 parameter: true;
 	float tree_threshold1 <- 2.0 parameter: true;
@@ -35,7 +35,7 @@ global {
 	}
 	
 	init {
-		create tree number: 1;
+		create tree number: initial_tree_pop;
 	}
 
 }
@@ -101,7 +101,10 @@ species tree {
 	float height <- 0.0;
 	float flamability <- 1.0;
 	list<tree> neighbors;
-	float shade_ratio <- 1;
+	float shade_ratio <- 1.0;
+	int stage <- 0;
+	
+	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
 	
 	init {
 		place.here <- place.here + self;
@@ -123,8 +126,8 @@ species tree {
 		}
 	}
 	
-	reflex grow {
-		height <- height + tree_growthrate*shade_ratio;
+	reflex grow when: flip(tree_growthrate) and stage <4{
+		stage <- stage + 1;
 	}
 	
 	action burn {
@@ -137,20 +140,18 @@ species tree {
 		}
 	}
 	
-	reflex natural_death when: flip(0.0001){
+	reflex natural_death when: flip(tree_deathrate){
 		do die;
 	}
 	
-	reflex reproduce when: height > tree_adult_height{
-		if( flip(tree_reproductionrate)){
-			create tree {
-				location <- myself.location + {rnd(-30.0,30.0),rnd(-30.0,30.0)};
-			}
+	reflex reproduce when: flip(reproduction_rate[stage]){
+		create tree {
+			location <- myself.location + {rnd(-30.0,30.0),rnd(-30.0,30.0)};
 		}
 	}
 	
 	aspect default {
-		draw circle(height) color: rgb(0,255,0) border:#black;
+		draw circle(stage) color: rgb(0,255,0) border:#black;
 	}
 }
 
@@ -161,7 +162,8 @@ experiment instafire type: gui {
 	parameter "Grass growth rate" category: "My parameters" var: grass_growthrate min:0.001 max:0.5;
 	parameter "Chance of fire" category: "My parameters" var: grass_chance_to_start_fire min:0.0;
 	parameter "Grass flamability" category: "My parameters" var: grass_flamability_ratio min:0.0;
-	parameter "Size" category: "My parameters" var: size min:3;
+	parameter "Size" category: "Init" var: size min:3;
+	parameter "Initial tree pop" category: "Init" var: initial_tree_pop min:0;
 	
 	// Define attributes, actions, a init section and behaviors if necessary
 	
