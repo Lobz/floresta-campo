@@ -26,8 +26,8 @@ global {
 	float tree_max_height <- 1;
 	float tree_deathrate <- 0.0 parameter: true;
 	float tree_growthrate <- 0.01;
-	float tree_threshold0 <- 0.5 parameter: true;
-	float tree_threshold1 <- 2.0 parameter: true;
+	float shade_threshold <- 1.0 parameter: true;
+	float shade_effect <- 0.0 parameter: true;
 
 	action click {
 		grass selected <- first(grass overlapping #user_location);
@@ -50,6 +50,11 @@ grid grass height:size width:size neighbors: 4 {
 	int last_burned <- 20 update: last_burned +1;
 	
 	list<tree> here;
+	
+	reflex shade {
+		int n_shade <- (here sum_of(each.stage));
+		carrying_capacity <- 1.0/(0.2*n_shade+1);
+	}
 		
 	reflex plant_growth{
 		if(biomass <= minimum_biomass) {biomass<-minimum_biomass;}
@@ -73,7 +78,7 @@ grid grass height:size width:size neighbors: 4 {
 	
 	action spread_fire {
 		list<grass> spread <- neighbors;
-		list<grass> done <- self;
+		list<grass> done <- [self];
 	
 		int i <- 0;
 		grass n;
@@ -100,6 +105,7 @@ species tree {
 	grass place <- first (grass overlapping self);
 	float height <- 0.0;
 	float flamability <- 1.0;
+	float death_by_fire <- 1.0;
 	list<tree> neighbors;
 	float shade_ratio <- 1.0;
 	int stage <- 0;
@@ -111,36 +117,31 @@ species tree {
 	}
 	
 	reflex shade {
-		neighbors <- place.here where(each.height > self.height);
-		float tot_height <- sum(neighbors collect each.height);
-		if(tot_height > tree_threshold0){
-			shade_ratio <- 0.0;
+		int n_shade <- (place.here count(each.stage >= self.stage));
+		if(n_shade) > shade_threshold {
+			shade_ratio <- shade_effect;
 		}
-		else {
-			if(tot_height > tree_threshold1) {
-				shade_ratio <- 0.1;
-			}
-			else{
-				shade_ratio <- 1.0;
-			}
-		}
+	
 	}
 	
-	reflex grow when: flip(tree_growthrate) and stage <4{
+	reflex grow when: flip(tree_growthrate*shade_ratio) and stage <4{
 		stage <- stage + 1;
+		death_by_fire <- 1.0-0.2*stage;
 	}
 	
 	action burn {
 		if(flip(flamability)){
-			height <- 0.0;
-			if(flip(1)){
+			if(flip(death_by_fire)){
+				write(stage);
 				place.here <- place.here - self;
 				do die;
 			}
 		}
+		else {write("oops");}
 	}
 	
 	reflex natural_death when: flip(tree_deathrate){
+		place.here <- place.here - self;
 		do die;
 	}
 	
@@ -151,7 +152,7 @@ species tree {
 	}
 	
 	aspect default {
-		draw circle(stage) color: rgb(0,255,0) border:#black;
+		draw circle(0.1+stage/2) color: rgb(0,255,0) border:#black;
 	}
 }
 
@@ -177,7 +178,7 @@ experiment instafire type: gui {
 		display "model" {
 			grid grass;
 			species tree;
-			event mouse_up action: click;
+			//event mouse_up action: click;
 		}
 	}
 }
