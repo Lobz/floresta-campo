@@ -8,6 +8,9 @@
 model instafire
 
 global {
+	
+	geometry shape <- square(300#m);
+	
 	// general parameters
 	float biomass_loss_burning <- 0.8;
 	float minimum_biomass <- 0.1;
@@ -28,6 +31,7 @@ global {
 	float tree_growthrate <- 0.01;
 	float shade_threshold <- 1.0 parameter: true;
 	float shade_effect <- 0.0 parameter: true;
+	float tree_dispersal <- 10#m;
 	
 	// Monitoring
 	int nb_trees -> {length(tree)};
@@ -38,7 +42,9 @@ global {
 	}
 	
 	init {
-		create tree number: initial_tree_pop;
+		create tree number: initial_tree_pop{
+			stage <- 3;
+		}
 	}
 
 }
@@ -100,12 +106,12 @@ grid grass height:size width:size neighbors: 4 {
 	
 	// this will be used by default "grid" display
 	rgb color<- rgb(255*(biomass),255*(biomass),0) 
-		update: last_burned <1 ? #red : rgb(255*(biomass),255*(biomass),0);
+		update: last_burned <1 ? #red : rgb(255*(biomass),255*(biomass),0,0.5);
 }
 
 
 species tree {
-	grass place <- first (grass overlapping self);
+	grass place;
 	float height <- 0.0;
 	float flamability <- 1.0;
 	float death_by_fire <- 1.0;
@@ -115,7 +121,9 @@ species tree {
 	
 	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
 	
-	init {
+	reflex place_me when: place = nil{
+		place <- first (grass overlapping self);
+		if(place=nil) {do die;}
 		place.here <- place.here + self;
 	}
 	
@@ -150,12 +158,13 @@ species tree {
 	
 	reflex reproduce when: flip(reproduction_rate[stage]){
 		create tree {
-			location <- myself.location + {rnd(-30.0,30.0),rnd(-30.0,30.0)};
+			location <- myself.location + {rnd(-tree_dispersal,tree_dispersal),rnd(-tree_dispersal,tree_dispersal)};
+			
 		}
 	}
 	
 	aspect default {
-		draw circle(0.1+stage/2) color: rgb(0,255,0) border:#black;
+		draw circle(0.1+stage/2) color: rgb(0,255,0,0.5) border:#black;
 	}
 }
 
