@@ -28,6 +28,9 @@ global {
 	float tree_growthrate <- 0.01;
 	float shade_threshold <- 1.0 parameter: true;
 	float shade_effect <- 0.0 parameter: true;
+	
+	// Monitoring
+	int nb_trees -> {length(tree)};
 
 	action click {
 		grass selected <- first(grass overlapping #user_location);
@@ -180,5 +183,11 @@ experiment instafire type: gui {
 			species tree;
 			//event mouse_up action: click;
 		}
+		monitor "Number of trees" value:nb_trees;
+		display "charts" {
+			chart "Species evolution" type: series size: {1,0.5} position: {0, 0} {
+        		data "Number of trees" value: nb_trees color: #blue ;
+        	}
+        }
 	}
 }
