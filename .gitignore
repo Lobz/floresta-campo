@@ -1,3 +1,8 @@
 
 *.index
-*.index
+.metadata
+.metadata/*
+.cache
+.cache/*
+.gama*
+.built_in*
