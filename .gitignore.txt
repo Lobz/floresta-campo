@@ -1,3 +1,4 @@
-.metadata/*
+.metadata
+.cache
 .gama*
 .built_in*
