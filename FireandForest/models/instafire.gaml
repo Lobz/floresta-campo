@@ -11,6 +11,8 @@ global {
 	
 	geometry shape <- square(300#m);
 	
+	float initial_forest_size <- 100#m parameter: true;
+	
 	// general parameters
 	float biomass_loss_burning <- 0.8;
 	float minimum_biomass <- 0.1;
@@ -41,9 +43,11 @@ global {
 		ask selected {do catch_fire;}
 	}
 	
-	init {
+	init {		
+		geometry c <- circle(initial_forest_size);
 		create tree number: initial_tree_pop{
 			stage <- 3;
+			location <- any_location_in(c);
 		}
 	}
 
