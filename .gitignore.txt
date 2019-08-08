@@ -1,0 +1,3 @@
+.metadata/*
+.gama*
+.built_in*
