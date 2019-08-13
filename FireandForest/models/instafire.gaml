@@ -127,7 +127,6 @@ grid grass height:size width:size neighbors: 4 {
 			}
 			i<-i+1;
 		}
-		write(spr_ch);
 	}
 	
 	// this will be used by default "grid" display
@@ -173,7 +172,6 @@ species tree {
 	action burn {
 		if(flip(flamability)){
 			if(flip(death_by_fire)){
-				write(stage);
 				place.here <- place.here - self;
 				do die;
 			}
@@ -197,6 +195,21 @@ species tree {
 		draw circle(0.1+stage/2) color: rgb(0,255,0,0.5) border:#black;
 	}
 	
+}
+
+species umbroph parent:tree {
+	reflex shade {
+		int n_shade <- (place.here count(each.stage >= self.stage));
+		if(n_shade) > shade_threshold {
+			shade_ratio <- shade_effect;
+		}
+	
+	}
+	
+	reflex grow when: flip(tree_growthrate*shade_ratio) and stage <4{
+		stage <- stage + 1;
+		death_by_fire <- 1.0;
+	}
 }
 
 experiment instafire type: gui {
