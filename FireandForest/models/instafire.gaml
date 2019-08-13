@@ -62,7 +62,7 @@ grid grass height:size width:size neighbors: 4 {
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	
-	float altitude <- ((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;
+	float altitude <- 0;//((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;
 	
 	float spread_chance(grass a,grass b) {
 		float distab <- abs(a.location.x-b.location.x) + abs(a.location.y - b.location.y);
@@ -142,13 +142,15 @@ grid grass height:size width:size neighbors: 4 {
 species tree {
 	grass place;
 	float height <- 0.0;
-	float flamability <- 1.0;
-	float death_by_fire <- 1.0;
 	list<tree> neighbors;
 	float shade_ratio <- 1.0;
 	int stage <- 0;
 	
 	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
+	list<float> death_rate <- [0.1,0.01,0.001,0.001,0.001];
+	list<float> growth_rate <- [0.01,0.01,0.01,0.01,0];
+	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
+	
 	
 	reflex place_me when: place = nil{
 		place <- first (grass overlapping self);
@@ -164,22 +166,18 @@ species tree {
 	
 	}
 	
-	reflex grow when: flip(tree_growthrate*shade_ratio) and stage <4{
+	reflex grow when: flip(growth_rate[stage]*shade_ratio) and stage <4{
 		stage <- stage + 1;
-		death_by_fire <- 1.0-0.2*stage;
 	}
 	
 	action burn {
-		if(flip(flamability)){
-			if(flip(death_by_fire)){
-				place.here <- place.here - self;
-				do die;
-			}
+		if(flip(flamability[stage])){
+			place.here <- place.here - self;
+			do die;
 		}
-		else {write("oops");}
 	}
 	
-	reflex natural_death when: flip(tree_deathrate){
+	reflex natural_death when: flip(death_rate[stage]){
 		place.here <- place.here - self;
 		do die;
 	}
@@ -198,18 +196,11 @@ species tree {
 }
 
 species umbroph parent:tree {
-	reflex shade {
-		int n_shade <- (place.here count(each.stage >= self.stage));
-		if(n_shade) > shade_threshold {
-			shade_ratio <- shade_effect;
-		}
+    list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
+	list<float> death_rate <- [0.1,0.01,0.001,0.001,0.0001];
+	list<float> growth_rate <- [0.1,0.1,0.1,0.1,0];
+	list<float> flamability <- [1.0,1.0,1.0,1.0,1.0];
 	
-	}
-	
-	reflex grow when: flip(tree_growthrate*shade_ratio) and stage <4{
-		stage <- stage + 1;
-		death_by_fire <- 1.0;
-	}
 }
 
 experiment instafire type: gui {
