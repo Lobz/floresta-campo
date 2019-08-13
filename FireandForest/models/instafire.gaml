@@ -18,18 +18,18 @@ global {
 	float minimum_biomass <- 0.1;
 	// float carrying_capacity <- 1.0; // normalized
 	
-	int size <- 30;
-	int initial_tree_pop <- 10;
+	int size <- 60;
+	int initial_tree_pop <- 100;
 	
 	// Grass parameters
 	float grass_growthrate <- 0.1;
 	float grass_chance_to_start_fire <- 0.0001;
-	float grass_flamability_ratio <- 0.7;
+	float grass_flamability_ratio <- 0.5;
 	
 	// Tree parameters
 	float tree_adult_height <- 0.5; // minimum height to be an adult
 	float tree_max_height <- 1;
-	float tree_deathrate <- 0.0 parameter: true;
+	float tree_deathrate <- 0.01 parameter: true;
 	float tree_growthrate <- 0.01;
 	float shade_threshold <- 1.0 parameter: true;
 	float shade_effect <- 0.0 parameter: true;
