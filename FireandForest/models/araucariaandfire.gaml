@@ -35,14 +35,13 @@ global {
 	init {
 		geometry c <- circle(100);
 		create tree number:1 {
-			biomass <- 1.0;
 			location <- any_location_in(c);
 		}
 	}
 }
 
 species plant schedules: shuffle(plant){
-	float biomass <- rnd(0,1.0); // this value is normalized to be in range (0,1]
+	float biomass <- 1.0; // this value is normalized to be in range (0,1]
 	float height <- 0.0;
 	float flamability; // different for each type of plant
 	float chance_to_start_fire; // different for each type of plant
