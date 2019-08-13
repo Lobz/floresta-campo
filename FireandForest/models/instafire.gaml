@@ -187,6 +187,14 @@ experiment instafire type: gui {
 	
 	
 	output {
+		
+		
+		monitor "Number of trees" value:nb_trees;
+		display "charts" {
+			chart "Species evolution" type: series size: {1,0.5} position: {0, 0} {
+        		data "Number of trees" value: nb_trees color: #blue ;
+        	}
+        }
 	// Define inspectors, browsers and displays here
 	
 	// inspect one_or_several_agents;
@@ -196,11 +204,5 @@ experiment instafire type: gui {
 			species tree;
 			//event mouse_up action: click;
 		}
-		monitor "Number of trees" value:nb_trees;
-		display "charts" {
-			chart "Species evolution" type: series size: {1,0.5} position: {0, 0} {
-        		data "Number of trees" value: nb_trees color: #blue ;
-        	}
-        }
 	}
 }
