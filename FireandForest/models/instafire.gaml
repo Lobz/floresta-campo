@@ -24,7 +24,7 @@ global {
 	// Grass parameters
 	float grass_growthrate <- 0.1;
 	float grass_chance_to_start_fire <- 0.0001;
-	float grass_flamability_ratio <- 0.5;
+	float grass_flamability_ratio <- 0.8;
 	
 	// Tree parameters
 	float tree_adult_height <- 0.5; // minimum height to be an adult
@@ -76,7 +76,7 @@ grid grass height:size width:size neighbors: 4 {
 			return 0.2;
 		}
 		
-		return 0.1*(slope+0.6);
+		return 1.0*(slope+0.6);
 	}
 	
 	list<tree> here;
@@ -108,21 +108,26 @@ grid grass height:size width:size neighbors: 4 {
 	
 	action spread_fire {
 		list<grass> spread <- neighbors;
+		list<float> spr_ch <- spread accumulate spread_chance(self, each);
 		list<grass> done <- [self];
 	
 		int i <- 0;
 		grass n;
 		loop while: i < length(spread) {
 			n <- spread[i];
+			float chance <- spr_ch[i];
 			if(not(done contains n)){
-				if(flip(spread_chance(self,n))){
+				if(flip(n.flamability * chance)){
 					ask n {do burn;}
-					spread <- spread + (n.neighbors - done);
+					list<grass> nxt <- (n.neighbors - done);
+					spr_ch <- spr_ch + (nxt accumulate spread_chance(n,each));
+					spread <- spread + nxt;
 					done <- done + n;
 				}
 			}
 			i<-i+1;
 		}
+		write(spr_ch);
 	}
 	
 	// this will be used by default "grid" display
