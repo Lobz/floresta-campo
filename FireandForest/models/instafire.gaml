@@ -62,6 +62,23 @@ grid grass height:size width:size neighbors: 4 {
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	
+	float altitude <- location.x;
+	
+	float spread_chance(grass a,grass b) {
+		float distab <- abs(a.location.x-b.location.x) + abs(a.location.y - b.location.y);
+		float slope <- (b.altitude - a.altitude)/(distab);
+		
+		// I want a function that is equal do 1 when slope is 0.4 (aprox 20 degrees)
+		if(slope >= 0.4) {
+			return 1.0;
+		}
+		if(slope <= -0.4) {
+			return 0.2;
+		}
+		
+		return 0.1*(slope+0.6);
+	}
+	
 	list<tree> here;
 	
 	reflex shade {
@@ -98,11 +115,11 @@ grid grass height:size width:size neighbors: 4 {
 		loop while: i < length(spread) {
 			n <- spread[i];
 			if(not(done contains n)){
-				if(flip(n.flamability)){
+				if(flip(spread_chance(self,n))){
 					ask n {do burn;}
 					spread <- spread + (n.neighbors - done);
 					done <- done + n;
-					}
+				}
 			}
 			i<-i+1;
 		}
