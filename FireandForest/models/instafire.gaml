@@ -29,7 +29,7 @@ global {
 	// Tree parameters
 	float tree_adult_height <- 0.5; // minimum height to be an adult
 	float tree_max_height <- 1;
-	float tree_deathrate <- 0.01 parameter: true;
+	float tree_deathrate <- 0.001 parameter: true;
 	float tree_growthrate <- 0.01;
 	float shade_threshold <- 1.0 parameter: true;
 	float shade_effect <- 0.0 parameter: true;
@@ -62,7 +62,7 @@ grid grass height:size width:size neighbors: 4 {
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	
-	float altitude <- ((location.x - 150)/10)^2;
+	float altitude <- ((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;
 	
 	float spread_chance(grass a,grass b) {
 		float distab <- abs(a.location.x-b.location.x) + abs(a.location.y - b.location.y);
@@ -133,6 +133,10 @@ grid grass height:size width:size neighbors: 4 {
 	// this will be used by default "grid" display
 	rgb color<- rgb(255*(biomass),255*(biomass),0) 
 		update: last_burned <1 ? #red : rgb(255*(biomass),255*(biomass),0,0.5);
+		
+	aspect trid {
+		draw shape color: color depth: altitude;
+	}
 }
 
 
@@ -192,6 +196,7 @@ species tree {
 	aspect default {
 		draw circle(0.1+stage/2) color: rgb(0,255,0,0.5) border:#black;
 	}
+	
 }
 
 experiment instafire type: gui {
@@ -225,6 +230,12 @@ experiment instafire type: gui {
 			grid grass;
 			species tree;
 			//event mouse_up action: click;
+		}
+		
+		display "model 3D" camera_interaction:false camera_pos:{world.shape.width/2,world.shape.height*2,world.shape.width*2} 
+		camera_look_pos:{world.shape.width/2,world.shape.height/2,0} 
+		camera_up_vector:{0.0,-1.0,0.0}type:opengl{
+			species grass aspect: trid;
 		}
 	}
 }
