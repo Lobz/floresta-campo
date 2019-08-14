@@ -62,7 +62,10 @@ grid grass height:size width:size neighbors: 4 {
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	
-	float altitude <- 0;//((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;
+	float altitude <- ((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;
+	//float altitude <- 300-(((location.x - 150)/10)^2 + ((location.y - 150)/20)^2);
+	//float altitude <- 0;
+	
 	
 	float spread_chance(grass a,grass b) {
 		float distab <- abs(a.location.x-b.location.x) + abs(a.location.y - b.location.y);
