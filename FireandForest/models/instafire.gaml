@@ -8,21 +8,22 @@
 model instafire
 
 global {
+	float landscape_size <- 300#m;
+	float tile_size <- 10#m;
+	geometry shape <- square(landscape_size);
 	
-	geometry shape <- square(300#m);
-	
-	float initial_forest_size <- 100#m parameter: true;
+	float initial_forest_size <- 100#m;
 	
 	// toggle phenomena
-	bool shade_kills_grass <- true parameter: true;
-	bool wildfires <- true parameter: true;
+	bool shade_kills_grass <- true;
+	bool wildfires <- true;
 	
 	// general parameters
 	float biomass_loss_burning <- 0.8;
 	float minimum_biomass <- 0.1;
 	// float carrying_capacity <- 1.0; // normalized
 	
-	int size <- 60;
+	int size <- round(landscape_size/tile_size);
 	int initial_tree_pop <- 100;
 	
 	// Grass parameters
@@ -31,12 +32,8 @@ global {
 	float grass_flamability_ratio <- 0.8;
 	
 	// Tree parameters
-	float tree_adult_height <- 0.5; // minimum height to be an adult
-	float tree_max_height <- 1;
-	float tree_deathrate <- 0.001 parameter: true;
-	float tree_growthrate <- 0.01;
-	float shade_threshold <- 1.0 parameter: true;
-	float shade_effect <- 0.0 parameter: true;
+	float shade_threshold <- 1.0;
+	float shade_effect <- 0.0;
 	float tree_dispersal <- 10#m;
 	
 	// Monitoring
@@ -215,12 +212,18 @@ species umbroph parent:tree {
 experiment instafire type: gui {
 
 	
-	// Define parameters here if necessary
-	parameter "Grass growth rate" category: "My parameters" var: grass_growthrate min:0.001 max:0.5;
-	parameter "Chance of fire" category: "My parameters" var: grass_chance_to_start_fire min:0.0;
-	parameter "Grass flamability" category: "My parameters" var: grass_flamability_ratio min:0.0;
-	parameter "Size" category: "Init" var: size min:3;
+	// Parameters
+	parameter "Landscape size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Tile size" category: "Init" var: tile_size min:1#m;
 	parameter "Initial tree pop" category: "Init" var: initial_tree_pop min:0;
+	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
+	
+	parameter "Wildfires" category: "Toggle phenomena" var:wildfires;
+	parameter "Shade kills grass" category: "Toggle phenomena" var:shade_kills_grass;
+	
+	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
+	parameter "Chance of fire" category: "Grass" var: grass_chance_to_start_fire min:0.0;
+	parameter "Grass flamability" category: "Grass" var: grass_flamability_ratio min:0.0;
 	
 	// Define attributes, actions, a init section and behaviors if necessary
 	
