@@ -13,6 +13,10 @@ global {
 	
 	float initial_forest_size <- 100#m parameter: true;
 	
+	// toggle phenomena
+	bool shade_kills_grass <- true parameter: true;
+	bool wildfires <- true parameter: true;
+	
 	// general parameters
 	float biomass_loss_burning <- 0.8;
 	float minimum_biomass <- 0.1;
@@ -82,8 +86,13 @@ grid grass height:size width:size neighbors: 4 {
 	list<tree> here;
 	
 	reflex shade {
-		int n_shade <- (here sum_of(each.stage));
-		carrying_capacity <- 1.0/(0.2*n_shade+1);
+		if(shade_kills_grass){
+			int n_shade <- (here sum_of(each.stage));
+			carrying_capacity <- 1.0/(0.2*n_shade+1);
+		}
+		else {
+			carrying_capacity <- 1.0;
+		}
 	}
 		
 	reflex plant_growth{
@@ -91,7 +100,7 @@ grid grass height:size width:size neighbors: 4 {
 		biomass <- biomass * (1+growthrate * (1 - biomass/carrying_capacity));
 	}
 	
-	reflex start_fire when: flip(grass_chance_to_start_fire) /*and flip(flamability)*/ {
+	reflex start_fire when: wildfires and flip(grass_chance_to_start_fire) /*and flip(flamability)*/ {
 		do catch_fire;
 	}
 	
