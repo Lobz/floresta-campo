@@ -50,6 +50,10 @@ global {
 			stage <- 3;
 			location <- any_location_in(c);
 		}
+		create umbroph number: initial_tree_pop{
+			stage <- 3;
+			location <- any_location_in(c);
+		}
 	}
 
 }
@@ -148,14 +152,15 @@ grid grass height:size width:size neighbors: 4 {
 species tree {
 	grass place;
 	float height <- 0.0;
-	list<tree> neighbors;
+	list<agent> neighbors;
 	float shade_ratio <- 1.0;
 	int stage <- 0;
 	
 	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [0.1,0.01,0.001,0.001,0.001];
+	list<float> death_rate <- [0.1,0.01,0.01,0.01,0.01];
 	list<float> growth_rate <- [0.01,0.01,0.01,0.01,0];
 	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
+	list<float> canopy_size <- [0.1,0.5,1,2,5];
 	
 	
 	reflex place_me when: place = nil{
@@ -165,7 +170,7 @@ species tree {
 	}
 	
 	reflex shade {
-		int n_shade <- (place.here count(each.stage >= self.stage));
+		int n_shade <- (place.here count(each.stage > self.stage));
 		if(n_shade) > shade_threshold {
 			shade_ratio <- shade_effect;
 		}
@@ -203,9 +208,18 @@ species tree {
 
 species umbroph parent:tree {
     list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [0.1,0.01,0.001,0.001,0.0001];
+	list<float> death_rate <- [1.0,0.8,0.1,0.1,0.01];
 	list<float> growth_rate <- [0.1,0.1,0.1,0.1,0];
 	list<float> flamability <- [1.0,1.0,1.0,1.0,1.0];
+	
+	reflex natural_death when: flip(death_rate[stage]*shade_ratio){
+		place.here <- place.here - self;
+		do die;
+	}
+	
+	aspect default {
+		draw circle(0.1+stage/2) color: rgb(245,255,0,0.5) border:#black;
+	}
 	
 }
 
@@ -245,6 +259,7 @@ experiment instafire type: gui {
 		display "model" {
 			grid grass;
 			species tree;
+			species umbroph;
 			//event mouse_up action: click;
 		}
 		
