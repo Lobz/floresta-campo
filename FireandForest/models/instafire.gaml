@@ -8,17 +8,22 @@
 model instafire
 
 global {
+	float landscape_size <- 300#m;
+	float tile_size <- 10#m;
+	geometry shape <- square(landscape_size);
 	
-	geometry shape <- square(300#m);
+	float initial_forest_size <- 100#m;
 	
-	float initial_forest_size <- 100#m parameter: true;
+	// toggle phenomena
+	bool shade_kills_grass <- true;
+	bool wildfires <- true;
 	
 	// general parameters
 	float biomass_loss_burning <- 0.8;
 	float minimum_biomass <- 0.1;
 	// float carrying_capacity <- 1.0; // normalized
 	
-	int size <- 60;
+	int size <- round(landscape_size/tile_size);
 	int initial_tree_pop <- 100;
 	
 	// Grass parameters
@@ -27,12 +32,8 @@ global {
 	float grass_flamability_ratio <- 0.8;
 	
 	// Tree parameters
-	float tree_adult_height <- 0.5; // minimum height to be an adult
-	float tree_max_height <- 1;
-	float tree_deathrate <- 0.001 parameter: true;
-	float tree_growthrate <- 0.01;
-	float shade_threshold <- 1.0 parameter: true;
-	float shade_effect <- 0.0 parameter: true;
+	float shade_threshold <- 1.0;
+	float shade_effect <- 0.0;
 	float tree_dispersal <- 10#m;
 	
 	// Monitoring
@@ -46,6 +47,10 @@ global {
 	init {		
 		geometry c <- circle(initial_forest_size);
 		create tree number: initial_tree_pop{
+			stage <- 3;
+			location <- any_location_in(c);
+		}
+		create umbroph number: initial_tree_pop{
 			stage <- 3;
 			location <- any_location_in(c);
 		}
@@ -85,8 +90,13 @@ grid grass height:size width:size neighbors: 4 {
 	list<tree> here;
 	
 	reflex shade {
-		int n_shade <- (here sum_of(each.stage));
-		carrying_capacity <- 1.0/(0.2*n_shade+1);
+		if(shade_kills_grass){
+			int n_shade <- (here sum_of(each.stage));
+			carrying_capacity <- 1.0/(0.2*n_shade+1);
+		}
+		else {
+			carrying_capacity <- 1.0;
+		}
 	}
 		
 	reflex plant_growth{
@@ -94,7 +104,7 @@ grid grass height:size width:size neighbors: 4 {
 		biomass <- biomass * (1+growthrate * (1 - biomass/carrying_capacity));
 	}
 	
-	reflex start_fire when: flip(grass_chance_to_start_fire) /*and flip(flamability)*/ {
+	reflex start_fire when: wildfires and flip(grass_chance_to_start_fire) /*and flip(flamability)*/ {
 		do catch_fire;
 	}
 	
@@ -145,14 +155,15 @@ grid grass height:size width:size neighbors: 4 {
 species tree {
 	grass place;
 	float height <- 0.0;
-	list<tree> neighbors;
+	list<agent> neighbors;
 	float shade_ratio <- 1.0;
 	int stage <- 0;
 	
 	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [0.1,0.01,0.001,0.001,0.001];
+	list<float> death_rate <- [0.1,0.01,0.01,0.01,0.01];
 	list<float> growth_rate <- [0.01,0.01,0.01,0.01,0];
 	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
+	list<float> canopy_size <- [0.1,0.5,1,2,5];
 	
 	
 	reflex place_me when: place = nil{
@@ -162,7 +173,7 @@ species tree {
 	}
 	
 	reflex shade {
-		int n_shade <- (place.here count(each.stage >= self.stage));
+		int n_shade <- (place.here count(each.stage > self.stage));
 		if(n_shade) > shade_threshold {
 			shade_ratio <- shade_effect;
 		}
@@ -200,21 +211,36 @@ species tree {
 
 species umbroph parent:tree {
     list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [0.1,0.01,0.001,0.001,0.0001];
+	list<float> death_rate <- [1.0,0.8,0.1,0.1,0.01];
 	list<float> growth_rate <- [0.1,0.1,0.1,0.1,0];
 	list<float> flamability <- [1.0,1.0,1.0,1.0,1.0];
+	
+	reflex natural_death when: flip(death_rate[stage]*shade_ratio){
+		place.here <- place.here - self;
+		do die;
+	}
+	
+	aspect default {
+		draw circle(0.1+stage/2) color: rgb(245,255,0,0.5) border:#black;
+	}
 	
 }
 
 experiment instafire type: gui {
 
 	
-	// Define parameters here if necessary
-	parameter "Grass growth rate" category: "My parameters" var: grass_growthrate min:0.001 max:0.5;
-	parameter "Chance of fire" category: "My parameters" var: grass_chance_to_start_fire min:0.0;
-	parameter "Grass flamability" category: "My parameters" var: grass_flamability_ratio min:0.0;
-	parameter "Size" category: "Init" var: size min:3;
+	// Parameters
+	parameter "Landscape size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Tile size" category: "Init" var: tile_size min:1#m;
 	parameter "Initial tree pop" category: "Init" var: initial_tree_pop min:0;
+	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
+	
+	parameter "Wildfires" category: "Toggle phenomena" var:wildfires;
+	parameter "Shade kills grass" category: "Toggle phenomena" var:shade_kills_grass;
+	
+	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
+	parameter "Chance of fire" category: "Grass" var: grass_chance_to_start_fire min:0.0;
+	parameter "Grass flamability" category: "Grass" var: grass_flamability_ratio min:0.0;
 	
 	// Define attributes, actions, a init section and behaviors if necessary
 	
@@ -236,6 +262,7 @@ experiment instafire type: gui {
 		display "model" {
 			grid grass;
 			species tree;
+			species umbroph;
 			//event mouse_up action: click;
 		}
 		
