@@ -17,6 +17,7 @@ global {
 	// toggle phenomena
 	bool shade_kills_grass <- true;
 	bool wildfires <- true;
+	string topography <- "plain";
 	
 	// general parameters
 	float biomass_loss_burning <- 0.8;
@@ -29,7 +30,7 @@ global {
 	// Grass parameters
 	float grass_growthrate <- 0.1;
 	float grass_chance_to_start_fire <- 0.0001;
-	float grass_flamability_ratio <- 0.8;
+	float grass_flamability_ratio <- 1.0;
 	
 	// Tree parameters
 	float shade_threshold <- 1.0;
@@ -50,10 +51,12 @@ global {
 			stage <- 3;
 			location <- any_location_in(c);
 		}
+		/*
 		create umbroph number: initial_tree_pop{
 			stage <- 3;
 			location <- any_location_in(c);
 		}
+		* */
 	}
 
 }
@@ -67,10 +70,15 @@ grid grass height:size width:size neighbors: 4 {
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	
-	float altitude <- ((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;
-	//float altitude <- 300-(((location.x - 150)/10)^2 + ((location.y - 150)/20)^2);
-	//float altitude <- 0;
+	float altitude;
 	
+	init {
+		switch topography {
+			match "plain"  {altitude <-0.0; }
+			match "valley" {altitude <- ((location.x - 150)/10)^2 + ((location.y - 150)/20)^2;}
+			match "mount"  {altitude <- 300-(((location.x - 150)/10)^2 + ((location.y - 150)/20)^2);}
+		}
+	}
 	
 	float spread_chance(grass a,grass b) {
 		float distab <- abs(a.location.x-b.location.x) + abs(a.location.y - b.location.y);
@@ -160,7 +168,7 @@ species tree {
 	int stage <- 0;
 	
 	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [0.1,0.01,0.01,0.01,0.01];
+	list<float> death_rate <- [0.1,0.01,0.01,0.01,0.001];
 	list<float> growth_rate <- [0.01,0.01,0.01,0.01,0];
 	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
 	list<float> canopy_size <- [0.1,0.5,1,2,5];
@@ -211,7 +219,7 @@ species tree {
 
 species umbroph parent:tree {
     list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [1.0,0.8,0.1,0.1,0.01];
+	list<float> death_rate <- [1.0,0.8,0.1,0.1,0.02];
 	list<float> growth_rate <- [0.1,0.1,0.1,0.1,0];
 	list<float> flamability <- [1.0,1.0,1.0,1.0,1.0];
 	
@@ -234,6 +242,7 @@ experiment instafire type: gui {
 	parameter "Tile size" category: "Init" var: tile_size min:1#m;
 	parameter "Initial tree pop" category: "Init" var: initial_tree_pop min:0;
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Topography" category:"Init" var: topography <- "???" among: ["plain","valley","mount"];
 	
 	parameter "Wildfires" category: "Toggle phenomena" var:wildfires;
 	parameter "Shade kills grass" category: "Toggle phenomena" var:shade_kills_grass;
