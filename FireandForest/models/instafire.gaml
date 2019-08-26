@@ -35,7 +35,7 @@ global {
 	// Tree parameters
 	float shade_threshold <- 1.0;
 	float shade_effect <- 0.0;
-	float tree_dispersal <- 10#m;
+	float tree_dispersal <- 30#m parameter: true;
 	
 	// Monitoring
 	int nb_trees -> {length(tree)};
