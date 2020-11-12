@@ -6,3 +6,4 @@
 .cache/*
 .gama*
 .built_in*
+*.png
