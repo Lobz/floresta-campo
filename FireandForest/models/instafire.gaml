@@ -44,6 +44,7 @@ global {
 	float shade_effect_umbroph <- 0.0;
 	float tree_dispersal <- 10#m;
 	float umb_dispersal <- 10#m;
+
 	
 	// Monitoring
 	int nb_araucaria -> {length(araucaria where (each.stage > 3))};
