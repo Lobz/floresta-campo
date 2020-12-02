@@ -28,7 +28,7 @@ global {
 	int initial_pop_araucaria <- 100;
 	int initial_pop_umbroph <- 100;
 	float initial_forest_size <- 50#m;
-	int initial_tree_stage <- 3;
+	int initial_tree_stage <- 4;
 	
 	// Grass parameters
 	float grass_growthrate <- 0.5;
