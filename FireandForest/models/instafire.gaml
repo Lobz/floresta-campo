@@ -375,3 +375,33 @@ experiment instafire type: gui {
 		//}
 	}
 }
+
+experiment fireandforest type: headless {
+	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
+	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Tile size" category: "Init" var: tile_size min:1#m;
+	parameter "Initial Araucaria pop" category: "Init" var: initial_pop_araucaria min:0;
+	parameter "Initial broadleaved pop" category: "Init" var: initial_pop_umbroph min:0;
+	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
+	parameter "Average umbrophile dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
+	
+	parameter "Wildfires" category: "Fire" var:wildfires;
+	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0;
+	
+	output {
+
+    	monitor "Number of araucaria trees" value: nb_araucaria;
+    	monitor "Number of broadleaved trees" value: nb_umbroph;
+		monitor "Circle size for araucaria trees" value: rad_h;
+        monitor "Circle size for broadleaved trees" value: rad_u;
+		monitor "Size of fire" value:firesize;
+		
+		display "display" {
+			grid grass;
+			species umbroph;
+			species araucaria;
+		}
+	}
+}
