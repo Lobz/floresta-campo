@@ -6,7 +6,6 @@
         <!-- standard parameters -->
 	  </Parameters>
 	  <Outputs>
-	    <Output id="0" name="display" framerate="100" />
 	    <Output id="1" name="Number of araucaria trees" framerate="1" />
 	    <Output id="2" name="Number of broadleaved trees" framerate="1" />
 	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />
@@ -17,10 +16,9 @@
     <!-- Scenario NO FIRE: wildfires are disabled -->
     <Simulation id="No Fire" sourcePath=".\FireandForest\models\instafire.gaml" finalStep="1000" experiment="fireandforest">
 	  <Parameters>
-	    <Parameter name="Wildfires" type="BOOL" value="false" />
+	    <Parameter name="Wildfires" type="BOOLEAN" value="false" />
 	  </Parameters>
 	  <Outputs>
-	    <Output id="0" name="display" framerate="100" />
 	    <Output id="1" name="Number of araucaria trees" framerate="1" />
 	    <Output id="2" name="Number of broadleaved trees" framerate="1" />
 	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />
@@ -34,7 +32,6 @@
 	    <Parameter name="Initial Araucaria pop" type="INT" value="0" />
 	  </Parameters>
 	  <Outputs>
-	    <Output id="0" name="display" framerate="100" />
 	    <Output id="1" name="Number of araucaria trees" framerate="1" />
 	    <Output id="2" name="Number of broadleaved trees" framerate="1" />
 	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />

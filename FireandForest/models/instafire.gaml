@@ -16,6 +16,7 @@ global {
 	geometry shape <- square(landscape_size);
 	int size <- round(landscape_size/tile_size);
 	float tile_area <- tile_size^2;
+	point center <- {landscape_size/2, landscape_size/2};
 	
 	// toggle phenomena
 	bool wildfires <- true;
@@ -26,7 +27,7 @@ global {
 	
 	// Initial forest parameters
 	int initial_pop_araucaria <- 100;
-	int initial_pop_umbroph <- 100;
+	int initial_pop_broadleaf <- 100;
 	float initial_forest_size <- 50#m;
 	int initial_tree_stage <- 4;
 	
@@ -39,35 +40,35 @@ global {
 	
 	// Tree parameters
 	float shade_threshold_araucaria <- 1.0;
-	float shade_threshold_umbroph <- 3.0;
+	float shade_threshold_broadleaf <- 3.0;
 	float shade_effect_base <- 0.0;
-	float shade_effect_umbroph <- 0.0;
+	float shade_effect_broadleaf <- 0.0;
 	float tree_dispersal <- 10#m;
 	float umb_dispersal <- 10#m;
 
 	
 	// Monitoring
 	int nb_araucaria -> {length(araucaria where (each.stage > 3))};
-	int nb_umbroph -> {length(umbroph where (each.stage > 3))};
+	int nb_broadleaf -> {length(broadleaf where (each.stage > 3))};
 	int firesize -> {first(wildfire).firesize};
-	float forest_radius (list<tree> valid_trees) {
-		int n95 <- round(length(valid_trees)*0.95);
-		float radius <- 0.0;
-		geometry forest <- circle(radius);
-		
-		loop while: length(valid_trees overlapping forest) < n95 {
-			radius <- radius + 1.0;
-			forest <- circle(radius);
+	point forest_radius (list<tree> valid_trees) {
+		if(empty(valid_trees)) {
+			return {0,0};
 		}
-		return radius;
+		int n95 <- round(floor(length(valid_trees)*0.95));
+		int n05 <- round(floor(length(valid_trees)*0.05));
+		list<float> sq_dists <- valid_trees accumulate ((each.location.x-center.x)^2 + (each.location.y-center.y)^2);
+		sq_dists <- sq_dists sort each;
+		
+		return {sqrt(sq_dists[n05]),sqrt(sq_dists[n95])};
 	}
 	
-	float rad_h -> forest_radius(araucaria where (each.stage > 3));
-	float rad_u -> forest_radius(umbroph where (each.stage > 3));
+	point rad_h -> forest_radius(araucaria where (each.stage = 4));
+	point rad_u -> forest_radius(broadleaf where (each.stage = 4));
 	
 	init {		
 		geometry c <- circle(initial_forest_size);
-		create umbroph number: initial_pop_umbroph{
+		create broadleaf number: initial_pop_broadleaf{
 			stage <- initial_tree_stage;
 			location <- any_location_in(c);
 			do real_init;
@@ -84,7 +85,7 @@ global {
 
 }
 
-species scheduler schedules: wildfire + shuffle(grass) + shuffle(umbroph + araucaria); // explicit scheduling in the world
+species scheduler schedules: wildfire + shuffle(grass) + shuffle(broadleaf + araucaria); // explicit scheduling in the world
 
 grid wildfire width:1 height:1 schedules: []{
 	int firesize <- 0 update: 0;
@@ -298,15 +299,15 @@ species araucaria parent:tree schedules: []{
 	}	
 }
 
-species umbroph parent:tree schedules: []{
+species broadleaf parent:tree schedules: []{
 	list<float> flamability <- [1.0,1.0,1.0,1.0,1.0];
-	float shade_effect <- shade_effect_umbroph;
-	float my_shade_threshold <- shade_threshold_umbroph;
+	float shade_effect <- shade_effect_broadleaf;
+	float my_shade_threshold <- shade_threshold_broadleaf;
 	float my_dispersal <- umb_dispersal;
 	rgb my_color <- rgb(245,0,0,0.5);
 	
 	reflex reproduce when: flip(reproduction_rate[stage]){
-		create umbroph {
+		create broadleaf {
 			location <- myself.disperse();
 			do real_init;
 		}
@@ -324,10 +325,10 @@ experiment instafire type: gui {
 	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Tile size" category: "Init" var: tile_size min:1#m;
 	parameter "Initial light demanding pop" category: "Init" var: initial_pop_araucaria min:0;
-	parameter "Initial shade tolerant pop" category: "Init" var: initial_pop_umbroph min:0;
+	parameter "Initial shade tolerant pop" category: "Init" var: initial_pop_broadleaf min:0;
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
-	parameter "Average umbrophile dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
@@ -344,14 +345,16 @@ experiment instafire type: gui {
 		display "Number of trees" {
 			chart "Number of adult trees" type: series size: {1,0.5} position: {0, 0} {
         		data "Number of araucaria trees" value: nb_araucaria color: #darkgreen ;
-        		data "Number of umbroph trees" value: nb_umbroph color: #red ;
+        		data "Number of broadleaf trees" value: nb_broadleaf color: #red ;
         	}
         }
         
 		display "Radius of circle with 95% of adult trees" {
-			chart "Radius of circle with 95% of adult trees" type: series size: {1,0.5} position: {0, 0} {
-        		data "araucaria trees" value: rad_h color: #darkgreen ;
-        		data "Umbroph trees" value: rad_u color: #red ;
+			chart "Distance from center of adult trees" type: series size: {1,0.5} position: {0, 0} {
+        		data "araucaria trees - outer" value: rad_h.y color: #darkgreen ;
+        		data "broadleaved trees - outer" value: rad_u.y color: #red ;
+        		data "araucaria trees - inner" value: rad_h.x color: #darkgreen ;
+        		data "broadleaved trees - inner" value: rad_u.x color: #red ;
         	}
         }
         
@@ -363,7 +366,7 @@ experiment instafire type: gui {
 	
 		display "model" {
 			grid grass;
-			species umbroph;
+			species broadleaf;
 			species araucaria;
 			//event mouse_up action: click;
 		}
@@ -376,15 +379,15 @@ experiment instafire type: gui {
 	}
 }
 
-experiment fireandforest type: headless {
+experiment fireandforest type: gui {
 	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
 	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Tile size" category: "Init" var: tile_size min:1#m;
 	parameter "Initial Araucaria pop" category: "Init" var: initial_pop_araucaria min:0;
-	parameter "Initial broadleaved pop" category: "Init" var: initial_pop_umbroph min:0;
+	parameter "Initial broadleaved pop" category: "Init" var: initial_pop_broadleaf min:0;
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
-	parameter "Average umbrophile dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
@@ -393,15 +396,10 @@ experiment fireandforest type: headless {
 	output {
 
     	monitor "Number of araucaria trees" value: nb_araucaria;
-    	monitor "Number of broadleaved trees" value: nb_umbroph;
-		monitor "Circle size for araucaria trees" value: rad_h;
-        monitor "Circle size for broadleaved trees" value: rad_u;
+    	monitor "Number of broadleaved trees" value: nb_broadleaf;
+		monitor "Circle size for araucaria trees" value: rad_h.y;
+        monitor "Circle size for broadleaved trees" value: rad_u.y;
 		monitor "Size of fire" value:firesize;
 		
-		display "display" {
-			grid grass;
-			species umbroph;
-			species araucaria;
-		}
 	}
 }
