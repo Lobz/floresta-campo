@@ -7,3 +7,5 @@
 .gama*
 .built_in*
 *.png
+headless/fc*
+headless/output-headless

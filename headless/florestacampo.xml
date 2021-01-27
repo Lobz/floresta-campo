@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Experiment_plan>
+    <!-- Scenario FULL MODEL -->
+	<Simulation id="Full Model" sourcePath=".\FireandForest\models\instafire.gaml" finalStep="1000" experiment="fireandforest">
+	  <Parameters>
+        <!-- standard parameters -->
+	  </Parameters>
+	  <Outputs>
+	    <Output id="1" name="Number of araucaria trees" framerate="1" />
+	    <Output id="2" name="Number of broadleaved trees" framerate="1" />
+	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />
+	    <Output id="4" name="Circle size for broadleaved trees" framerate="1" />
+	    <Output id="5" name="Size of fire" framerate="1" />
+	  </Outputs>
+	</Simulation>
+    <!-- Scenario NO FIRE: wildfires are disabled -->
+    <Simulation id="No Fire" sourcePath=".\FireandForest\models\instafire.gaml" finalStep="1000" experiment="fireandforest">
+	  <Parameters>
+	    <Parameter name="Wildfires" type="BOOLEAN" value="false" />
+	  </Parameters>
+	  <Outputs>
+	    <Output id="1" name="Number of araucaria trees" framerate="1" />
+	    <Output id="2" name="Number of broadleaved trees" framerate="1" />
+	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />
+	    <Output id="4" name="Circle size for broadleaved trees" framerate="1" />
+	    <Output id="5" name="Size of fire" framerate="1" />
+	  </Outputs>
+	</Simulation>
+    <!-- Scenario NO ARAUCARIA: initial araucaria pop set to 0 -->
+    <Simulation id="No Araucaria" sourcePath=".\FireandForest\models\instafire.gaml" finalStep="1000" experiment="fireandforest">
+	  <Parameters>
+	    <Parameter name="Initial Araucaria pop" type="INT" value="0" />
+	  </Parameters>
+	  <Outputs>
+	    <Output id="1" name="Number of araucaria trees" framerate="1" />
+	    <Output id="2" name="Number of broadleaved trees" framerate="1" />
+	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />
+	    <Output id="4" name="Circle size for broadleaved trees" framerate="1" />
+	    <Output id="5" name="Size of fire" framerate="1" />
+	  </Outputs>
+	</Simulation>
+</Experiment_plan>

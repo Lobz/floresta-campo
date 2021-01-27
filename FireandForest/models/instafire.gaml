@@ -89,25 +89,25 @@ species scheduler schedules: wildfire + shuffle(grass) + shuffle(broadleaf + ara
 
 grid wildfire width:1 height:1 schedules: []{
 	int firesize <- 0 update: 0;
+
 	
 	reflex start_fire when: wildfires and flip(chance_to_start_fire) {
+		// SELECT STARTER
 		list<grass> potential <- grass where (each.biomass > 0.9);
 		if(empty(potential)){
 			potential <- grass where (each.biomass > 0.0);
 		}
-		grass random_tile <- first (shuffle(potential));
-		do spread_fire(random_tile);
-	}
+		grass starter <- first (shuffle(potential));
 
-	
-	action spread_fire (grass starter) {
+		// WILDFIRE 
 		list<grass> burning <- [starter]; // burning
 		list<grass> burnt <- []; // done
 		
 		loop while: not(empty(burning)) {
-			burnt <- burnt union burning; // finished burning
+			burnt <- burnt union burning; // finished spreading
 			burning <- remove_duplicates(burning accumulate each.spread_fire(burnt)); // spread to neighbors of burning, ignoring the burnt
 		}
+		
 		ask burnt {do burn();} // burn everyone
 		firesize <- length(burnt);
 	}	
@@ -117,7 +117,6 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 	
 	float biomass <- minimum_biomass; // this value is normalized to be in range (0,1]
 	float carrying_capacity <- 1.0; //dependant on shade
-	float flamability <- grass_flamability*biomass update: grass_flamability*biomass;
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	float my_height <- 0.0;
@@ -151,9 +150,9 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 	}
 	
 	action burn {
+		loop t over: here {ask t {do burn(myself.biomass);}}
 		biomass <- biomass*biomass_loss_burning;
 		last_burned <- 0;
-		loop t over: here {ask t {do burn;}}
 	}
 	
 	float spread_chance(grass a,grass b) {
@@ -172,7 +171,7 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 			slopeeffect <- 1.0*(slope+0.6);
 		}
 		
-		return b.flamability*slopeeffect;
+		return grass_flamability*b.biomass*slopeeffect;
 	}
 	
 	list<grass> spread_fire (list<grass> remove) {
@@ -203,14 +202,14 @@ species tree schedules: [] {
 	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
 	list<float> death_rate <- [0.9,0.1,0.01,0.01,0.003];
 	list<float> growth_rate <- [0.1,0.1,0.1,0.1,0];
-	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
+	list<float> flammability <- [1.0,1.0,0.7,0.3,0.1];
 	list<float> canopy_size <- [0.1,0.5,1,2,5];
 	list<float> height <- [0.1,0.5,1.0,10,40];
 	
 	float my_reproduction_rate;
 	float my_death_rate;
 	float my_growth_rate;
-	float my_flamability;
+	float my_flammability;
 	float my_canopy_size;
 	float my_height;
 	float my_canopy_area;
@@ -221,7 +220,7 @@ species tree schedules: [] {
 		self.my_reproduction_rate <- self.reproduction_rate[self.stage];
 		self.my_death_rate <- self.death_rate[self.stage];
 		self.my_growth_rate <- self.growth_rate[self.stage] * self.shade_ratio;
-		self.my_flamability <- self.flamability[self.stage];
+		self.my_flammability <- self.flammability[self.stage];
 		self.my_canopy_size <- self.canopy_size[self.stage];
 		self.my_height <- self.height[self.stage];
 		self.my_canopy_area <- 3.14*self.my_canopy_size^2;
@@ -254,8 +253,9 @@ species tree schedules: [] {
 		do update_traits();
 	}
 	
-	action burn {
-		if(flip(my_flamability)){
+	action burn (float intensity) {
+		float death_chance <- my_flammability;//*intensity;
+		if(flip(death_chance)){
 			place.here <- place.here - self;
 			do die;
 		}
@@ -317,7 +317,7 @@ species broadleaf parent:tree schedules: []{
 }
 
 
-experiment instafire type: gui {
+experiment instafire type: gui until: cycle > 1000{
 
 	
 	// Parameters
@@ -403,3 +403,4 @@ experiment fireandforest type: gui {
 		
 	}
 }
+
