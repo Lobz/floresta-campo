@@ -8,6 +8,7 @@
 model instafire
 
 global {
+	float step <- 1#y;
 	// spatial scale vars
 	float landscape_size <- 600#m;
 	float tile_size <- 10#m;
@@ -199,15 +200,25 @@ species tree schedules: [] {
 	float my_dispersal <- tree_dispersal;
 	float my_shade_threshold <- shade_threshold_araucaria;
 	rgb my_color <- rgb(0,255,0,0.5);
+	int my_first_cycle <- -1;
 	
-	list<float> reproduction_rate <- [0,0,0,0,0.688+0.071];
-	list<float> death_rate <- [0.9,0.1,0.01,0.01,0.003];
-	list<float> growth_rate <- [0.1,0.1,0.1,0.1,0];
+	// values taken from Paludo et al 2016
+	list<float> reproduction_rate1 <- [0,0,0,0,0.688]; // produce stage 1 seedlings
+	list<float> reproduction_rate2 <- [0,0,0,0,0.071]; // produce stage 2 seedlings
+	list<float> survival_rate <- [0.008,0.792,0.927,0.970,0.997];
+	list<float> lit_growth_rate <- [0.197,0.013,0.009,0.008,0];
+	// calculated from lit values
+	list<float> death_rate <-[0.795, 0.195, 0.064, 0.022, 0.003]; // d=1-s-g
+	list<float> ind_lit_growth_rate <- [0.96097561, 0.016149068, 0.009615385, 0.008179959, 0.0]; // (1-d)g*=g ===> g* = g/(g+s), so we can have independant coin flips for death and growth
+	
+	// derived values
+	list<float> growth_rate <- [1.0,0.1,0.1,0.1,0];//ind_lit_growth_rate collect (each*2 > 1 ? 1 : each*2);
 	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
 	list<float> canopy_size <- [0.1,0.5,1,2,5];
 	list<float> height <- [0.1,0.5,1.0,10,40];
 	
-	float my_reproduction_rate;
+	float my_reproduction_rate1;
+	float my_reproduction_rate2;
 	float my_death_rate;
 	float my_growth_rate;
 	float my_flamability;
@@ -217,24 +228,25 @@ species tree schedules: [] {
 	geometry my_canopy;
 	geometry shape <- circle(0.5); // radius of firecatching?
 	
+	// methods
 	action update_traits {
-		self.my_reproduction_rate <- self.reproduction_rate[self.stage];
+		self.my_reproduction_rate1 <- self.reproduction_rate1[self.stage];
+		self.my_reproduction_rate2 <- self.reproduction_rate2[self.stage];
 		self.my_death_rate <- self.death_rate[self.stage];
 		self.my_growth_rate <- self.growth_rate[self.stage] * self.shade_ratio;
 		self.my_flamability <- self.flamability[self.stage];
 		self.my_canopy_size <- self.canopy_size[self.stage];
 		self.my_height <- self.height[self.stage];
 		self.my_canopy_area <- 3.14*self.my_canopy_size^2;
-		self.my_canopy <- circle(my_canopy_size);
-		self.places <- grass overlapping my_canopy;
+		self.shape <- circle(my_canopy_size);
+		self.places <- grass overlapping shape;
 	}
 	
 	action real_init {
 		place <- first (grass overlapping self);
 		if(place=nil) {do die;}
 		place.here <- place.here + self;
-		
-		places <- grass overlapping my_canopy;
+		do update_traits();
 		do get_shade();
 	}
 	
@@ -245,25 +257,11 @@ species tree schedules: [] {
 		do update_traits();
 	}
 	
-	reflex shade {
-		do get_shade();
-	}
-	
-	reflex grow when: flip(my_growth_rate){
-		stage <- stage + 1;
-		do update_traits();
-	}
-	
 	action burn {
 		if(flip(my_flamability)){
 			place.here <- place.here - self;
 			do die;
 		}
-	}
-	
-	reflex natural_death when: flip(my_death_rate){
-		place.here <- place.here - self;
-		do die;
 	}
 	
 	point disperse {
@@ -276,27 +274,46 @@ species tree schedules: [] {
 		return self.location + vector;
 	}
 	
-	reflex reproduce when: flip(my_reproduction_rate){
-		create tree {
+	// reflexes
+	reflex shade {
+		do get_shade();
+	}
+	
+	reflex natural_death when: flip(my_death_rate){
+		place.here <- place.here - self;
+		do die;
+	}
+	
+	reflex grow when: flip(my_growth_rate){
+		stage <- stage + 1;
+		do update_traits();
+	}
+	
+	reflex reproduce when: flip(my_reproduction_rate1){
+		create species_of(self) {
 			location <- myself.disperse();
+			my_first_cycle <- cycle;
+			do real_init;
+		}
+	}
+	
+	reflex reproduce2 when: flip(my_reproduction_rate2){
+		create species_of(self) {
+			location <- myself.disperse();
+			stage <- 1;
+			my_first_cycle <- cycle;
 			do real_init;
 		}
 	}	
 	
-		
+	// graphics
 	aspect default {
-		draw my_canopy color: my_color border:#black;
+		draw shape color: my_color border:#black;
 	}
 }
 
 species araucaria parent:tree schedules: []{
 	
-	reflex reproduce when: flip(reproduction_rate[stage]){
-		create araucaria {
-			location <- myself.disperse();
-			do real_init;
-		}
-	}	
 }
 
 species broadleaf parent:tree schedules: []{
@@ -305,14 +322,6 @@ species broadleaf parent:tree schedules: []{
 	float my_shade_threshold <- shade_threshold_broadleaf;
 	float my_dispersal <- umb_dispersal;
 	rgb my_color <- rgb(245,0,0,0.5);
-	
-	reflex reproduce when: flip(reproduction_rate[stage]){
-		create broadleaf {
-			location <- myself.disperse();
-			do real_init;
-		}
-	}
-
 	
 }
 

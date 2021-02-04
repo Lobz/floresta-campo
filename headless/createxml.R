@@ -1,6 +1,9 @@
-finalstep <- 10
-numreps <- 10
 
+
+finalstep <- 1500
+numreps <- 12
+
+gamlfile <- 'C:\\Users\\marin\\Documents\\Academico\\Gama\\floresta-campo\\FireandForest\\models\\instafire.gaml'
 filename <- paste0("fc",finalstep,'_',numreps,".xml")
 
 file.create(filename)
@@ -24,7 +27,7 @@ outputs <- '
 
 simheadbeg <- '
     <Simulation id="'
-simheadend <- paste0('" sourcePath="..\\FireandForest\\models\\instafire.gaml" finalStep="',finalstep,'" experiment="fireandforest">')
+simheadend <- paste0('" sourcePath="',gamlfile,'" finalStep="',finalstep,'" experiment="fireandforest">')
 
 footer <- '</Experiment_plan>'
 
@@ -64,4 +67,3 @@ for(i in 1:numreps) {
 }
 
 w(footer)
-
