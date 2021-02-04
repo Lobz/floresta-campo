@@ -9,3 +9,6 @@
 *.png
 headless/fc*
 headless/output-headless
+headless/.Rhistory
+headless/.RData
+FireandForest/models/instafire copy.gaml
