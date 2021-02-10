@@ -6,10 +6,6 @@ numreps <- 11
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
 filename <- paste0("fc",finalstep,'_',numreps,".xml")
 
-file.create(filename)
-w <- function (str) {
-    write(str,file=filename,append=T)
-}
 
 ## CONSTANTS
 
@@ -37,25 +33,29 @@ footer <- '</Experiment_plan>'
 ### Parameters
 
 parameters <- seq(0,1,length.out=numreps)
-
-write_params <- function(p) {
-  w(paste0('<Parameter name="Chance of fire" type="FLOAT" value="',p,'" />'))
+params <- function(p) {
+  paste0('<Parameter name="Chance of fire" type="FLOAT" value="',p,'" />')
 }
+simparams <- params(parameters) # array of parameters
 
+### UNIQUE IDS
 
+n <- length(parameters)
+chars <- c(LETTERS,letters,0:9)
+rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
+
+sim_ids <- paste0('FIRE_',parameters,'_',rndc)  ## array of sim ids
+simheaders <- paste0(simheadbeg,sim_ids,simheadend) ## array of headers
 
 ## WRITING
-      
-write(header, filename, append=FALSE)
 
-for(p in parameters) {
-        ## make sim header
-        sim_id <- paste0('FIRE_',p,'_')
-        simheader <- paste0(simheadbeg,sim_id,simheadend)
-        w(simheader)
-        write_params(p)
-        w(outputs)
-        w('	</Simulation>')
+simxml <- paste(simheaders,simparams,outputs,'</Simulation>\n', sep="\n")
+
+w <- function (str) {
+    write(str,file=filename,append=T)
 }
 
+file.create(filename)
+write(header, filename, append=FALSE)
+sapply(simxml,FUN=w)
 w(footer)
