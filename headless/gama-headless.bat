@@ -26,7 +26,7 @@ GOTO TOP
 
 :NEXT_CODE
 
-set FILEPATH=C:\Users\marin\Documents\GAMA\plugins\org.eclipse.equinox.launcher_1.5.300.v20190213-1655.jar
+set FILEPATH=C:\Users\Gama\Documents\GAMA\plugins\org.eclipse.equinox.launcher_1.5.300.v20190213-1655.jar
 
 
-call C:\Users\marin\Documents\GAMA\jdk\bin\java  -cp %FILEPATH% -Xms512m -Xmx%memory%  -Djava.awt.headless=true org.eclipse.core.launcher.Main  -application msi.gama.headless.id4 -data "%workDir%" !param! 
+call C:\Users\GAMA\Documents\GAMA\jdk\bin\java  -cp %FILEPATH% -Xms512m -Xmx%memory%  -Djava.awt.headless=true org.eclipse.core.launcher.Main  -application msi.gama.headless.id4 -data "%workDir%" !param! 
