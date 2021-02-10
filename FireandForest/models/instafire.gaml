@@ -409,6 +409,9 @@ experiment fireandforest type: gui {
 		monitor "Circle size for araucaria trees" value: rad_h.y;
         monitor "Circle size for broadleaved trees" value: rad_u.y;
 		monitor "Size of fire" value:firesize;
+		monitor "Chance of fire" value: wildfires? chance_to_start_fire : 0;
+		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
+		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
 		
 	}
 }
