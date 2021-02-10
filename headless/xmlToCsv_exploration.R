@@ -37,6 +37,6 @@ for (f in my_files) {
         dados <- rbind(dados,data)
 }
 
-write.csv(dados,file=paste0(mydirname,"/data.csv"),row.names=FALSE)
+write.csv(dados,file=paste0("data/",mydirname,"data.csv"),row.names=FALSE)
 
 

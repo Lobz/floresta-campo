@@ -12,3 +12,5 @@ headless/output-headless
 headless/.Rhistory
 headless/.RData
 FireandForest/models/instafire copy.gaml
+*.csv
+headless/test_outs/*
