@@ -41,7 +41,8 @@ global {
 	
 	// Tree parameters
 	float shade_threshold_araucaria <- 1.0;
-	float shade_threshold_broadleaf <- 3.0;
+	float shade_threshold_ratio <- 3.0;
+	float shade_threshold_broadleaf <- shade_threshold_araucaria*shade_threshold_ratio;
 	float shade_effect_base <- 0.0;
 	float shade_effect_broadleaf <- 0.0;
 	float tree_dispersal <- 10#m;
@@ -338,6 +339,8 @@ experiment instafire type: gui {
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
 	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.0;
+	parameter "Broadleaf shade tolerance" category: "Init" var: shade_threshold_broadleaf min:0.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
@@ -397,6 +400,8 @@ experiment fireandforest type: gui {
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
 	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.5 max:2.0;
+	parameter "Shade tolerance ratio" category: "Init" var: shade_threshold_ratio min:1.1 max:5.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
@@ -412,6 +417,25 @@ experiment fireandforest type: gui {
 		monitor "Chance of fire" value: wildfires? chance_to_start_fire : 0;
 		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
 		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
+		monitor "Araucaria shade tolerance" value: shade_threshold_araucaria;
+		monitor "Shade tolerance ratio" value: shade_threshold_ratio;
 		
 	}
+}
+
+experiment explore type: batch repeat: 20 keep_seed: true until: ( time > 1000 ) {
+	parameter "Initial forest size" category: "Init" var: initial_forest_size min:50 max:200;
+	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:5.0 max:50;
+	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:5.0 max:50;
+	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0 max:1.0;
+
+	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.5 max:2.5;
+	parameter "Shade tolerance ratio" category: "Init" var: shade_threshold_ratio min:2.5 max:4.5;
+    
+    
+    
+    reflex save_results_explo {
+        ask simulations {
+        }        
+    }
 }

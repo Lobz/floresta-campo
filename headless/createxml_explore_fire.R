@@ -19,10 +19,12 @@ outputs <- '
 	    <Output id="3" name="Circle size for araucaria trees" framerate="1" />
 	    <Output id="4" name="Circle size for broadleaved trees" framerate="1" />
 	    <Output id="5" name="Size of fire" framerate="1" />
-      <Output id="6" name="Chance of fire" framerate="1" />
-      <Output id="7" name="Initial Araucaria pop" framerate="1" />
-      <Output id="8" name="Initial broadleaved pop" framerate="1" />
-	  </Outputs>'
+      	<Output id="6" name="Chance of fire" framerate="1" />
+      	<Output id="7" name="Initial Araucaria pop" framerate="1" />
+     	<Output id="8" name="Initial broadleaved pop" framerate="1" />
+      	<Output id="9" name="Araucaria shade tolerance" framerate="1" />
+      	<Output id="10" name="Shade tolerance ratio" framerate="1" />
+	</Outputs>'
 
 simheadbeg <- '
     <Simulation id="'
@@ -32,11 +34,14 @@ footer <- '</Experiment_plan>'
 
 ### Parameters
 
-parameters <- seq(0,1,length.out=numreps)
-params <- function(p) {
-  paste0('<Parameter name="Chance of fire" type="FLOAT" value="',p,'" />')
+fire <- seq(0.05,0.5,length.out=numreps)
+shade_threshold_araucaria <- seq(0.3,1.8,length.out=numreps)
+shade_threshold_ratio <- seq(1.0,2.5,length.out=numreps)
+params <- function(name,p) {
+  paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
 }
-simparams <- params(parameters) # array of parameters
+#simparams <- params("shade_threshold_araucaria",shade_threshold_araucaria) # array of parameters
+simparams <- params("shade_threshold_ratio",shade_threshold_ratio) # array of parameters
 
 ### UNIQUE IDS
 
@@ -44,7 +49,7 @@ n <- length(parameters)
 chars <- c(LETTERS,letters,0:9)
 rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
 
-sim_ids <- paste0('FIRE_',parameters,'_',rndc)  ## array of sim ids
+sim_ids <- paste0('RATIO_',parameters,'_',rndc)  ## array of sim ids
 simheaders <- paste0(simheadbeg,sim_ids,simheadend) ## array of headers
 
 ## WRITING
