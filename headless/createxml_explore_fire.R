@@ -64,3 +64,7 @@ file.create(filename)
 write(header, filename, append=FALSE)
 sapply(simxml,FUN=w)
 w(footer)
+
+system('set GAMADIR=C:\\Users\\marin\\Documents\\GAMA')
+outputdir <- 'test_outs'
+system(paste0('gama-headless.bat ',filename,' ',outputdir))
