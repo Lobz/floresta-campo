@@ -5,7 +5,8 @@ library(XML)
 myColNames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize",
                 "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf")
 simtypes <- c("Full","NoAr","NoFi")
-mydirname <- paste0("fc",finalstep,'_',numreps,"_output")
+#mydirname <- paste0("fc",finalstep,'_',numreps,"_output")
+mydirname <- "test_outs"
 
 filename <- function (prefix, rep) {
     paste0(mydirname,"/simulation-outputs",prefix,rep,".xml")
@@ -36,7 +37,7 @@ for (f in my_files) {
         data <- get_my_data(f)
         dados <- rbind(dados,data)
 }
-
+head(dados)
 write.csv(dados,file=paste0("data/",mydirname,"data.csv"),row.names=FALSE)
 
 
