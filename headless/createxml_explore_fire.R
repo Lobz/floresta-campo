@@ -1,7 +1,7 @@
 
 
-finalstep <- 15
-numreps <- 11
+finalstep <- 2000
+numreps <- 100
 
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
 filename <- paste0("fc",finalstep,'_',numreps,".xml")
