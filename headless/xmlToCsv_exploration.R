@@ -3,7 +3,7 @@
 library(XML)
 
 myColNames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize",
-                "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf")
+                "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf","shade.threshold.araucaria","shade.threshold.ratio")
 simtypes <- c("Full","NoAr","NoFi")
 #mydirname <- paste0("fc",finalstep,'_',numreps,"_output")
 mydirname <- "test_outs"
@@ -38,6 +38,7 @@ for (f in my_files) {
         dados <- rbind(dados,data)
 }
 head(dados)
-write.csv(dados,file=paste0("data/",mydirname,"data.csv"),row.names=FALSE)
+myfilename=paste0("data/",mydirname,"data.csv")
+write.csv(dados,myfilename,row.names=FALSE)
 
 
