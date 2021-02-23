@@ -2,16 +2,24 @@
 # make sure you've used createxml to create the xml for gama_headless and xmlToCsv to save the results in csv format
 
 finalstep <- 2000
-numreps <- 100
+numreps <- 101
 
 ### PLOTS
-datafull <- read.csv(file=paste0(myfilename),stringsAsFactors=T)
-data<-subset(datafull,shade.threshold.ratio >0)
+datafull <- read.csv(file=myfilename,stringsAsFactors=T)
+
+data <- subset(datafull, shade.threshold.ratio > 1.1)
+data <- data[order(data$shade.threshold.ratio),]
 params <- sort(unique(data$shade.threshold.ratio))
 numpars <- length(params)
-colors <- colorRampPalette(c("darkblue","red"),bias=0.001)(numpars)
+colors <- colorRampPalette(c("darkblue","red"))(numpars)
 names(colors) <- params
-plot.fours.columns(data,"shade.threshold.ratio",colors)
+plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colors))
+
+plot.one.timestep <- function(d,x) plot(d[,x]~d$shade.threshold.ratio,col=colors[as.character(params)]);
+finalvalues<- subset(data,time==1999)
+plot.fours.columns(finalvalues,plot.one.timestep)
+maxvalues<- aggregate(data[,-12],by=list(sim_unique_id=data$sim_unique_id),FUN=max)
+plot.fours.columns(maxvalues,plot.one.timestep)
 
 lines.par <- function(data,column.data, column.par,colors) {
     ymax <- max(data[,column.data])
@@ -35,15 +43,15 @@ lines.each <- function(data,column.data,color) {
     }
 }
 
-plot.fours.columns <- function(data, column.par, colors) {
+plot.fours.columns <- function(data, fun) {
     par(mfrow=c(2,2))
-    lines.par(data,"n.broadleaf",column.par,colors)
+    fun(data,"n.broadleaf")
     title("Broadleaved population over time")
-    lines.par(data,"n.araucaria",column.par,colors)
+    fun(data,"n.araucaria")
     title("Araucaria population over time")
-    lines.par(data,"circ.broadleaf",column.par,colors)
+    fun(data,"circ.broadleaf")
     title("Broadleaf radius over time")
-    lines.par(data,"circ.araucaria",column.par,colors)
+    fun(data,"circ.araucaria")
     title("Araucaria radius over time")
     par(mfrow=c(1,1))
 }
