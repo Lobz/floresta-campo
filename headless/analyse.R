@@ -17,9 +17,9 @@ plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colo
 
 plot.one.timestep <- function(d,x) plot(d[,x]~d$shade.threshold.ratio,col=colors[as.character(params)]);
 finalvalues<- subset(data,time==1999)
-plot.fours.columns(finalvalues,plot.one.timestep)
+plot.fours.columns(finalvalues,plot.one.timestep,"at end of simulation")
 maxvalues<- aggregate(data[,-12],by=list(sim_unique_id=data$sim_unique_id),FUN=max)
-plot.fours.columns(maxvalues,plot.one.timestep)
+plot.fours.columns(maxvalues,plot.one.timestep, "(maximum)")
 
 lines.par <- function(data,column.data, column.par,colors) {
     ymax <- max(data[,column.data])
@@ -43,15 +43,15 @@ lines.each <- function(data,column.data,color) {
     }
 }
 
-plot.fours.columns <- function(data, fun) {
+plot.fours.columns <- function(data, fun, label = "over time") {
     par(mfrow=c(2,2))
     fun(data,"n.broadleaf")
-    title("Broadleaved population over time")
+    title(paste0("Broadleaved population ",label))
     fun(data,"n.araucaria")
-    title("Araucaria population over time")
+    title(paste0("Araucaria population ",label))
     fun(data,"circ.broadleaf")
-    title("Broadleaf radius over time")
+    title(paste0("Broadleaf radius ",label))
     fun(data,"circ.araucaria")
-    title("Araucaria radius over time")
+    title(paste0("Araucaria radius ",label))
     par(mfrow=c(1,1))
 }
