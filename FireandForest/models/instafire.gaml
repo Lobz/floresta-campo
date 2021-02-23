@@ -400,7 +400,7 @@ experiment fireandforest type: gui {
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
 	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
-	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.5 max:2.0;
+	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;
 	parameter "Shade tolerance ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
