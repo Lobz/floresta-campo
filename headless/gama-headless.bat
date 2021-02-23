@@ -1,5 +1,5 @@
 
-set GAMADIR=C:\Users\marin\Documents\GAMA
+set GAMADIR=C:\Users\Gama\Documents\GAMA
 
 cls
 setLocal EnableDelayedExpansion
