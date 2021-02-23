@@ -45,7 +45,8 @@ simparams <- params("shade_threshold_ratio",shade_threshold_ratio) # array of pa
 
 ### UNIQUE IDS
 
-n <- length(parameters)
+parameters <- shade.threshold.ratio
+n <- length(params)
 chars <- c(LETTERS,letters,0:9)
 rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
 

@@ -14,4 +14,4 @@ headless/.RData
 FireandForest/models/instafire copy.gaml
 *.csv
 headless/test_outs/*
-headless/examples_facilitation/*
+headless/examples_external/*
