@@ -1,11 +1,16 @@
 
 
 finalstep <- 2000
-numreps <- 100
+numreps <- 3
 
+
+fire <- seq(0.05,0.5,by=0.01)
+shade.threshold.araucaria <- seq(0.3,1.8,by=0.05)
+shade.threshold.ratio <- seq(1.0,3.0,by=0.01)
+
+today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
-filename <- paste0("fc",finalstep,'_',numreps,".xml")
-
+filename <- paste0("ratio1to3by001_",today,".xml")
 
 ## CONSTANTS
 
@@ -34,18 +39,16 @@ footer <- '</Experiment_plan>'
 
 ### Parameters
 
-fire <- seq(0.05,0.5,length.out=numreps)
-shade_threshold_araucaria <- seq(0.3,1.8,length.out=numreps)
-shade_threshold_ratio <- seq(1.0,2.5,length.out=numreps)
 params <- function(name,p) {
   paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
 }
 #simparams <- params("shade_threshold_araucaria",shade_threshold_araucaria) # array of parameters
-simparams <- params("shade_threshold_ratio",shade_threshold_ratio) # array of parameters
+simparams <- params("shade_threshold_ratio",shade.threshold.ratio) # array of parameters
 
 ### UNIQUE IDS
 
-n <- length(parameters)
+parameters <- shade.threshold.ratio
+n <- length(params)
 chars <- c(LETTERS,letters,0:9)
 rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
 
