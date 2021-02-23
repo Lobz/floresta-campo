@@ -6,7 +6,7 @@ numreps <- 3
 
 fire <- seq(0.05,0.5,by=0.01)
 shade.threshold.araucaria <- seq(0.3,1.8,by=0.05)
-shade.threshold.ratio <- seq(1.0,3.0,by=0.01)
+shade.threshold.ratio <- rep(seq(1.0,3.0,by=0.01),numreps)
 
 today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
