@@ -34,7 +34,7 @@ global {
 	
 	init {
 		geometry c <- circle(100);
-		create tree number:1 {
+		create tree nbroadleafer:1 {
 			location <- any_location_in(c);
 		}
 	}

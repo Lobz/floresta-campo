@@ -9,4 +9,5 @@
         <Output id="8" name="Initial broadleaved pop" framerate="1" />
         <Output id="9" name="Araucaria shade tolerance" framerate="1" />
         <Output id="10" name="Shade tolerance ratio" framerate="1" />
+        <Output id="11" name="araucaria_base_flammability" framerate="1" />
     </Outputs>

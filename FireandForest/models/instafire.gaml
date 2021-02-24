@@ -40,13 +40,31 @@ global {
 	// float carrying_capacity <- 1.0; // normalized
 	
 	// Tree parameters
+	
+	// values taken from Paludo et al 2016
+	list<float> tree_reproduction_rate1 <- [0,0,0,0,0.688]; // produce stage 1 seedlings
+	list<float> tree_reproduction_rate2 <- [0,0,0,0,0.071]; // produce stage 2 seedlings
+	list<float> tree_survival_rate <- [0.008,0.792,0.927,0.970,0.997];
+	list<float> tree_lit_growth_rate <- [0.197,0.013,0.009,0.008,0];
+	// calculated from lit values
+	list<float> tree_death_rate <-[0.795, 0.195, 0.064, 0.022, 0.003]; // d=1-s-g
+	list<float> tree_ind_lit_growth_rate <- [0.96097561, 0.016149068, 0.009615385, 0.008179959, 0.0]; // (1-d)g*=g ===> g* = g/(g+s), so we can have independant coin flips for death and growth
+	
+	// derived values
+	list<float> tree_growth_rate <- [1.0,0.1,0.1,0.1,0];//ind_lit_growth_rate collect (each*2 > 1 ? 1 : each*2);
+	list<float> tree_canopy_size <- [0.1,0.5,1,2,5];
+	list<float> tree_height <- [0.1,0.5,1.0,10,40];
+	
+	// divergent values
+	float araucaria_base_flammability <- 0.7 parameter:true;
+	float bl_s3_fla <- 1.0 parameter:true;
+	list<float> araucaria_flammability <- [1.0,1.0,araucaria_base_flammability,araucaria_base_flammability^2,araucaria_base_flammability^4];
+	list<float> broadleaf_flammability <- [1.0,1.0,bl_s3_fla,bl_s3_fla^2,bl_s3_fla^4];
 	float shade_threshold_araucaria <- 1.0;
 	float shade_threshold_ratio <- 3.0;
 	float shade_threshold_broadleaf <- shade_threshold_araucaria*shade_threshold_ratio;
-	float shade_effect_base <- 0.0;
-	float shade_effect_broadleaf <- 0.0;
-	float tree_dispersal <- 10#m;
-	float umb_dispersal <- 10#m;
+	float araucaria_dispersal <- 10#m;
+	float broadleaf_dispersal <- 10#m;
 
 	
 	// Monitoring
@@ -196,27 +214,14 @@ species tree schedules: [] {
 	list<tree> neighbors;
 	float shade_ratio <- 1.0;
 	int stage <- 0;
-	float shade_effect <- shade_effect_base;
+	float shade_effect <- 0.0;
 	float n_shade <-0.0;
-	float my_dispersal <- tree_dispersal;
-	float my_shade_threshold <- shade_threshold_araucaria;
-	rgb my_color <- rgb(0,255,0,0.5);
+	float my_dispersal;
+	float my_shade_threshold;
+	rgb my_color;
 	int my_first_cycle <- -1;
 	
-	// values taken from Paludo et al 2016
-	list<float> reproduction_rate1 <- [0,0,0,0,0.688]; // produce stage 1 seedlings
-	list<float> reproduction_rate2 <- [0,0,0,0,0.071]; // produce stage 2 seedlings
-	list<float> survival_rate <- [0.008,0.792,0.927,0.970,0.997];
-	list<float> lit_growth_rate <- [0.197,0.013,0.009,0.008,0];
-	// calculated from lit values
-	list<float> death_rate <-[0.795, 0.195, 0.064, 0.022, 0.003]; // d=1-s-g
-	list<float> ind_lit_growth_rate <- [0.96097561, 0.016149068, 0.009615385, 0.008179959, 0.0]; // (1-d)g*=g ===> g* = g/(g+s), so we can have independant coin flips for death and growth
-	
-	// derived values
-	list<float> growth_rate <- [1.0,0.1,0.1,0.1,0];//ind_lit_growth_rate collect (each*2 > 1 ? 1 : each*2);
-	list<float> flamability <- [1.0,1.0,0.7,0.3,0.1];
-	list<float> canopy_size <- [0.1,0.5,1,2,5];
-	list<float> height <- [0.1,0.5,1.0,10,40];
+	list<float> flammability;
 	
 	float my_reproduction_rate1;
 	float my_reproduction_rate2;
@@ -231,13 +236,16 @@ species tree schedules: [] {
 	
 	// methods
 	action update_traits {
-		self.my_reproduction_rate1 <- self.reproduction_rate1[self.stage];
-		self.my_reproduction_rate2 <- self.reproduction_rate2[self.stage];
-		self.my_death_rate <- self.death_rate[self.stage];
-		self.my_growth_rate <- self.growth_rate[self.stage] * self.shade_ratio;
-		self.my_flamability <- self.flamability[self.stage];
-		self.my_canopy_size <- self.canopy_size[self.stage];
-		self.my_height <- self.height[self.stage];
+		self.my_reproduction_rate1 <- tree_reproduction_rate1[self.stage];
+		self.my_reproduction_rate2 <- tree_reproduction_rate2[self.stage];
+		self.my_death_rate <- tree_death_rate[self.stage];
+		self.my_growth_rate <- tree_growth_rate[self.stage] * self.shade_ratio;
+		self.my_canopy_size <- tree_canopy_size[self.stage];
+		self.my_height <- tree_height[self.stage];
+		
+		// divergente values
+		self.my_flamability <- self.flammability[self.stage];
+		
 		self.my_canopy_area <- 3.14*self.my_canopy_size^2;
 		self.shape <- circle(my_canopy_size);
 		self.places <- grass overlapping shape;
@@ -314,14 +322,16 @@ species tree schedules: [] {
 }
 
 species araucaria parent:tree schedules: []{
-	
+	list<float> flammability <- araucaria_flammability;
+	float my_shade_threshold <- shade_threshold_araucaria;
+	float my_dispersal <- araucaria_dispersal;
+	rgb my_color <- rgb(0,255,0,0.5);
 }
 
 species broadleaf parent:tree schedules: []{
-	list<float> flamability <- [1.0,1.0,1.0,1.0,1.0];
-	float shade_effect <- shade_effect_broadleaf;
+	list<float> flammability <- broadleaf_flammability;
 	float my_shade_threshold <- shade_threshold_broadleaf;
-	float my_dispersal <- umb_dispersal;
+	float my_dispersal <- broadleaf_dispersal;
 	rgb my_color <- rgb(245,0,0,0.5);
 	
 }
@@ -337,8 +347,8 @@ experiment instafire type: gui {
 	parameter "Initial light demanding pop" category: "Init" var: initial_pop_araucaria min:0;
 	parameter "Initial shade tolerant pop" category: "Init" var: initial_pop_broadleaf min:0;
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
-	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
+	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
 	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.0;
 	parameter "Broadleaf shade tolerance" category: "Init" var: shade_threshold_broadleaf min:0.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
@@ -398,14 +408,18 @@ experiment fireandforest type: gui {
 	parameter "Initial Araucaria pop" category: "Init" var: initial_pop_araucaria min:0;
 	parameter "Initial broadleaved pop" category: "Init" var: initial_pop_broadleaf min:0;
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:0.0;
-	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:0.0;
+	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
+	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
 	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;
 	parameter "Shade tolerance ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
 	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
-	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0;
+	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0 max:1.0;
+	
+	
+	parameter "araucaria_base_flammability" var: araucaria_base_flammability min:0.0 max:1.0;
+	
 	
 	output {
 
@@ -425,8 +439,8 @@ experiment fireandforest type: gui {
 
 experiment explore type: batch repeat: 20 keep_seed: true until: ( time > 1000 ) {
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:50 max:200;
-	parameter "Average araucaria dispersal" category: "Init" var: tree_dispersal min:5.0 max:50;
-	parameter "Average broadleaf dispersal" category: "Init" var: umb_dispersal min:5.0 max:50;
+	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:5.0 max:50;
+	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:5.0 max:50;
 	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0 max:1.0;
 
 	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.5 max:2.5;
