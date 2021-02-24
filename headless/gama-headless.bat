@@ -1,3 +1,4 @@
+call set-gamadir.bat
 
 cls
 setLocal EnableDelayedExpansion

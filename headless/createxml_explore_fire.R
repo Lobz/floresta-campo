@@ -1,7 +1,7 @@
 
 
-finalstep <- 20
-numreps <- 3
+finalstep <- 5
+numreps <- 1
 
 
 fire <- rep(seq(0.05,0.5,by=0.01),numreps)
@@ -38,7 +38,7 @@ simparams <- params("araucaria_base_flammability",araucaria_base_flammability) #
 ### UNIQUE IDS
 
 parameters <- araucaria_base_flammability
-n <- length(params)
+n <- length(simparams)
 chars <- c(LETTERS,letters,0:9)
 rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
 
@@ -59,6 +59,5 @@ sapply(simxml,FUN=w)
 w(footer)
 
 outputdir <- 'flam_outs'
-system('set-gamadir.bat')
 system(paste0('gama-headless.bat ',filename,' ',outputdir))
 
