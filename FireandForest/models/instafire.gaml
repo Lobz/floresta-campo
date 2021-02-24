@@ -27,8 +27,10 @@ global {
 	float chance_to_start_fire <- 0.1;
 	
 	// Initial forest parameters
-	int initial_pop_araucaria <- 100;
-	int initial_pop_broadleaf <- 100;
+	int initial_pop_total <- 200;
+	float initial_pop_ratio <- 0.5;
+	int initial_pop_araucaria <- floor(initial_pop_total*initial_pop_ratio);
+	int initial_pop_broadleaf <- initial_pop_total - initial_pop_araucaria;
 	float initial_forest_size <- 50#m;
 	int initial_tree_stage <- 4;
 	
@@ -405,8 +407,8 @@ experiment fireandforest type: gui {
 	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
 	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Tile size" category: "Init" var: tile_size min:1#m;
-	parameter "Initial Araucaria pop" category: "Init" var: initial_pop_araucaria min:0;
-	parameter "Initial broadleaved pop" category: "Init" var: initial_pop_broadleaf min:0;
+	parameter "initial_pop_total" category: "Init" var: initial_pop_total min:0;
+	parameter "initial_pop_ratio" category: "Init" var: initial_pop_ratio min:0 max:1.0;
 	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
 	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
