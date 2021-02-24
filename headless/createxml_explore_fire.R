@@ -1,6 +1,6 @@
 
 
-finalstep <- 2000
+finalstep <- 20
 numreps <- 3
 
 
@@ -58,6 +58,7 @@ write(header, filename, append=FALSE)
 sapply(simxml,FUN=w)
 w(footer)
 
-system('set GAMADIR=C:\\Users\\marin\\Documents\\GAMA')
 outputdir <- 'flam_outs'
+system('set-gamadir.bat')
 system(paste0('gama-headless.bat ',filename,' ',outputdir))
+

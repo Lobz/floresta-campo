@@ -1,6 +1,4 @@
 
-set GAMADIR=C:\Users\Gama\Documents\GAMA
-
 cls
 setLocal EnableDelayedExpansion
 set inputFile=""

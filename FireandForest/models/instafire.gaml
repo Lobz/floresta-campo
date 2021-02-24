@@ -433,6 +433,7 @@ experiment fireandforest type: gui {
 		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
 		monitor "Araucaria shade tolerance" value: shade_threshold_araucaria;
 		monitor "Shade tolerance ratio" value: shade_threshold_ratio;
+		monitor "araucaria_base_flammability" value: araucaria_base_flammability;
 		
 	}
 }

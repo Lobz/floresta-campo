@@ -16,3 +16,5 @@ FireandForest/models/instafire copy.gaml
 headless/test_outs/*
 headless/examples_external/*
 *.xml
+headless/*/console-outputs*
+headless/*/simulation-outputs*

@@ -1,0 +1,1 @@
+set GAMADIR=C:\Users\marin\Documents\GAMA
