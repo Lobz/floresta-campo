@@ -3,13 +3,10 @@
 library(XML)
 
 myColNames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize",
-                "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf","shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability")
+                "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf",
+                "shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability")
 
 mydirname <- "flam_outs"
-
-filename <- function (prefix, rep) {
-    paste0(mydirname,"/simulation-outputs",prefix,rep,".xml")
-}
 
 get.sim.name <- function(filepath) {
     filename <- basename(filepath)

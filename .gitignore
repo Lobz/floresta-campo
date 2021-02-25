@@ -7,14 +7,12 @@
 .gama*
 .built_in*
 *.png
-headless/fc*
-headless/output-headless
 headless/.Rhistory
 headless/.RData
 FireandForest/models/instafire copy.gaml
 *.csv
-headless/test_outs/*
 headless/examples_external/*
 *.xml
 headless/*/console-outputs*
 headless/*/simulation-outputs*
+headless/headless_outputs/

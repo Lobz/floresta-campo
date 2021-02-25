@@ -5,8 +5,8 @@ gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
 filename <- paste0("LHS_",today,".xml")
 
 ## parametrizing
-finalstep <- 50
-samplesize <- 7
+finalstep <- 700
+samplesize <- 40
 numreps <- 3
 
 par.names <- c("Chance of fire","shade_threshold_araucaria","Shade tolerance ratio","initial_pop_ratio","araucaria_base_flammability")
