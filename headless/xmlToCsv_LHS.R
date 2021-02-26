@@ -6,7 +6,7 @@ myColNames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf"
                 "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf",
                 "shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability")
 
-mydirname <- "flam_outs"
+mydirname <- outputdir
 
 get.sim.name <- function(filepath) {
     filename <- basename(filepath)
@@ -34,7 +34,7 @@ for (f in my_files) {
         dados <- rbind(dados,data)
 }
 head(dados)
-myfilename=paste0("data/",mydirname,"data.csv")
+myfilename=paste0("data/","LHS_outs",today,"data.csv")
 write.csv(dados,myfilename,row.names=FALSE)
 
 

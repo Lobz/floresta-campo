@@ -1,57 +1,27 @@
 
 # make sure you've used createxml to create the xml for gama_headless and xmlToCsv to save the results in csv format
 
-finalstep <- 2000
-numreps <- 3
-
+source("plotsfuns.utils.R")
 ### PLOTS
 datafull <- read.csv(file=myfilename,stringsAsFactors=T)
+datafull$initial_pop_ratio <- 1.0*datafull$initial.pop.araucaria/datafull$initial.pop.broadleaf
 
-data <- subset(datafull, araucaria.base.flammability > 0)
-data <- data[order(data$araucaria.base.flammability),]
-params <- sort(unique(data$araucaria.base.flammability))
+data <- subset(datafull, wildfire.rate < 0.5)
+data <- data[order(data$wildfire.rate),]
+params <- sort(unique(data$wildfire.rate))
 numpars <- length(params)
 colors <- colorRampPalette(c("darkblue","red"))(numpars)
 names(colors) <- params
-plot.fours.columns(data,function(d,x) lines.par(d,x,"araucaria.base.flammability",colors))
+plot.fours.columns(data,function(d,x) lines.par(d,x,"wildfire.rate",colors))
 
-plot.one.timestep <- function(d,x) plot(d[,x]~d$araucaria.base.flammability,col=colors[as.character(params)]);
+plot.one.timestep <- function(d,x) plot(d[,x]~d$wildfire.rate,col=colors[as.character(d[,"wildfire.rate"])]);
 finalvalues<- subset(data,time==max(data$time))
 plot.fours.columns(finalvalues,plot.one.timestep,"at end of simulation")
-maxvalues<- aggregate(data[,-ncol(data)],by=list(sim_unique_id=data$sim_unique_id),FUN=max)
+maxvalues<- aggregate(data[,-(ncol(data)-1)],by=list(sim_unique_id=data$sim_unique_id),FUN=max)
 plot.fours.columns(maxvalues,plot.one.timestep, "(maximum)")
 
-lines.par <- function(data,column.data, column.par,colors) {
-    ymax <- max(data[,column.data])
-    xmax <- max(data$time)
-    plot(NULL,NULL,ylim=c(0,ymax),xlim=c(0,xmax),xlab="Time",ylab=column.data)
-    pars <- names(colors)
-    for (p in pars) {
-        dt <- subset(data,data[,column.par]==p)
-        lines.each(dt,column.data,colors[p])
-    }
-}
+avmaxvalues <- aggregate(maxvalues,by=list(wildfire.rate=maxvalues$wildfire.rate),FUN=mean)
+avfinalvalues <- aggregate(finalvalues,by=list(wildfire.rate=finalvalues$wildfire.rate),FUN=mean)
+my_LHS_pars$data <- avmaxvalues[,par.names]
 
-lines.each <- function(data,column.data,color) {
-    if(length(unique(data$sim_unique_id)) == 1) {
-        lines(data[,column.data] ~ data$time,col=color)
-    }
-    else {
-        by (data,data$sim_unique_id, function (x) {
-            lines(x[,column.data] ~ x$time,col=color)
-        })
-    }
-}
-
-plot.fours.columns <- function(data, fun, label = "over time") {
-    par(mfrow=c(2,2))
-    fun(data,"n.broadleaf")
-    title(paste0("Broadleaved population ",label))
-    fun(data,"n.araucaria")
-    title(paste0("Araucaria population ",label))
-    fun(data,"circ.broadleaf")
-    title(paste0("Broadleaf radius ",label))
-    fun(data,"circ.araucaria")
-    title(paste0("Araucaria radius ",label))
-    par(mfrow=c(1,1))
-}
+my_LHS <- tell(my_LHS_pars, avmaxvalues[,my_outputnames])

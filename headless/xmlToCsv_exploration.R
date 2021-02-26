@@ -2,9 +2,10 @@
 
 library(XML)
 
-myColNames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize",
-                "wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf","shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability")
+my_outputnames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize")
+my_parameternames <- c("wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf","shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability")
 
+myColNames <- c(my_outputnames,my_parameternames)
 mydirname <- "flam_outs"
 
 filename <- function (prefix, rep) {
@@ -37,7 +38,7 @@ for (f in my_files) {
         dados <- rbind(dados,data)
 }
 head(dados)
-myfilename=paste0("data/",mydirname,"data.csv")
+myfilename=paste0("data/LHS_outs",today,"data.csv")
 write.csv(dados,myfilename,row.names=FALSE)
 
 

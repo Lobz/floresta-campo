@@ -10,7 +10,9 @@ samplesize <- 40
 numreps <- 3
 
 par.names <- c("Chance of fire","shade_threshold_araucaria","Shade tolerance ratio","initial_pop_ratio","araucaria_base_flammability")
-q.arg <- list(list(min=0.5,max=2.0),list(min=0.5,max=1.5),list(min=1.0,max=3.0),list(min=0.0,max=1.0),list(min=0.5,max=1.0))
+par.names <- c("wildfire.rate", "shade.threshold.araucaria","shade.threshold.ratio","initial_pop_ratio","araucaria.base.flammability")
+
+q.arg <- list(list(min=0.05,max=0.5),list(min=0.5,max=1.5),list(min=1.0,max=3.0),list(min=0.0,max=1.0),list(min=0.5,max=1.0))
 
 ## creating parameter data.frame
 library(pse)
@@ -40,6 +42,8 @@ write(header, filename, append=FALSE)
 sapply(simxml,FUN=w)
 w(footer)
 
-outputdir <- 'flam_outs'
+## RUNNING
+
+outputdir <- 'headless_outputs/LHS_outs'
 system(paste0('gama-headless.bat ',filename,' ',outputdir))
 
