@@ -7,15 +7,15 @@ numreps <- 3
 ### PLOTS
 datafull <- read.csv(file=myfilename,stringsAsFactors=T)
 
-data <- subset(datafull, araucaria.base.flammability > 0)
-data <- data[order(data$araucaria.base.flammability),]
-params <- sort(unique(data$araucaria.base.flammability))
+data <- subset(datafull, shade.threshold.ratio > 0)
+data <- data[order(data$shade.threshold.ratio),]
+params <- sort(unique(data$shade.threshold.ratio))
 numpars <- length(params)
 colors <- colorRampPalette(c("darkblue","red"))(numpars)
 names(colors) <- params
-plot.fours.columns(data,function(d,x) lines.par(d,x,"araucaria.base.flammability",colors))
+plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colors))
 
-plot.one.timestep <- function(d,x) plot(d[,x]~d$araucaria.base.flammability,col=colors[as.character(params)]);
+plot.one.timestep <- function(d,x) plot(d[,x]~d$shade.threshold.ratio,col=colors[as.character(params)]);
 finalvalues<- subset(data,time==max(data$time))
 plot.fours.columns(finalvalues,plot.one.timestep,"at end of simulation")
 maxvalues<- aggregate(data[,-ncol(data)],by=list(sim_unique_id=data$sim_unique_id),FUN=max)
