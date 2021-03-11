@@ -7,7 +7,7 @@ samplesize<-3
 ## filenaming
 today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
-filename <- paste0("LHS_",today,".xml")
+filename <- paste0("scenarios_",today,".xml")
 
 file.create(filename)
 ## CONSTANTS
@@ -34,3 +34,8 @@ file.create(filename)
 write(header, filename, append=FALSE)
 sapply(simxml,FUN=w)
 w(footer)
+
+## RUNNING
+
+outputdir <- 'headless_outputs/scenarios_outs'
+system(paste0('gama-headless.bat ',filename,' ',outputdir))
