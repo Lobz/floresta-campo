@@ -17,7 +17,7 @@ source("createxml.utils.R")
 param.shared <- par.line('Shade tolerance ratio',2.0)
 
 FMparams <- paste0(param.shared,'')
-NAparams <- paste0(param.shared,'<Parameter name="Initial Araucaria pop" type="INT" value="0" />')
+NAparams <- paste0(param.shared,'<Parameter name="initial_pop_ratio" type="INT" value="0" />')
 NFparams <- paste0(param.shared,'<Parameter name="Wildfires" type="BOOLEAN" value="false" />')
 
 my_names <- c("Full","NoAr","NoFi")
