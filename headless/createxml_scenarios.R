@@ -39,3 +39,4 @@ w(footer)
 
 outputdir <- 'headless_outputs/scenarios_outs'
 system(paste0('gama-headless.bat ',filename,' ',outputdir))
+
