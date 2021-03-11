@@ -16,3 +16,4 @@ headless/examples_external/*
 headless/*/console-outputs*
 headless/*/simulation-outputs*
 headless/headless_outputs/
+headless/set-gamadir.bat
