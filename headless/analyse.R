@@ -7,20 +7,17 @@ datafull <- read.csv(file=myfilename,stringsAsFactors=T)
 datafull$initial_pop_ratio <- 1.0*datafull$initial.pop.araucaria/datafull$initial.pop.broadleaf
 
 data <- subset(datafull, shade.threshold.ratio > 0)
+names(data) <- my_full_col_names
 
 plot_final_values(data,"wildfire_rate")
 
+parcols <- 9:13 ## cols with parameter values
 
 test.hypotheses <- function(data) {
     ## get one parameter set
-    parcols <- 9:13 ## cols with parameter values
-    NoArdata <- subset(data,initial_pop_araucaria==0)
-    NoFidata <- subset(data,wildfire_rate==0)
-    Fulldata <- subset(data,initial_pop_araucaria>0 & wildfire_rate >0)
-
-    NoFi.one <- subset(NoFidata,sim_unique_id==unique(NoFidata$sim_unique_id)[4])
-    NoAr.one <- subset(NoArdata, shade_threshold_ratio == NoFi.one$shade_threshold_ratio[1])
-    Full.one <- subset(Fulldata, shade_threshold_ratio == NoFi.one$shade_threshold_ratio[1])
+    NoAr.one <- subset(data,initial_pop_araucaria==0)
+    NoFi.one <- subset(data,wildfire_rate==0)
+    Full.one <- subset(data,initial_pop_araucaria>0 & wildfire_rate >0)
 
     ## extract variables
     finaltime <- max(data$time)
@@ -52,6 +49,13 @@ test.hypotheses <- function(data) {
     names(hypotheses) <- c("1","2","3a","3b","4a","4b","5","full extinction")
     hypotheses
 }
+
+## turn indices into factors
+for(i in parcols) {
+    data[,i] <- as.factor(data[,i])
+}
+
+by(data,data[,parcols[1]],test.hypotheses)
 
 ### full plots
 plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colors))
