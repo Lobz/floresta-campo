@@ -44,6 +44,18 @@ test.hypotheses <- function(data) {
     ## extinction full check
     ext <- max(Full.final$circ.araucaria,Full.final$circ.broadleaf) ==0
 
+    ## error catching
+    if(nrow(Full.one)==0) {
+        hyp1=hyp2=hyp3a=hyp3b=hyp4a=hyp4b=hyp5=extinction=NA;
+    }
+    if(nrow(NoFi.one)==0) {
+        hyp4a=NA;
+        hyp4b=NA;
+    }
+    if(nrow(NoAr.one)==0) {
+        hyp3a=hyp3b=NA;
+    }
+
     ## array of hypotheses
     hypotheses <- c(hyp1,hyp2,hyp3a,hyp3b,hyp4a,hyp4b,hyp5,ext)
     names(hypotheses) <- c("1","2","3a","3b","4a","4b","5","full extinction")
@@ -55,7 +67,13 @@ for(i in parcols) {
     data[,i] <- as.factor(data[,i])
 }
 
-by(data,data[,parcols[1]],test.hypotheses)
+results.raw <- by(data,data[,parcols[1]],test.hypotheses)
+results <- as.data.frame(do.call(rbind,results.raw))
+results$shade_threshold_araucaria<-as.numeric(rownames(results))
+### merge back into values of data
+data <- merge(results,data,by="shade_threshold_araucaria")
 
+
+plot_all_hyps(data,"araucaria_dispersal")
 ### full plots
 plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colors))
