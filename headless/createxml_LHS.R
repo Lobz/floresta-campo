@@ -2,25 +2,27 @@
 ## filenaming
 today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
-filename <- paste0("LHS_",today,".xml")
+my_filename <- paste0("LHS_",today,".xml")
 
 ## parametrizing
 finalstep <- 700
-samplesize <- 40
+samplesize <- 100
 numreps <- 3
 
-par.names <- c("Chance of fire","shade_threshold_araucaria","Shade tolerance ratio","initial_pop_ratio","araucaria_base_flammability")
-par.names <- c("wildfire.rate", "shade.threshold.araucaria","shade.threshold.ratio","initial_pop_ratio","araucaria.base.flammability")
+par_names <- c("wildfire_rate", "shade_threshold_araucaria","shade_threshold_ratio","araucaria_base_flammability","araucaria_dispersal","broadleaf_dispersal")
 
-q.arg <- list(list(min=0.05,max=0.5),list(min=0.5,max=1.5),list(min=1.0,max=3.0),list(min=0.0,max=1.0),list(min=0.5,max=1.0))
+q.arg <- list(list(min=0.05,max=0.3),list(min=0.5,max=1.5),list(min=1.5,max=2.5),list(min=0.5,max=1.0),list(min=10,max=50),list(min=10,max=50))
+
 
 ## creating parameter data.frame
 library(pse)
 my_LHS_pars <- LHS(model=NULL,
-                  factors=par.names,
+                  factors=par_names,
                   N=samplesize,
                   q.arg=q.arg,
                   repetitions=numreps)
+
+save(my_LHS_pars,file=paste0(my_filename,".RData"))
 
 par.data <- my_LHS_pars$data
 
@@ -29,6 +31,13 @@ source("createxml.utils.R")
 
 ### Parameters
 sim.params<-apply(par.data,1,par.row)
+## scenarios
+FMparams <- paste0(sim.params,'')
+NAparams <- paste0(sim.params,'<Parameter name="initial_pop_ratio" type="INT" value="0" />')
+NFparams <- paste0(sim.params,'<Parameter name="Wildfires" type="BOOLEAN" value="false" />')
+
+my_names <- c("Full","NoAr","NoFi")
+sim.params <- c(FMparams,NAparams,NFparams)
 
 ## UNIQUE IDS
 sim_ids <- paste0('LHS_',today,'_',rndc)  ## array of sim ids
@@ -37,13 +46,13 @@ simheaders <- paste0(simheadbeg,sim_ids,simheadend) ## array of headers
 ## WRITING
 simxml <- paste(simheaders,sim.params,outputs,'</Simulation>\n', sep="\n")
 
-file.create(filename)
-write(header, filename, append=FALSE)
+file.create(my_filename)
+write(header, my_filename, append=FALSE)
 sapply(simxml,FUN=w)
 w(footer)
 
 ## RUNNING
 
 outputdir <- 'headless_outputs/LHS_outs'
-system(paste0('gama-headless.bat ',filename,' ',outputdir))
+system(paste0('gama-headless.bat ',my_filename,' ',outputdir))
 

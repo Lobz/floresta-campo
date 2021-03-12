@@ -4,7 +4,7 @@ library(XML)
 
 
 my_outputnames <- c("n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize")
-my_parameternames <- c("wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf","shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability")
+my_parameternames <- c("wildfire.rate", "initial.pop.araucaria", "initial.pop.broadleaf","shade.threshold.araucaria","shade.threshold.ratio","araucaria.base.flammability","araucaria_dispersal","broadleaf_dispersal")
 
 myColNames <- c(my_outputnames,my_parameternames)
 mydirname <- outputdir
@@ -14,12 +14,17 @@ get.sim.name <- function(filepath) {
     substring(filename,nchar("simulation-outputs")+1,nchar(filename) - nchar(".xml"))
 }
 
+file.notempty <- function(filenames) !file.info(filenames)$size == 0
+
 get_my_data <- function(filepath) {
+    print(filepath)
+    tryCatch({
         data <- xmlToDataFrame(filepath)
         names(data) <- myColNames
         data$time <- 1:nrow(data) # allow for incomplete simulations
         data$sim_unique_id <- get.sim.name(filepath)
         data
+    }, error= function(e){NULL})
 }
 
 my_full_col_names <- c(myColNames,"time","sim_unique_id")
@@ -27,14 +32,14 @@ dados <- data.frame(matrix(ncol=length(my_full_col_names),nrow=0))
 names(dados) <- my_full_col_names
 
 my_files <- list.files(mydirname, pattern=".*.xml", full.names=TRUE)
-my_files
+my_files <- Filter(file.notempty,my_files)
 
-for (f in my_files) {
-        print(f)
-        data <- get_my_data(f)
-        dados <- rbind(dados,data)
-    }
+dados_list <- lapply(my_files,get_my_data)
+
+dados <- do.call(rbind, dados_list)
+
 head(dados)
+today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 myfilename=paste0("data/batch",today,"data.csv")
 write.csv(dados,myfilename,row.names=FALSE)
 

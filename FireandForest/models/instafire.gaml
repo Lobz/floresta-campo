@@ -24,7 +24,7 @@ global {
 	string topography <- "plain";
 	
 	// general parameters
-	float chance_to_start_fire <- 0.1;
+	float wildfire_rate <- 0.1;
 	
 	// Initial forest parameters
 	int initial_pop_total <- 200;
@@ -112,7 +112,7 @@ species scheduler schedules: wildfire + shuffle(grass) + shuffle(broadleaf + ara
 grid wildfire width:1 height:1 schedules: []{
 	int firesize <- 0 update: 0;
 	
-	reflex start_fire when: wildfires and flip(chance_to_start_fire) {
+	reflex start_fire when: wildfires and flip(wildfire_rate) {
 		list<grass> potential <- grass where (each.biomass > 0.9);
 		if(empty(potential)){
 			potential <- grass where (each.biomass > 0.0);
@@ -358,7 +358,7 @@ experiment instafire type: gui {
 	parameter "Wildfires" category: "Fire" var:wildfires;
 	
 	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
-	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0;
+	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0;
 	parameter "Grass flamability" category: "Grass" var: grass_flamability min:0.0;
 	
 	// Define attributes, actions, a init section and behaviors if necessary
@@ -404,20 +404,19 @@ experiment instafire type: gui {
 }
 
 experiment fireandforest type: gui {
-	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
-	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Tile size" category: "Init" var: tile_size min:1#m;
+	parameter "landscape_size" category: "Init" var: landscape_size min:0.0;
+	parameter "initial_forest_size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "tile_size" category: "Init" var: tile_size min:1#m;
 	parameter "initial_pop_total" category: "Init" var: initial_pop_total min:0;
 	parameter "initial_pop_ratio" category: "Init" var: initial_pop_ratio min:0 max:1.0;
-	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
-	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
+	parameter "araucaria_dispersal" category: "Init" var: araucaria_dispersal min:0.0;
+	parameter "broadleaf_dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
 	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;
-	parameter "Shade tolerance ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
-	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
+	parameter "shade_threshold_ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
+	parameter "topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
-	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0 max:1.0;
+	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0 max:1.0;
 	
 	
 	parameter "araucaria_base_flammability" var: araucaria_base_flammability min:0.0 max:1.0;
@@ -430,29 +429,14 @@ experiment fireandforest type: gui {
 		monitor "Circle size for araucaria trees" value: rad_h.y;
         monitor "Circle size for broadleaved trees" value: rad_u.y;
 		monitor "Size of fire" value:firesize;
-		monitor "Chance of fire" value: wildfires? chance_to_start_fire : 0;
+		monitor "wildfire_rate" value: wildfires? wildfire_rate : 0;
 		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
 		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
 		monitor "Araucaria shade tolerance" value: shade_threshold_araucaria;
 		monitor "Shade tolerance ratio" value: shade_threshold_ratio;
 		monitor "araucaria_base_flammability" value: araucaria_base_flammability;
+		monitor "araucaria_dispersal" value: araucaria_dispersal;
+		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
 		
 	}
-}
-
-experiment explore type: batch repeat: 20 keep_seed: true until: ( time > 1000 ) {
-	parameter "Initial forest size" category: "Init" var: initial_forest_size min:50 max:200;
-	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:5.0 max:50;
-	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:5.0 max:50;
-	parameter "Chance of fire" category: "Fire" var: chance_to_start_fire min:0.0 max:1.0;
-
-	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.5 max:2.5;
-	parameter "Shade tolerance ratio" category: "Init" var: shade_threshold_ratio min:2.5 max:4.5;
-    
-    
-    
-    reflex save_results_explo {
-        ask simulations {
-        }        
-    }
 }

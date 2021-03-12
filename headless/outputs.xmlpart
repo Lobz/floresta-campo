@@ -4,10 +4,12 @@
         <Output id="3" name="Circle size for araucaria trees" framerate="1" />
         <Output id="4" name="Circle size for broadleaved trees" framerate="1" />
         <Output id="5" name="Size of fire" framerate="1" />
-        <Output id="6" name="Chance of fire" framerate="1" />
+        <Output id="6" name="wildfire_rate" framerate="1" />
         <Output id="7" name="Initial Araucaria pop" framerate="1" />
         <Output id="8" name="Initial broadleaved pop" framerate="1" />
         <Output id="9" name="Araucaria shade tolerance" framerate="1" />
         <Output id="10" name="Shade tolerance ratio" framerate="1" />
         <Output id="11" name="araucaria_base_flammability" framerate="1" />
+        <Output id="12" name="araucaria_dispersal" framerate="1" />
+        <Output id="13" name="broadleaf_dispersal" framerate="1" />
     </Outputs>

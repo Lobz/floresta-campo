@@ -11,7 +11,7 @@ simheadend <- paste0('" sourcePath="',gamlfile,'" finalStep="',finalstep,'" expe
 footer <- '</Experiment_plan>'
 
 w <- function (str) {
-    write(str,file=filename,append=T)
+    write(str,file=my_filename,append=T)
 }
 
 n <- samplesize*numreps
