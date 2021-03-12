@@ -4,14 +4,10 @@
 source("plotsfuns.utils.R")
 ### PLOTS
 datafull <- read.csv(file=myfilename,stringsAsFactors=T)
-datafull$initial_pop_ratio <- 1.0*datafull$initial.pop.araucaria/datafull$initial.pop.broadleaf
 
-data <- subset(datafull, shade.threshold.ratio > 0)
-names(data) <- my_full_col_names
+data <- datafull
 
 plot_final_values(data,"wildfire_rate")
-
-parcols <- 9:13 ## cols with parameter values
 
 test.hypotheses <- function(data) {
     ## get one parameter set
@@ -63,17 +59,15 @@ test.hypotheses <- function(data) {
 }
 
 ## turn indices into factors
-for(i in parcols) {
-    data[,i] <- as.factor(data[,i])
-}
+data$par_group <- as.factor(data$par_group)
 
-results.raw <- by(data,data[,parcols[1]],test.hypotheses)
+results.raw <- by(data,data$par_group,test.hypotheses)
 results <- as.data.frame(do.call(rbind,results.raw))
-results$shade_threshold_araucaria<-as.numeric(rownames(results))
+results$par_group<-as.numeric(rownames(results))
 ### merge back into values of data
-data <- merge(results,data,by="shade_threshold_araucaria")
+data <- merge(results,data,by="par_group")
 
 
-plot_all_hyps(data,"araucaria_dispersal")
+plot_all_hyps(data,"shade_threshold_ratio")
 ### full plots
 plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colors))

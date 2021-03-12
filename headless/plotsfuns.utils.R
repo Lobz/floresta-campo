@@ -39,15 +39,19 @@ plot.hyp <- function(data,column,...) {
 }
 
 plot.hypotheses <- function(data,fun,label="", ...) {
-    par(mfrow=c(2,2))
+    par(mfrow=c(2,3))
     fun(data,"1",ylab="Population",...)
     title(paste0("Hyp. 1 ",label))
     fun(data,"2",ylab="Population",...)
-    title(paste0("Hyp. 2",label))
+    title(paste0("Hyp. 2 ",label))
     fun(data,"3a",ylab="Radius",...)
     title(paste0("Hyp. 3a ",label))
     fun(data,"3b",ylab="Radius",...)
     title(paste0("Hyp. 3b ",label))
+    fun(data,"4a",ylab="Radius",...)
+    title(paste0("Hyp. 4a ",label))
+    fun(data,"4b",ylab="Radius",...)
+    title(paste0("Hyp. 4b ",label))
     par(mfrow=c(1,1))
 }
 

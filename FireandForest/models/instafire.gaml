@@ -8,6 +8,10 @@
 model instafire
 
 global {
+	// needed for batch simulation tracking
+	float par_group <- 1;
+
+
 	float step <- 1#y;
 	// spatial scale vars
 	float landscape_size <- 600#m;
@@ -421,9 +425,11 @@ experiment fireandforest type: gui {
 	
 	parameter "araucaria_base_flammability" var: araucaria_base_flammability min:0.0 max:1.0;
 	
+	parameter "par_group" var: par_group min:1;
 	
 	output {
 
+    	monitor "par_group" value: par_group;
     	monitor "Number of araucaria trees" value: nb_araucaria;
     	monitor "Number of broadleaved trees" value: nb_broadleaf;
 		monitor "Circle size for araucaria trees" value: rad_h.y;

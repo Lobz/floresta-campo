@@ -1,4 +1,5 @@
     <Outputs>
+        <Output id="0" name="par_group" framerate="1" />
         <Output id="1" name="Number of araucaria trees" framerate="1" />
         <Output id="2" name="Number of broadleaved trees" framerate="1" />
         <Output id="3" name="Circle size for araucaria trees" framerate="1" />
