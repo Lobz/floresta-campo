@@ -67,7 +67,7 @@ global {
 	list<float> araucaria_flammability <- [1.0,1.0,araucaria_base_flammability,araucaria_base_flammability^2,araucaria_base_flammability^4];
 	list<float> broadleaf_flammability <- [1.0,1.0,bl_s3_fla,bl_s3_fla^2,bl_s3_fla^4];
 	float shade_threshold_araucaria <- 1.0;
-	float shade_threshold_ratio <- 3.0;
+	float shade_threshold_ratio <- 2.0;
 	float shade_threshold_broadleaf <- shade_threshold_araucaria*shade_threshold_ratio;
 	float araucaria_dispersal <- 10#m;
 	float broadleaf_dispersal <- 10#m;
@@ -331,14 +331,14 @@ species araucaria parent:tree schedules: []{
 	list<float> flammability <- araucaria_flammability;
 	float my_shade_threshold <- shade_threshold_araucaria;
 	float my_dispersal <- araucaria_dispersal;
-	rgb my_color <- rgb(0,255,0,0.5);
+	rgb my_color <- rgb(0,200,0,0.5);
 }
 
 species broadleaf parent:tree schedules: []{
 	list<float> flammability <- broadleaf_flammability;
 	float my_shade_threshold <- shade_threshold_broadleaf;
 	float my_dispersal <- broadleaf_dispersal;
-	rgb my_color <- rgb(245,0,0,0.5);
+	rgb my_color <- rgb(200,0,150,0.5);
 	
 }
 
