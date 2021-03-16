@@ -9,7 +9,7 @@ simtypes <- c("Full","NoAr","NoFi")
 
 
 # data <- read.csv(file=paste0(mydirname,"/data.csv"))
-data <- read.csv(file=paste0("data_fc_1500_20.csv"),stringsAsFactors=T)
+data <- read.csv(file=my_filename,stringsAsFactors=T)
 # AGGREGATE
 
 agg.data <- aggregate(data[,1:4], by=list(time=data$time, scenario=data$scenario), FUN=median)

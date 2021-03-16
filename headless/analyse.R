@@ -31,7 +31,7 @@ test.hypotheses <- function(data) {
     hyp2 <- Full.final$circ.araucaria > Full.final$circ.broadleaf
     ## hyp3 : broadleaf grows better with araucaria / can't grow without araucaria
     hyp3a <- Full.final$n.broadleaf > NoAr.final$n.broadleaf
-    hyp3b <- NoAr.final$circ.broadleaf <= NoAr.final$circ.broadleaf
+    hyp3b <- NoAr.final$circ.broadleaf <= Full.final$circ.broadleaf
     ## hyp4 : without fire, broadleaf grows and competes with araucaria
     hyp4a <- Full.final$n.broadleaf < NoFi.final$n.broadleaf
     hyp4b <- Full.final$n.araucaria > NoFi.final$n.araucaria
@@ -54,7 +54,7 @@ test.hypotheses <- function(data) {
 
     ## array of hypotheses
     hypotheses <- c(hyp1,hyp2,hyp3a,hyp3b,hyp4a,hyp4b,hyp5,ext)
-    names(hypotheses) <- c("1","2","3a","3b","4a","4b","5","full extinction")
+    names(hypotheses) <- c("h1","h2","h3a","h3b","h4a","h4b","h5","full_extinction")
     hypotheses
 }
 
@@ -65,9 +65,13 @@ results.raw <- by(data,data$par_group,test.hypotheses)
 results <- as.data.frame(do.call(rbind,results.raw))
 results$par_group<-as.numeric(rownames(results))
 ### merge back into values of data
-data <- merge(results,data,by="par_group")
+finaltime <- max(data$time)
+finalvalues<- subset(data,time==finaltime)
+results_finalvalues <- merge(results,finalvalues,by="par_group")
+results_par <- aggregate(results_finalvalues,by=list(par_group=results_finalvalues$par_group),function(x) x[1])
 
-
-plot_all_hyps(data,"shade_threshold_ratio")
+plot_final_values(finalvalues,"araucaria_base_flammablity")
+plot_all_hyps(results_par,"araucaria_base_flammability")
+plot.hypotheses(results[!results$full,],function(x,c,...) barplot(table(x[,c]),...))
 ### full plots
 plot.fours.columns(data,function(d,x) lines.par(d,x,"shade.threshold.ratio",colors))
