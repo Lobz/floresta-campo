@@ -14,11 +14,6 @@ w <- function (str) {
     write(str,file=my_filename,append=T)
 }
 
-n <- samplesize*numreps
-chars <- c(LETTERS,letters,0:9)
-rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
-
-
 par.line <- function(name,p) {
   paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
 }
@@ -26,3 +21,5 @@ par.line <- function(name,p) {
 par.row <- function(row) {
   paste(par.line(names(row),row),collapse="\n")
 }
+
+chars <- c(LETTERS,letters,0:9)

@@ -13,4 +13,5 @@
         <Output id="11" name="araucaria_base_flammability" framerate="1" />
         <Output id="12" name="araucaria_dispersal" framerate="1" />
         <Output id="13" name="broadleaf_dispersal" framerate="1" />
+        <Output id="14" name="grass_flammability" framerate="1" />
     </Outputs>

@@ -1,5 +1,5 @@
 
-lines.par <- function(data,column.data, column.par,colors = make_colors(data, column.par)) {
+lines.par <- function(data,column.data, column.par,colors = make_colors(data[,column.par])) {
     ymax <- max(data[,column.data])
     xmax <- max(data$time)
     plot(NULL,NULL,ylim=c(0,ymax),xlim=c(0,xmax),xlab="Time",ylab=column.data)
@@ -23,20 +23,15 @@ lines.each <- function(data,column.data,color) {
 
 plot.fours.columns <- function(data, fun, label = "over time", ...) {
     par(mfrow=c(2,2))
-    fun(data,"n.broadleaf",ylab="Population",...)
+    fun(data,"n.broadleaf",...)
     title(paste0("Broadleaved population ",label))
-    fun(data,"n.araucaria",ylab="Population",...)
+    fun(data,"n.araucaria",...)
     title(paste0("Araucaria population ",label))
-    fun(data,"circ.broadleaf",ylab="Radius",...)
+    fun(data,"circ.broadleaf",...)
     title(paste0("Broadleaf radius ",label))
-    fun(data,"circ.araucaria",ylab="Radius",...)
+    fun(data,"circ.araucaria",...)
     title(paste0("Araucaria radius ",label))
     par(mfrow=c(1,1))
-}
-
-plot.hyp <- function(data,column,...) {
-    plot(table(data[,column]),...)
-
 }
 
 plot.hypotheses <- function(data,fun,label="", ...) {
@@ -71,12 +66,21 @@ plot.one.timestep <- function(d,y,par,colors,...) plot(d[,y]~d[,par],col=colors[
 plot.boolean <- function(d,y,t_cat,cats,...) {
     values<-d[,y]
     s<-split(values,t_cat)
-    names(empties) <- 1:length(cats)
     props<-sapply(s,mean)
     labels<- round(cats[as.integer(names(props))],2)
     labels<- round(cats,2)
     barplot(rep(1,length(cats)),col="grey",space=0,border=F,names.arg=labels)
     barplot(props,col="darkblue",space=0,border=F,names.arg=labels,add=T)
+}
+
+plot.hyp <- function(data,column,column.par,...) {
+    treatement<-data[,column.par]
+    cats <- seq(min(treatement),max(treatement),length.out=10)
+    t_cat <- factor(findInterval(treatement,cats), levels=1:10)
+    finaltime <- max(data$time)
+    finalvalues<- subset(data,time==finaltime)
+    label <- paste0("after ",finaltime," years")
+    plot.hypotheses(finalvalues,plot.boolean,label,par=column.par,t_cat=t_cat,cats=cats)
 }
 
 plot_all_hyps <- function(data,column.par) {

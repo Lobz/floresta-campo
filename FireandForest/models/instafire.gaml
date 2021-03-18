@@ -25,7 +25,6 @@ global {
 	
 	// toggle phenomena
 	bool wildfires <- true;
-	string topography <- "plain";
 	
 	// general parameters
 	float wildfire_rate <- 0.1;
@@ -40,7 +39,7 @@ global {
 	
 	// Grass parameters
 	float grass_growthrate <- 0.5;
-	float grass_flamability <- 0.9;
+	float grass_flammability <- 0.6;
 	float biomass_loss_burning <- 0.8;
 	float minimum_biomass <- 0.1;
 	// float carrying_capacity <- 1.0; // normalized
@@ -143,21 +142,12 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 	
 	float biomass <- minimum_biomass; // this value is normalized to be in range (0,1]
 	float carrying_capacity <- 1.0; //dependant on shade
-	float flamability <- grass_flamability*biomass update: grass_flamability*biomass;
+	float flammability <- grass_flammability*biomass update: grass_flammability*biomass;
 	float growthrate <- grass_growthrate;
 	int last_burned <- 20 update: last_burned +1;
 	float my_height <- 0.0;
 	
 	float altitude;
-	
-	init {
-		float l <- landscape_size;
-		switch topography {
-			match "plain"  {altitude <-0.0; }
-			match "valley" {altitude <- ((location.x - l/2)/10)^2 + ((location.y - l/2)/20)^2;}
-			match "ridge"  {altitude <- l-(((location.x - l/2)/10)^2 + ((location.y - l/2)/20)^2);}
-		}
-	}
 	
 	list<tree> here;
 	
@@ -183,22 +173,7 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 	}
 	
 	float spread_chance(grass a,grass b) {
-		float distab <- abs(a.location.x-b.location.x) + abs(a.location.y - b.location.y);
-		float slope <- (b.altitude - a.altitude)/(distab);
-		float slopeeffect;
-		
-		// I want a function that is equal do 1 when slope is 0.4 (aprox 20 degrees)
-		if(slope >= 0.4) {
-			slopeeffect <- 1.0;
-		}
-		else if(slope <= -0.4) {
-			slopeeffect <- 0.2;
-		}
-		else {
-			slopeeffect <- 1.0*(slope+0.6);
-		}
-		
-		return b.flamability*slopeeffect;
+		return b.flammability;
 	}
 	
 	list<grass> spread_fire (list<grass> remove) {
@@ -342,71 +317,6 @@ species broadleaf parent:tree schedules: []{
 	
 }
 
-
-experiment instafire type: gui {
-
-	
-	// Parameters
-	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
-	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Tile size" category: "Init" var: tile_size min:1#m;
-	parameter "Initial light demanding pop" category: "Init" var: initial_pop_araucaria min:0;
-	parameter "Initial shade tolerant pop" category: "Init" var: initial_pop_broadleaf min:0;
-	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
-	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
-	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.0;
-	parameter "Broadleaf shade tolerance" category: "Init" var: shade_threshold_broadleaf min:0.0;
-	parameter "Topography" category:"Init" var: topography among: ["plain","valley","ridge"];
-	
-	parameter "Wildfires" category: "Fire" var:wildfires;
-	
-	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
-	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0;
-	parameter "Grass flamability" category: "Grass" var: grass_flamability min:0.0;
-	
-	// Define attributes, actions, a init section and behaviors if necessary
-	
-	
-	
-	output {
-		display "Number of trees" {
-			chart "Number of adult trees" type: series size: {1,0.5} position: {0, 0} {
-        		data "Number of araucaria trees" value: nb_araucaria color: #darkgreen ;
-        		data "Number of broadleaf trees" value: nb_broadleaf color: #red ;
-        	}
-        }
-        
-		display "Radius of circle with 95% of adult trees" {
-			chart "Distance from center of adult trees" type: series size: {1,0.5} position: {0, 0} {
-        		data "araucaria trees - outer" value: rad_h.y color: #darkgreen ;
-        		data "broadleaved trees - outer" value: rad_u.y color: #red ;
-        		data "araucaria trees - inner" value: rad_h.x color: #darkgreen ;
-        		data "broadleaved trees - inner" value: rad_u.x color: #red ;
-        	}
-        }
-        
-        display "Wildfires" {
-			chart "Size of the last fire" type: series style: stack size: {1,0.5} position: {0, 0} y_range: {0,size^2} {
-        		data "Number of terrain tiles" value:firesize color: #black ;
-        	}
-        }
-	
-		display "model" {
-			grid grass;
-			species broadleaf;
-			species araucaria;
-			//event mouse_up action: click;
-		}
-		
-		//display "model 3D" camera_interaction:false camera_pos:{world.shape.width/2,world.shape.height*2,world.shape.width*2} 
-		//camera_look_pos:{world.shape.width/2,world.shape.height/2,0} 
-		//camera_up_vector:{0.0,-1.0,0.0}type:opengl{
-		//	species grass aspect: trid;
-		//}
-	}
-}
-
 experiment fireandforest type: gui {
 	parameter "landscape_size" category: "Init" var: landscape_size min:0.0;
 	parameter "initial_forest_size" category: "Init" var: initial_forest_size min:0.0;
@@ -417,13 +327,11 @@ experiment fireandforest type: gui {
 	parameter "broadleaf_dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
 	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;
 	parameter "shade_threshold_ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
-	parameter "topography" category:"Init" var: topography among: ["plain","valley","ridge"];
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
 	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0 max:1.0;
-	
-	
 	parameter "araucaria_base_flammability" var: araucaria_base_flammability min:0.0 max:1.0;
+	parameter "grass_flammability" category: "Grass" var: grass_flammability min:0.0;
 	
 	parameter "par_group" var: par_group min:1;
 	
@@ -443,6 +351,7 @@ experiment fireandforest type: gui {
 		monitor "araucaria_base_flammability" value: araucaria_base_flammability;
 		monitor "araucaria_dispersal" value: araucaria_dispersal;
 		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
+		monitor "grass_flammability" value: grass_flammability;
 		
 	}
 }
