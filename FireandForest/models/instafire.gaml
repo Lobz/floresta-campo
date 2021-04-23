@@ -174,7 +174,7 @@ grid grass height:size width:size neighbors: 4  schedules: [] use_regular_agents
 	action burn {
 		burntimes <- burntimes + cycle;
 		biomass <- biomass*biomass_loss_burning;
-		loop t over: here {ask t {do burn;}}
+		ask here {do burn;}
 		do shade();
 	}
 	
@@ -212,7 +212,7 @@ grid grass height:size width:size neighbors: 4  schedules: [] use_regular_agents
 	
 	action update_shade (float h) {
 		do shade();
-		loop t over: (here where (each.my_height < h)) {ask t {do get_shade;}}
+		ask (here where (each.my_height < h)) {do get_shade;}
 	}
 }
 
@@ -389,7 +389,7 @@ experiment fireandforest_graphic type: gui until: time>10  {
 	
 	init {
 		graphic <- true;
-		loop t over: (araucaria + broadleaf) {ask t {do update_traits;}}
+		ask (araucaria + broadleaf) {do update_traits;}
 	}
 
 	
