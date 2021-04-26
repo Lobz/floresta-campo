@@ -136,7 +136,8 @@ grid wildfire width:1 height:1 schedules: [] use_regular_agents: false {
 		
 		loop while: not(empty(burning)) {
 			burnt <- burnt union burning; // finished burning
-			burning <- remove_duplicates(burning accumulate each.spread_fire(burnt)); // spread to neighbors of burning, ignoring the burnt
+			list<grass> to_burn <- remove_duplicates(burning accumulate (each.spread_fire()) );
+			burning <- (to_burn - burnt); // spread to neighbors of burning, ignoring the burnt
 		}
 		ask burnt {do burn();} // burn everyone
 		firesize <- length(burnt);
@@ -149,7 +150,6 @@ grid grass height:size width:size neighbors: 4  schedules: [] use_regular_agents
 	float carrying_capacity <- 1.0; //dependant on shade
 	float flammability <- grass_flammability*biomass update: grass_flammability*biomass;
 	float growthrate <- grass_growthrate;
-	list<int> burntimes <- [];
 	float my_height <- 0.0;
 	
 	float altitude;
@@ -172,22 +172,18 @@ grid grass height:size width:size neighbors: 4  schedules: [] use_regular_agents
 	}
 	
 	action burn {
-		burntimes <- burntimes + cycle;
 		biomass <- biomass*biomass_loss_burning;
 		ask here {do burn;}
 		do shade();
-	}
-	
-	float burnsperyear {
-		return length(burntimes)/(cycle+1.0);
 	}
 	
 	float spread_chance(grass a,grass b) {
 		return b.flammability;
 	}
 	
-	list<grass> spread_fire (list<grass> remove) {
-		return (self.neighbors - remove) where flip(spread_chance(self, each));
+	list<grass> spread_fire {
+		list<grass> to_spread <- self.neighbors where flip(each.flammability);
+		return to_spread;
 	}
 	
 	// this will be used by default "grid" display
@@ -341,7 +337,7 @@ species broadleaf parent:tree schedules: []{
 	
 }
 
-experiment fireandforest type: gui benchmark: true {
+experiment fireandforest type: gui {
 	parameter "landscape_size" category: "Init" var: landscape_size min:0.0;
 	parameter "initial_forest_size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "tile_size" category: "Init" var: tile_size min:1#m;
@@ -434,13 +430,6 @@ experiment fireandforest_graphic type: gui until: time>10  {
         display "Wildfires" {
 			chart "Size of the last fire" type: series style: stack size: {1,0.5} position: {0, 0} y_range: {0,size^2} {
         		data "Number of terrain tiles" value:firesize color: #black ;
-        	}
-        }
-	
-		display "Number of times burned per 30 years" {
-       		chart "my_chart" type: histogram {
-        		datalist (distribution_of(grass collect (30*each.burnsperyear()),10,0,10) at "legend") 
-           	 	value:(distribution_of(grass collect (30*each.burnsperyear()),10,0,10) at "values");      
         	}
         }
         
