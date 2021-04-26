@@ -7,7 +7,7 @@ outputs <- readChar("outputs.xmlpart", file.info("outputs.xmlpart")$size)
 
 simheadbeg <- '
     <Simulation id="'
-simheadend <- paste0('" sourcePath="',gamlfile,'" finalStep="',finalstep,'" experiment="fireandforest">')
+simheadend <- paste0('" sourcePath="',gamlfile,'" finalStep="',finalstep,'" experiment="fireandforest" until="length(araucaria) + length(broadleaf) = 0 or max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2">')
 footer <- '</Experiment_plan>'
 
 w <- function (str) {

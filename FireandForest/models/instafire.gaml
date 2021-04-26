@@ -8,8 +8,12 @@
 model instafire
 
 global {
+	// for float approximations
+	float epsilon <- 0.0001;
+	
 	// needed for batch simulation tracking
 	float par_group <- 1;
+	bool graphic;
 
 
 	float step <- 1#y;
@@ -88,8 +92,8 @@ global {
 		return {sqrt(sq_dists[n05]),sqrt(sq_dists[n95])};
 	}
 	
-	point rad_h -> forest_radius(araucaria where (each.stage = 4));
-	point rad_u -> forest_radius(broadleaf where (each.stage = 4));
+	point rad_araucaria -> forest_radius(araucaria where (each.stage = 4));
+	point rad_broadleaf -> forest_radius(broadleaf where (each.stage = 4));
 	
 	init {		
 		geometry c <- circle(initial_forest_size);
@@ -106,13 +110,14 @@ global {
 		
 		
 	}
-		
+	
+
 
 }
 
-species scheduler schedules: wildfire + shuffle(grass) + shuffle(broadleaf + araucaria); // explicit scheduling in the world
+species scheduler schedules: wildfire + grass + shuffle(broadleaf + araucaria); // explicit scheduling in the world
 
-grid wildfire width:1 height:1 schedules: []{
+grid wildfire width:1 height:1 schedules: [] use_regular_agents: false {
 	int firesize <- 0 update: 0;
 	
 	reflex start_fire when: wildfires and flip(wildfire_rate) {
@@ -138,13 +143,13 @@ grid wildfire width:1 height:1 schedules: []{
 	}	
 }
 
-grid grass height:size width:size neighbors: 4  schedules: []{
+grid grass height:size width:size neighbors: 4  schedules: [] use_regular_agents: false {
 	
 	float biomass <- minimum_biomass; // this value is normalized to be in range (0,1]
 	float carrying_capacity <- 1.0; //dependant on shade
 	float flammability <- grass_flammability*biomass update: grass_flammability*biomass;
 	float growthrate <- grass_growthrate;
-	int last_burned <- 20 update: last_burned +1;
+	list<int> burntimes <- [];
 	float my_height <- 0.0;
 	
 	float altitude;
@@ -153,23 +158,28 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 	
 	float shade_over_height (float height) {
 		list<tree> trees <- self.here where (each.my_height > height);
-		float shade_per_meter <- sum(trees accumulate each.my_canopy_area) / tile_area;
+		float shade_per_meter <- trees sum_of each.my_canopy_area / tile_area;
 		return shade_per_meter;
 	}
 	
-	reflex shade {
+	action shade {
 		carrying_capacity <- 1.0/(self.shade_over_height(0.0)+1);
 	}
 		
-	reflex plant_growth{
-		if(biomass <= minimum_biomass) {biomass<-minimum_biomass;}
+	reflex plant_growth when: (abs(carrying_capacity - biomass) > epsilon) {
 		biomass <- biomass * (1+growthrate * (1 - biomass/carrying_capacity));
+		if(biomass <= minimum_biomass) {biomass<-minimum_biomass;}
 	}
 	
 	action burn {
+		burntimes <- burntimes + cycle;
 		biomass <- biomass*biomass_loss_burning;
-		last_burned <- 0;
-		loop t over: here {ask t {do burn;}}
+		ask here {do burn;}
+		do shade();
+	}
+	
+	float burnsperyear {
+		return length(burntimes)/(cycle+1.0);
 	}
 	
 	float spread_chance(grass a,grass b) {
@@ -181,17 +191,33 @@ grid grass height:size width:size neighbors: 4  schedules: []{
 	}
 	
 	// this will be used by default "grid" display
-	rgb color<- rgb(255*(biomass),255*(biomass),0) 
-		update: last_burned <1 ? #red : rgb(255*(biomass),255*(biomass),0,0.5);
+	rgb color <- rgb(255*(biomass),255*(biomass),0);
+	reflex update_color when: graphic {
+		color <- (rgb(255*(biomass),255*(biomass),0,0.5));
+	}
 		
 	aspect trid {
 		draw shape color: color depth: altitude;
+	}
+	
+	action add_tree (tree t) {
+		here <- here + t;
+		do update_shade(t.my_height);
+	}
+	
+	action remove_tree (tree t) {
+		here <- here - t;
+		do update_shade(t.my_height);
+	}
+	
+	action update_shade (float h) {
+		do shade();
+		ask (here where (each.my_height < h)) {do get_shade;}
 	}
 }
 
 species tree schedules: [] {
 	grass place;
-	list<grass> places;
 	list<tree> neighbors;
 	float shade_ratio <- 1.0;
 	int stage <- 0;
@@ -223,17 +249,16 @@ species tree schedules: [] {
 		self.my_growth_rate <- tree_growth_rate[self.stage] * self.shade_ratio;
 		self.my_canopy_size <- tree_canopy_size[self.stage];
 		self.my_height <- tree_height[self.stage];
-		
-		// divergente values
 		self.my_flamability <- self.flammability[self.stage];
 		
 		self.my_canopy_area <- 3.14*self.my_canopy_size^2;
-		self.shape <- circle(my_canopy_size);
-		self.places <- grass overlapping shape;
+		if graphic {self.shape <- circle(my_canopy_size);}
+		
+		ask self.place { do update_shade(my_height); }
 	}
 	
 	action real_init {
-		place <- first (grass overlapping self);
+		place <- first(grass overlapping self.location);
 		if(place=nil) {do die;}
 		place.here <- place.here + self;
 		do update_traits();
@@ -249,7 +274,7 @@ species tree schedules: [] {
 	
 	action burn {
 		if(flip(my_flamability)){
-			place.here <- place.here - self;
+			ask place { do remove_tree(myself); }
 			do die;
 		}
 	}
@@ -264,13 +289,8 @@ species tree schedules: [] {
 		return self.location + vector;
 	}
 	
-	// reflexes
-	reflex shade {
-		do get_shade();
-	}
-	
 	reflex natural_death when: flip(my_death_rate){
-		place.here <- place.here - self;
+		ask place { do remove_tree(myself); }
 		do die;
 	}
 	
@@ -288,8 +308,12 @@ species tree schedules: [] {
 	}
 	
 	reflex reproduce2 when: flip(my_reproduction_rate2){
+		point loc <- disperse();
+		if (loc.x < 0 or loc.y < 0 or loc.x > landscape_size or loc.y > landscape_size) {
+			return; // dispersed to outside of arena
+		}
 		create species_of(self) {
-			location <- myself.disperse();
+			location <- loc;
 			stage <- 1;
 			my_first_cycle <- cycle;
 			do real_init;
@@ -317,7 +341,7 @@ species broadleaf parent:tree schedules: []{
 	
 }
 
-experiment fireandforest type: gui {
+experiment fireandforest type: gui benchmark: true {
 	parameter "landscape_size" category: "Init" var: landscape_size min:0.0;
 	parameter "initial_forest_size" category: "Init" var: initial_forest_size min:0.0;
 	parameter "tile_size" category: "Init" var: tile_size min:1#m;
@@ -335,13 +359,18 @@ experiment fireandforest type: gui {
 	
 	parameter "par_group" var: par_group min:1;
 	
+	
+	init {
+		graphic <- false;
+	}
+		
 	output {
 
     	monitor "par_group" value: par_group;
     	monitor "Number of araucaria trees" value: nb_araucaria;
     	monitor "Number of broadleaved trees" value: nb_broadleaf;
-		monitor "Circle size for araucaria trees" value: rad_h.y;
-        monitor "Circle size for broadleaved trees" value: rad_u.y;
+		monitor "Circle size for araucaria trees" value: rad_araucaria.y;
+        monitor "Circle size for broadleaved trees" value: rad_broadleaf.y;
 		monitor "Size of fire" value:firesize;
 		monitor "wildfire_rate" value: wildfires? wildfire_rate : 0;
 		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
@@ -353,5 +382,79 @@ experiment fireandforest type: gui {
 		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
 		monitor "grass_flammability" value: grass_flammability;
 		
+	}
+}
+
+experiment fireandforest_graphic type: gui until: time>10  {
+	
+	init {
+		graphic <- true;
+		ask (araucaria + broadleaf) {do update_traits;}
+	}
+
+	
+	// Parameters
+	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
+	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Tile size" category: "Init" var: tile_size min:1#m;
+	parameter "Initial light demanding pop" category: "Init" var: initial_pop_araucaria min:0;
+	parameter "Initial shade tolerant pop" category: "Init" var: initial_pop_broadleaf min:0;
+	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
+	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
+	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.0;
+	parameter "Broadleaf shade tolerance" category: "Init" var: shade_threshold_broadleaf min:0.0;
+	
+	parameter "Wildfires" category: "Fire" var:wildfires;
+	
+	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
+	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0;
+	
+	// Define attributes, actions, a init section and behaviors if necessary
+	
+	
+	
+	output {
+		display "Number of trees" {
+			chart "Number of adult trees" type: series size: {1,0.5} position: {0, 0} {
+        		data "Number of araucaria trees" value: nb_araucaria color: #darkgreen ;
+        		data "Number of broadleaf trees" value: nb_broadleaf color: #red ;
+        	}
+        }
+        
+		display "Radius of circle with 95% of adult trees" {
+			chart "Distance from center of adult trees" type: series size: {1,0.5} position: {0, 0} {
+        		data "araucaria trees - outer" value: rad_araucaria.y color: #darkgreen ;
+        		data "broadleaved trees - outer" value: rad_broadleaf.y color: #red ;
+        		data "araucaria trees - inner" value: rad_araucaria.x color: #darkgreen ;
+        		data "broadleaved trees - inner" value: rad_broadleaf.x color: #red ;
+        	}
+        }
+        
+        display "Wildfires" {
+			chart "Size of the last fire" type: series style: stack size: {1,0.5} position: {0, 0} y_range: {0,size^2} {
+        		data "Number of terrain tiles" value:firesize color: #black ;
+        	}
+        }
+	
+		display "Number of times burned per 30 years" {
+       		chart "my_chart" type: histogram {
+        		datalist (distribution_of(grass collect (30*each.burnsperyear()),10,0,10) at "legend") 
+           	 	value:(distribution_of(grass collect (30*each.burnsperyear()),10,0,10) at "values");      
+        	}
+        }
+        
+		display "model" {
+			grid grass;
+			species broadleaf;
+			species araucaria;
+			//event mouse_up action: click;
+		}
+		
+		//display "model 3D" camera_interaction:false camera_pos:{world.shape.width/2,world.shape.height*2,world.shape.width*2} 
+		//camera_look_pos:{world.shape.width/2,world.shape.height/2,0} 
+		//camera_up_vector:{0.0,-1.0,0.0}type:opengl{
+		//	species grass aspect: trid;
+		//}
 	}
 }
