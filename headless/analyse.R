@@ -89,7 +89,7 @@ results_par <- aggregate(results_finalvalues,by=list(par_group=results_finalvalu
 data_hyps<- merge(data,results,by="par_group")
 
 plot_final_values(subset(finalvalues,full),"araucaria_base_flammability")
-plot_all_hyps(results_par,"wildfire_rate")
+plot_all_hyps(results_par,"grass_flammability")
 plot.hypotheses(results[!results$full_extinction,],function(x,c,...) barplot(table(x[,c]),...))
 plot.hyp(results_par,"full_extinction","wildfire_rate")
 ### full plots
@@ -101,3 +101,13 @@ weirds.half <- subset(weirds, time<1000)
 res.weirds<- test.hypotheses.all(weirds.half)
 
 lines.par(subset(data,wildfire_rate > 0 & initial_pop_araucaria > 0 & time>500),"edge_range","araucaria_base_flammability")
+
+# crowding
+tree_canopy_area <- pi*5*5
+tile_area<-10*10
+shade_percent <- tree_canopy_area/tile_area
+
+expected_crowd <- function(shade_threshold) {
+    ceiling(shade_threshold/shade_percent)
+}
+
