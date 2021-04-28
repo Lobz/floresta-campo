@@ -15,41 +15,73 @@ plot_final_values(data,"wildfire_rate")
 
 test.hypotheses <- function(data) {
     ## separate scenarios
-    NoAr.one <- subset(data,initial_pop_araucaria==0)
-    NoFi.one <- subset(data,wildfire_rate==0)
-    Full.one <- subset(data,initial_pop_araucaria>0 & wildfire_rate >0)
+    NoAr.one <- subset(data,noAr)
+    NoFi.one <- subset(data,noFi)
+    Full.one <- subset(data,full)
 
     ## extract variables
-    finaltime <- max(data$time)
 
-    NoFi.final <- subset(NoFi.one,time==finaltime)
-    NoFi.initial <- subset(NoFi.one,time==1)
-    NoAr.final <- subset(NoAr.one,time==finaltime)
-    NoAr.initial <- subset(NoAr.one,time==1)
-    Full.final <- subset(Full.one,time==finaltime)
-    Full.initial <- subset(Full.one,time==1)
-
-    ## hyp1 : patch will grow
-    hyp1 <- max(Full.final$circ.araucaria,Full.final$circ.broadleaf) > max(Full.initial$circ.araucaria,Full.initial$circ.broadleaf)
-    ## hyp2 : araucaria is on the edge
-    hyp2 <- Full.final$circ.araucaria > Full.final$circ.broadleaf
-    ## hyp3 : broadleaf grows better with araucaria / can't grow without araucaria
-    hyp3a <- Full.final$n.broadleaf > NoAr.final$n.broadleaf
-    hyp3b <- NoAr.final$circ.broadleaf <= NoAr.initial$circ.broadleaf
-    ## hyp4 : without fire, broadleaf grows and competes with araucaria
-    hyp4a <- Full.final$n.broadleaf < NoFi.final$n.broadleaf
-    hyp4b <- Full.final$n.araucaria > NoFi.final$n.araucaria
-    ## hyp5 : broadleaf expansion tracks araucaria expansion
-    hyp5 <- NA
-#   Full.half <- subset(Full.one, time>500) ## eliminate beggining
-#   maxpop <- max(Full.half$n.araucaria)
-#   maxpoptime <- subset(Full.half,n.araucaria==maxpop)$time
-#   Full.half <- subset(Full.one, time < maxpoptime)
-#   anova(lm(edge_range~time, Full.half))
-    
+    maxtime <- max(Full.one$time)
+    Full.final <- subset(Full.one,time==maxtime)
 
     ## extinction full check
     ext <- Full.final$n.araucaria+Full.final$n.broadleaf < 10
+
+    ## loglikelyhood functions for growthrate comparisons
+    compare.two <- function (x1, t1, x2, t2) {
+        LL.same <- function(a1, a2, b, sd){
+        -sum(dnorm(x1, mean= a1 + b*t1, sd=sd, log=T)) -sum(dnorm(x2, mean= a2 + b*t2, sd=sd, log=T))
+        }
+
+        LL.diff <- function(a1, a2, b1, b2, sd){
+        -sum(dnorm(x1, mean= a1 + b1*t1, sd=sd, log=T)) -sum(dnorm(x2, mean= a2 + b2*t2, sd=sd, log=T))
+        }
+
+        lm1 <- lm(x1 ~ t1)
+        lm2 <- lm(x2 ~ t2)
+
+        sa1 <- coef(lm1)[1]
+        sa2 <- coef(lm2)[1]
+        sb1 <- coef(lm1)[2]
+        sb2 <- coef(lm2)[2]
+
+        model.same <- mle2(LL.same, start=list(a1=sa1, a2=sa2, b = mean(sb1,sb2), sd=1))
+        model.diff <- mle2(LL.diff, start=list(a1=sa1, a2=sa2, b1=sb1, b2=sb2, sd=1))
+
+        aic <- AIC(model.same,model.diff)$AIC
+        if (aic[1] < aic[2] - 2) {
+            return (FALSE);
+        }
+        if (aic[1] > aic[2] + 2) {
+            ## difference
+            if (sb1 > sb2) {
+                return (1);
+            }
+            else {
+                return (2);
+            }
+        }
+        return (FALSE);
+    }
+
+    ## hyp1 : patch will grow
+    model <- lm(circ.broadleaf ~ time, Full.one)
+    hyp1 <- !ext && coef(model)[2] > 0 && summary(model)$coefficients[2,4] < 0.05
+    ## hyp2 : araucaria is on the edge
+    hyp2 <- median(Full.one$edge_range) > 10
+    ## hyp3 : broadleaf grows better with araucaria / can't grow without araucaria
+    model_NoAr <- lm(circ.broadleaf ~ time, NoAr.one)
+    growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
+    aic <- compare.two(Full.one$circ.broadleaf, Full.one$time, NoAr.one$circ.broadleaf, NoAr.one$time)
+    hyp3a <- (aic == 1)
+    hyp3b <- !growth_NoAr
+    ## hyp4 : without fire, broadleaf grows and competes with araucaria
+    aic <- compare.two(Full.one$circ.broadleaf, Full.one$time, Full.one$circ.broadleaf, Full.one$time)
+    hyp4a <- (aic == 2)
+    aic <- compare.two(Full.one$n.araucaria, Full.one$time, NoFi.one$n.araucaria, NoFi.one$time)
+    hyp4b <- (aic == 1)
+    ## hyp5 : broadleaf expansion tracks araucaria expansion
+    hyp5 <- FALSE
 
     ## error catching
     if(nrow(Full.one)==0) {
@@ -97,10 +129,6 @@ plot.fours.columns(data,lines.par,column.par="wildfire_rate")
 weirds <- (subset(data_hyps,h1&!(h2&h3a&h3b&h4a&h4b)))
 weirds <- weirds[order(weirds$time),]
 plot.fours.columns(weirds,lines.par,column.par="wildfire_rate")
-weirds.half <- subset(weirds, time<1000)
-res.weirds<- test.hypotheses.all(weirds.half)
-
-lines.par(subset(data,wildfire_rate > 0 & initial_pop_araucaria > 0 & time>500),"edge_range","araucaria_base_flammability")
 
 # crowding
 tree_canopy_area <- pi*5*5
