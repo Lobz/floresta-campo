@@ -34,20 +34,24 @@ plot.fours.columns <- function(data, fun, label = "over time", ...) {
     par(mfrow=c(1,1))
 }
 
-plot.hypotheses <- function(data,fun,label="", ...) {
-    par(mfrow=c(2,3))
+plot.hypotheses <- function(data,fun, ...) {
+    par(mfrow=c(3,3))
     fun(data,"h1",...)
     title(paste0("H1: Patch has grown "))
-    fun(data,"h2",...)
-    title(paste0("H2: Araucaria pushed to edges "))
+    fun(data,"h2a",...)
+    title(paste0("H2a: Araucaria grows at edges (Full Model)"))
+    fun(data,"h2b",...)
+    title(paste0("H2b: Araucaria grows at edges (No Fire)"))
     fun(data,"h3a",...)
-    title(paste0("H3a: nB Full > nB NoAr "))
+    title(paste0("H3a: broadleafs expand faster with Araucaria "))
     fun(data,"h3b",...)
     title(paste0("H3b: broadleafs can't expand without Ar"))
     fun(data,"h4a",...)
-    title(paste0("H4a: nB Full < nB NoFi"))
+    title(paste0("H4a: broadleafs expand faster without fire"))
     fun(data,"h4b",...)
-    title(paste0("H4b: nA Full > nA NoFi "))
+    title(paste0("H4b: Araucaria population grows faster with fire "))
+    fun(data,"h5",...)
+    title(paste0("H5: Both groups expand, with Araucaria at edges"))
     par(mfrow=c(1,1))
 }
 
@@ -69,8 +73,8 @@ plot.boolean <- function(d,y,t_cat,cats,...) {
     props<-sapply(s,mean)
     labels<- round(cats[as.integer(names(props))],2)
     labels<- round(cats,2)
-    barplot(rep(1,length(cats)),col="grey",space=0,border=F,names.arg=labels)
-    barplot(props,col="darkblue",space=0,border=F,names.arg=labels,add=T)
+    barplot(rep(1,length(cats)),col="grey",space=0,border=F,names.arg=labels, ylab="frequency of hypothesis",...)
+    barplot(props,col="darkblue",space=0,border=F,names.arg=labels,add=T,...)
 }
 
 plot.hyp <- function(data,column,column.par,...) {
@@ -87,10 +91,7 @@ plot_all_hyps <- function(data,column.par) {
     treatement<-data[,column.par]
     cats <- seq(min(treatement),max(treatement),length.out=10)
     t_cat <- factor(findInterval(treatement,cats), levels=1:10)
-    finaltime <- max(data$time)
-    finalvalues<- subset(data,time==finaltime)
-    label <- paste0("after ",finaltime," years")
-    plot.hypotheses(finalvalues,plot.boolean,label,par=column.par,t_cat=t_cat,cats=cats)
+    plot.hypotheses(data,plot.boolean,par=column.par,t_cat=t_cat,cats=cats, xlab=column.par)
 }
 
 plot_final_values <- function(data,column.par) {

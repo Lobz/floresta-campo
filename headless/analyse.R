@@ -10,94 +10,134 @@ data$edge_range <- data$circ.araucaria - data$circ.broadleaf
 data$noAr <- data$initial_pop_araucaria ==0
 data$noFi <- data$wildfire_rate ==0
 data$full <- !data$noAr & !data$noFi
+data$circ.max <- pmax(data$circ.araucaria, data$circ.broadleaf)
 
 plot_final_values(data,"wildfire_rate")
 
+## this function tells which function has a higher (linear) growth rate
+## returns 1, 2 or FALSE is the difference is insignificant
+library(bbmle)
+compare.two <- function (x1, t1, x2, t2, log=FALSE) {
+    ## loglikelyhood functions for growthrate comparisons
+    LL.same <- function(a1, a2, b, sd){
+        -sum(dnorm(x1, mean= a1 + b*t1, sd=sd, log=T)) -sum(dnorm(x2, mean= a2 + b*t2, sd=sd, log=T))
+    }
+
+    LL.diff <- function(a1, a2, b1, b2, sd){
+        -sum(dnorm(x1, mean= a1 + b1*t1, sd=sd, log=T)) -sum(dnorm(x2, mean= a2 + b2*t2, sd=sd, log=T))
+    }
+
+    if (log) {
+        x1 <- log(x1)
+        x2 <- log(x2)
+    }
+
+    lm1 <- lm(x1 ~ t1)
+    lm2 <- lm(x2 ~ t2)
+
+    sa1 <- coef(lm1)[1]
+    sa2 <- coef(lm2)[1]
+    sb1 <- coef(lm1)[2]
+    sb2 <- coef(lm2)[2]
+
+    model.same <- mle2(LL.same, start=list(a1=sa1, a2=sa2, b = mean(sb1,sb2), sd=1))
+    model.diff <- mle2(LL.diff, start=list(a1=sa1, a2=sa2, b1=sb1, b2=sb2, sd=1))
+
+    aic <- AIC(model.same,model.diff)$AIC
+    if (aic[1] < aic[2] - 2) {
+        return (FALSE);
+    }
+    if (aic[1] > aic[2] + 2) {
+        ## difference
+        if (sb1 > sb2) {
+            return (1);
+        }
+        else {
+            return (2);
+        }
+    }
+    return (FALSE);
+}
+
 test.hypotheses <- function(data) {
     ## separate scenarios
-    NoAr.one <- subset(data,noAr)
-    NoFi.one <- subset(data,noFi)
-    Full.one <- subset(data,full)
+    NoAr <- subset(data,noAr)
+    NoFi <- subset(data,noFi)
+    Full <- subset(data,full)
 
     ## extract variables
 
-    maxtime <- max(Full.one$time)
-    Full.final <- subset(Full.one,time==maxtime)
+    maxtime <- max(Full$time)
+    Full.final <- subset(Full, time==max(Full$time))
+    NoAr.final <- subset(NoAr, time==max(NoAr$time))
+    NoFi.final <- subset(NoFi, time==max(NoFi$time))
 
     ## extinction full check
-    ext <- Full.final$n.araucaria+Full.final$n.broadleaf < 10
-
-    ## loglikelyhood functions for growthrate comparisons
-    compare.two <- function (x1, t1, x2, t2) {
-        LL.same <- function(a1, a2, b, sd){
-        -sum(dnorm(x1, mean= a1 + b*t1, sd=sd, log=T)) -sum(dnorm(x2, mean= a2 + b*t2, sd=sd, log=T))
-        }
-
-        LL.diff <- function(a1, a2, b1, b2, sd){
-        -sum(dnorm(x1, mean= a1 + b1*t1, sd=sd, log=T)) -sum(dnorm(x2, mean= a2 + b2*t2, sd=sd, log=T))
-        }
-
-        lm1 <- lm(x1 ~ t1)
-        lm2 <- lm(x2 ~ t2)
-
-        sa1 <- coef(lm1)[1]
-        sa2 <- coef(lm2)[1]
-        sb1 <- coef(lm1)[2]
-        sb2 <- coef(lm2)[2]
-
-        model.same <- mle2(LL.same, start=list(a1=sa1, a2=sa2, b = mean(sb1,sb2), sd=1))
-        model.diff <- mle2(LL.diff, start=list(a1=sa1, a2=sa2, b1=sb1, b2=sb2, sd=1))
-
-        aic <- AIC(model.same,model.diff)$AIC
-        if (aic[1] < aic[2] - 2) {
-            return (FALSE);
-        }
-        if (aic[1] > aic[2] + 2) {
-            ## difference
-            if (sb1 > sb2) {
-                return (1);
-            }
-            else {
-                return (2);
-            }
-        }
-        return (FALSE);
-    }
-
+    ext_full_a <- Full.final$n.araucaria < 10
+    ext_full_b <- Full.final$n.broadleaf < 10
+    ext_full <- ext_full_a && ext_full_b
+    ext_NoAr <- NoAr.final$n.araucaria + NoAr.final$n.broadleaf < 10
+    ext_NoFi_a <- NoFi.final$n.araucaria < 10 
+    ext_NoFi_b <- NoFi.final$n.broadleaf < 10
+   
     ## hyp1 : patch will grow
-    model <- lm(circ.broadleaf ~ time, Full.one)
-    hyp1 <- !ext && coef(model)[2] > 0 && summary(model)$coefficients[2,4] < 0.05
-    ## hyp2 : araucaria is on the edge
-    hyp2 <- median(Full.one$edge_range) > 10
+    if (ext_full) {
+        hyp1 <- FALSE
+    }
+    else {
+        model <- lm(circ.max ~ time, Full)
+        hyp1 <- coef(model)[2] > 0 && summary(model)$coefficients[2,4] < 0.05
+    }
+    ## hyp2 : araucaria is on the edge in full and NoFi models
+    hyp2a <- median(Full$edge_range) > 10
+    hyp2b <- median(NoFi$edge_range) > 10
     ## hyp3 : broadleaf grows better with araucaria / can't grow without araucaria
-    model_NoAr <- lm(circ.broadleaf ~ time, NoAr.one)
-    growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
-    aic <- compare.two(Full.one$circ.broadleaf, Full.one$time, NoAr.one$circ.broadleaf, NoAr.one$time)
-    hyp3a <- (aic == 1)
-    hyp3b <- !growth_NoAr
-    ## hyp4 : without fire, broadleaf grows and competes with araucaria
-    aic <- compare.two(Full.one$circ.broadleaf, Full.one$time, Full.one$circ.broadleaf, Full.one$time)
-    hyp4a <- (aic == 2)
-    aic <- compare.two(Full.one$n.araucaria, Full.one$time, NoFi.one$n.araucaria, NoFi.one$time)
-    hyp4b <- (aic == 1)
-    ## hyp5 : broadleaf expansion tracks araucaria expansion
-    hyp5 <- FALSE
+    if (!ext_full && ext_NoAr) {
+        hyp3a <- TRUE
+        hyp3b <- TRUE
+    }
+    else if (ext_full && !ext_NoAr) {
+        hyp3a <- FALSE
+        hyp3b <- FALSE
+    }
+    else {
+        aic <- compare.two(Full$circ.broadleaf, Full$time, NoAr$circ.broadleaf, NoAr$time)
+        hyp3a <- (aic == 1)
 
-    ## error catching
-    if(nrow(Full.one)==0) {
-        hyp1=hyp2=hyp3a=hyp3b=hyp4a=hyp4b=hyp5=extinction=NA;
+        model_NoAr <- lm(circ.broadleaf ~ time, NoAr)
+        growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
+        hyp3b <- !growth_NoAr
     }
-    if(nrow(NoFi.one)==0) {
-        hyp4a=NA;
-        hyp4b=NA;
+    ## hyp4 : without fire, broadleaf grows and competes with araucaria
+    if (ext_full_b && !ext_NoFi_b) {
+        hyp4a <- TRUE
     }
-    if(nrow(NoAr.one)==0) {
-        hyp3a=hyp3b=NA;
+    else {
+        aic <- compare.two(Full$circ.broadleaf, Full$time, NoFi$circ.broadleaf, NoFi$time)
+        hyp4a <- (aic == 2)
+    }
+    if (!ext_full_a && ext_NoFi_a) {
+        hyp4b <- TRUE
+    }
+    else if (ext_full_a && !ext_NoFi_a) {
+        hyp4b <- FALSE
+    }
+    else {
+        aic <- compare.two(Full$n.araucaria, Full$time, NoFi$n.araucaria, NoFi$time, log=TRUE)
+        hyp4b <- (aic == 1)
+    }
+    ## hyp5 : broadleaf expansion tracks araucaria expansion
+    if (ext_full_a || ext_full_b) {
+        hyp5 <- FALSE
+    }
+    else {
+        model <- lm(circ.broadleaf ~ time, Full)
+        hyp5 <- hyp2a && coef(model)[2] > 0 && summary(model)$coefficients[2,4] < 0.05
     }
 
     ## array of hypotheses
-    hypotheses <- c(hyp1,hyp2,hyp3a,hyp3b,hyp4a,hyp4b,hyp5,ext)
-    names(hypotheses) <- c("h1","h2","h3a","h3b","h4a","h4b","h5","full_extinction")
+    hypotheses <- c(hyp1,hyp2a,hyp2b,hyp3a,hyp3b,hyp4a,hyp4b,hyp5,ext_full,ext_NoAr,ext_NoFi_a && ext_NoFi_b)
+    names(hypotheses) <- c("h1","h2a","h2b","h3a","h3b","h4a","h4b","h5","Full_extinction","NoAr_extinction","NoFi_extinction")
     hypotheses
 }
 
@@ -112,18 +152,14 @@ test.hypotheses.all <- function(data) {
 results<- test.hypotheses.all(data)
 results$par_group<-as.numeric(rownames(results))
 ### merge back into values of data
-finaltime <- max(data$time)
-finalvalues<- subset(data,time==finaltime)
-results_finalvalues <- merge(results,finalvalues,by="par_group")
-results_par <- aggregate(results_finalvalues,by=list(par_group=results_finalvalues$par_group),function(x) {
-    tryCatch(max(x),error=function(e)NA)
-})
+onetimestep<- subset(data,time==1)
+results_par <- merge(results,onetimestep,by="par_group")
 data_hyps<- merge(data,results,by="par_group")
 
 plot_final_values(subset(finalvalues,full),"araucaria_base_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 plot.hypotheses(results[!results$full_extinction,],function(x,c,...) barplot(table(x[,c]),...))
-plot.hyp(results_par,"full_extinction","wildfire_rate")
+plot.hyp(results_par,"Full_extinction","wildfire_rate")
 ### full plots
 plot.fours.columns(data,lines.par,column.par="wildfire_rate")
 weirds <- (subset(data_hyps,h1&!(h2&h3a&h3b&h4a&h4b)))
