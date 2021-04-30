@@ -1,6 +1,6 @@
 ## CONSTANTS & UTILS
 finalstep <- 2000
-samplesize <- 400
+samplesize <- 30
 numreps <- 1
 
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
@@ -15,7 +15,7 @@ my_filename <- paste0("LHS_",today,rnd,".xml")
 
 par_names <- c("wildfire_rate", "shade_threshold_araucaria","shade_threshold_ratio","araucaria_base_flammability","araucaria_dispersal","broadleaf_dispersal","grass_flammability")
 
-q.arg <- list(list(min=0.00,max=0.15),list(min=0.5,max=1.5),list(min=0.9,max=2.5),list(min=0.5,max=0.8),list(min=5,max=30),list(min=5,max=30),list(min=0.4,0.7))
+q.arg <- list(list(min=0.00,max=0.3),list(min=0.5,max=1.5),list(min=0.9,max=3),list(min=0.4,max=0.9),list(min=5,max=30),list(min=5,max=30),list(min=0.4,0.7))
 
 
 ## creating parameter data.frame
