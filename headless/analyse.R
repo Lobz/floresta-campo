@@ -111,7 +111,7 @@ test.hypotheses <- function(data) {
         hyp3a <- FALSE
         model_NoAr <- lm(circ.broadleaf ~ time, NoAr)
         growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
-        hyp3b <- !growth_NoAE
+        hyp3b <- !growth_NoAr
     }
     else {
         aic <- compare.two(Full$circ.broadleaf, Full$time, NoAr$circ.broadleaf, NoAr$time)
