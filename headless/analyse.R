@@ -12,6 +12,17 @@ data$noFi <- data$wildfire_rate ==0
 data$full <- !data$noAr & !data$noFi
 data$circ.max <- pmax(data$circ.araucaria, data$circ.broadleaf)
 
+finalstep <- function (one.run) {
+    subset(one.run, time == max(one.run$time))
+}
+
+finalvalues <- by(data, data$sim_unique_id, finalstep)
+finalvalues <- as.data.frame(do.call(rbind,finalvalues))
+
+finalvalues$extinction <- finalvalues$n.araucaria + finalvalues$n.broadleaf == 0
+finalvalues$area_limit <- finalvalues$circ.max >= 300
+finalvalues$time_limit <- finalvalues$time == 2000
+
 plot_final_values(data,"wildfire_rate")
 
 ## this function tells which function has a higher (linear) growth rate
@@ -98,7 +109,9 @@ test.hypotheses <- function(data) {
     }
     else if (ext_full && !ext_NoAr) {
         hyp3a <- FALSE
-        hyp3b <- FALSE
+        model_NoAr <- lm(circ.broadleaf ~ time, NoAr)
+        growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
+        hyp3b <- !growth_NoAE
     }
     else {
         aic <- compare.two(Full$circ.broadleaf, Full$time, NoAr$circ.broadleaf, NoAr$time)

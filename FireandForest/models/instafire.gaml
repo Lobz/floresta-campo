@@ -404,6 +404,7 @@ experiment fireandforest_graphic type: gui until: time>10  {
 	parameter "Wildfires" category: "Fire" var:wildfires;
 	
 	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
+	parameter "grass_flammability" category: "Grass" var: grass_flammability min:0.0;
 	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0;
 	
 	// Define attributes, actions, a init section and behaviors if necessary
