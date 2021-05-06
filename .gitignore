@@ -19,3 +19,4 @@ headless/headless_outputs/
 headless/set-gamadir.bat
 headless/*.RData
 FireandForest/models/benchmarks/
+*.Rdata
