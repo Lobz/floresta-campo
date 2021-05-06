@@ -96,9 +96,11 @@ plot_all_hyps <- function(data,column.par) {
 
 plot_final_values <- function(data,column.par) {
     colors <- make_colors(data[,column.par])
-    finaltime <- max(data$time)
-    finalvalues<- subset(data,time==finaltime)
-    label <- paste0("after ",finaltime," years")
-    plot.fours.columns(finalvalues,plot.one.timestep,label,par=column.par,xlab=column.par,colors=colors)
+    label = "ät simulation end"
+    plot.fours.columns(data,plot.one.timestep,label,par=column.par,xlab=column.par,colors=colors)
 }
 
+pancake.plot <- function (results, x.par, y.par, col.par) {
+    colors <- make_colors(results[,col.par])
+    plot(results[,x.par], results[,y.par], col=colors[as.character(results[,col.par])], xlab=x.par, ylab=y.par)
+}

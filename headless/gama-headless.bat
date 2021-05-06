@@ -4,7 +4,7 @@ cls
 setLocal EnableDelayedExpansion
 set inputFile=""
 set outputFile="" 
-set memory=2048m
+set memory=4096m
 set workDir=%TEMP%\.work%RANDOM%
 SETLOCAL enabledelayedexpansion
 

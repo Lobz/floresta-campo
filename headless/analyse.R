@@ -23,8 +23,6 @@ finalvalues$extinction <- finalvalues$n.araucaria + finalvalues$n.broadleaf == 0
 finalvalues$area_limit <- finalvalues$circ.max >= 300
 finalvalues$time_limit <- finalvalues$time == 2000
 
-plot_final_values(data,"wildfire_rate")
-
 ## this function tells which function has a higher (linear) growth rate
 ## returns 1, 2 or FALSE is the difference is insignificant
 library(bbmle)
@@ -158,18 +156,17 @@ test.hypotheses.all <- function(data) {
     ## turn indices into factors
     data$par_group <- as.factor(data$par_group)
 
-    results.raw <- by(data,data$par_group,test.hypotheses)
+    results.raw <- by(data,data$par_group,function(x){tryCatch(test.hypotheses(x), error=function(x) {rep(NA,11)} )})
     results <- as.data.frame(do.call(rbind,results.raw))
     results
 }
 results<- test.hypotheses.all(data)
 results$par_group<-as.numeric(rownames(results))
 ### merge back into values of data
-onetimestep<- subset(data,time==1)
-results_par <- merge(results,onetimestep,by="par_group")
+results_par <- merge(results,finalvalues,by="par_group")
 data_hyps<- merge(data,results,by="par_group")
 
-plot_final_values(subset(finalvalues,full),"araucaria_base_flammability")
+plot_final_values(subset(finalvalues,full),"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 plot.hypotheses(results[!results$full_extinction,],function(x,c,...) barplot(table(x[,c]),...))
 plot.hyp(results_par,"Full_extinction","wildfire_rate")
