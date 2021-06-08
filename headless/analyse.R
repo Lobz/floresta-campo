@@ -2,6 +2,7 @@
 # make sure you've used createxml to create the xml for gama_headless and xmlToCsv to save the results in csv format
 
 source("plotsfuns.utils.R")
+
 ### PLOTS
 datafull <- read.csv(file=myfilename,stringsAsFactors=T)
 
