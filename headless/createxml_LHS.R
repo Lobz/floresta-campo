@@ -1,9 +1,8 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 2000
+finalstep <- 20
 samplesize <- 30
 numreps <- 1
-chunksize <- 10
 
 gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
 source("createxml.utils.R")
@@ -11,7 +10,7 @@ source("createxml.utils.R")
 ## filenaming
 rnd <- paste0(sample(chars, 5, TRUE),collapse="")
 today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
-groupname <-  paste0("LHS_",today,rnd)
+groupname <-  paste0("LHS_",today,"_",rnd)
 
 ## parametrizing
 
@@ -32,45 +31,8 @@ save(my_LHS_pars,file=paste0(groupname,".RData"))
 
 par.data <- my_LHS_pars$data
 par.data$par_group <- rownames(par.data)
-
-### Parameters
-sim.params<-apply(par.data,1,par.row)
-## scenarios
-FMparams <- paste0(sim.params,'')
-NAparams <- paste0(sim.params,'<Parameter name="initial_pop_ratio" type="INT" value="0" />')
-NFparams <- paste0(sim.params,'<Parameter name="Wildfires" type="BOOLEAN" value="false" />')
-
-my_names <- c("Full","NoAr","NoFi")
-sim.params <- c(FMparams,NAparams,NFparams)
-
-## UNIQUE IDS
-n <- length(sim.params)
-rndc <- do.call(paste0, replicate(5, sample(chars, n , TRUE), FALSE)) # generate unique ids
-sim_ids <- paste0('LHS_',today,'_',rndc)  ## array of sim ids
-simheaders <- paste0(simheadbeg,sim_ids,simheadend) ## array of headers
-
-## JOIN ALL SIM INFO
-simxml <- paste(simheaders,sim.params,outputs,'</Simulation>\n', sep="\n")
-
-### SPLIT INTO CHUNKS
-chunks <- split (simxml, ceiling(seq_along(simxml)/chunksize))
-
-### WRITING
-for (i in 1:length(chunks)) {
-    my_filename <- paste0("xmls/",groupname,"_chunk_",i,".xml")
-    simxml <- chunks[[i]]
-
-    file.create(my_filename)
-    write(header, my_filename, append=FALSE)
-    sapply(simxml,FUN=w)
-    w(footer)
-}
-
+## WRITING
+my_filenames <- createxml(par.data,groupname)
 ## RUNNING
-
 outputdir <- paste0('headless_outputs/',groupname,'-out')
-for (i in 1:length(chunks)) {
-    my_filename <- paste0("xmls/",groupname,"_chunk_",i,".xml")
-    system(paste0('gama-headless.bat ',my_filename,' ',outputdir))
-}
-
+run_simulations(my_filenames, outputdir)
