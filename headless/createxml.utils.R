@@ -1,14 +1,5 @@
 #createxml.utils.R
 
-header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
-<Experiment_plan>
-"
-outputs <- readChar("outputs.xmlpart", file.info("outputs.xmlpart")$size)
-
-simheadbeg <- '
-    <Simulation id="'
-simheadend <- paste0('" sourcePath="',gamlfile,'" finalStep="',finalstep,'" experiment="fireandforest" until="length(araucaria) + length(broadleaf) = 0 or max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2">')
-footer <- '</Experiment_plan>'
 
 par.line <- function(name,p) {
     paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
@@ -23,8 +14,22 @@ chars <- c(LETTERS,letters,0:9)
 
 ### MAIN FUNCTION
 
-createxml <- function(par.data, groupname, scenarios=TRUE) {
-    chunksize <- 10
+createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE) {
+
+    header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
+<Experiment_plan>
+"
+    outputs <- readChar("outputs.xmlpart", file.info("outputs.xmlpart")$size)
+
+    simheadbeg <- '
+        <Simulation id="'
+    until='until="max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+    if(stop.at.extinction) {
+        until='until="length(araucaria) + length(broadleaf) = 0 or max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+    }
+    simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="fireandforest" ', until, ' >')
+    
+    footer <- '</Experiment_plan>'
 
     ### Parameters
     sim.params<-apply(par.data,1,par.row)

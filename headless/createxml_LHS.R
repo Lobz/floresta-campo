@@ -3,6 +3,7 @@
 finalstep <- 20
 samplesize <- 30
 numreps <- 1
+chunksize <- 10
 
 gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
 source("createxml.utils.R")
