@@ -70,8 +70,7 @@ plot.one.timestep <- function(d,y,par,colors,...) plot(d[,y]~d[,par],col=colors[
 plot.boolean <- function(d,y,t_cat,cats,...) {
     values<-d[,y]
     s<-split(values,t_cat)
-    props<-sapply(s,mean)
-    labels<- round(cats[as.integer(names(props))],2)
+    props<-sapply(s,function(x) mean(x,na.rm=T))
     labels<- round(cats,2)
     barplot(rep(1,length(cats)),col="grey",space=0,border=F,names.arg=labels, ylab="frequency of hypothesis",...)
     barplot(props,col="darkblue",space=0,border=F,names.arg=labels,add=T,...)
@@ -79,7 +78,7 @@ plot.boolean <- function(d,y,t_cat,cats,...) {
 
 plot.hyp <- function(data,column,column.par,...) {
     treatement<-data[,column.par]
-    cats <- seq(min(treatement),max(treatement),length.out=10)
+    cats <- seq(min(treatement)-0.00001,max(treatement)+0.00001,length.out=10)
     t_cat <- factor(findInterval(treatement,cats), levels=1:10)
     finaltime <- max(data$time)
     finalvalues<- subset(data,time==finaltime)
@@ -89,14 +88,14 @@ plot.hyp <- function(data,column,column.par,...) {
 
 plot_all_hyps <- function(data,column.par) {
     treatement<-data[,column.par]
-    cats <- seq(min(treatement),max(treatement),length.out=10)
+    cats <- seq(min(treatement),max(treatement),length.out=11)[1:10]
     t_cat <- factor(findInterval(treatement,cats), levels=1:10)
     plot.hypotheses(data,plot.boolean,par=column.par,t_cat=t_cat,cats=cats, xlab=column.par)
 }
 
 plot_final_values <- function(data,column.par) {
     colors <- make_colors(data[,column.par])
-    label = "ät simulation end"
+    label = "at simulation end"
     plot.fours.columns(data,plot.one.timestep,label,par=column.par,xlab=column.par,colors=colors)
 }
 

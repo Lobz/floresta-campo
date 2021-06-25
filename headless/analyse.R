@@ -23,6 +23,15 @@ data_hyps<- merge(data,results,by="par_group")
 
 plot_final_values(subset(finalvalues,full),"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
+
+batchname <- tools::file_path_sans_ext(basename(myfilename))
+save.plots <- function(name) {
+    pdf(paste0("images/",batchname,"/",name,".pdf"), width=12, height=8)
+    plot_all_hyps(results_par,name)
+    dev.off()
+}
+lapply(par_names,save.plots)
+
 plot.hypotheses(results[!results$full_extinction,],function(x,c,...) barplot(table(x[,c]),...))
 plot.hyp(results_par,"Full_extinction","wildfire_rate")
 ### full plots
