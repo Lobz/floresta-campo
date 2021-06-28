@@ -63,6 +63,7 @@ global {
 	list<float> tree_growth_rate <- [1.0,0.1,0.1,0.1,0];//ind_lit_growth_rate collect (each*2 > 1 ? 1 : each*2);
 	list<float> tree_canopy_size <- [0.1,0.5,1,2,5];
 	list<float> tree_height <- [0.1,0.5,1.0,10,40];
+	float tree_dispersal <- 10#m;
 	
 	// divergent values
 	float araucaria_base_flammability <- 0.7 parameter:true;
@@ -72,8 +73,8 @@ global {
 	float shade_threshold_araucaria <- 1.0;
 	float shade_threshold_ratio <- 2.0;
 	float shade_threshold_broadleaf <- shade_threshold_araucaria*shade_threshold_ratio;
-	float araucaria_dispersal <- 10#m;
-	float broadleaf_dispersal <- 10#m;
+	float araucaria_dispersal <- tree_dispersal;
+	float broadleaf_dispersal <- tree_dispersal;
 
 	
 	// Monitoring
@@ -343,6 +344,7 @@ experiment fireandforest type: gui {
 	parameter "tile_size" category: "Init" var: tile_size min:1#m;
 	parameter "initial_pop_total" category: "Init" var: initial_pop_total min:0;
 	parameter "initial_pop_ratio" category: "Init" var: initial_pop_ratio min:0 max:1.0;
+	parameter "tree_dispersal" category: "Init" var: tree_dispersal min:0.0;
 	parameter "araucaria_dispersal" category: "Init" var: araucaria_dispersal min:0.0;
 	parameter "broadleaf_dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
 	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;

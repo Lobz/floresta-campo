@@ -15,9 +15,9 @@ groupname <-  paste0("LHS_",today,"_",rnd)
 
 ## parametrizing
 
-par_names <- c("wildfire_rate", "shade_threshold_araucaria","shade_threshold_ratio","araucaria_base_flammability","araucaria_dispersal","broadleaf_dispersal","grass_flammability")
+par_names <- c("wildfire_rate", "shade_threshold_ratio", "araucaria_base_flammability", "tree_dispersal", "grass_flammability")
 
-q.arg <- list(list(min=0.00,max=0.3),list(min=0.5,max=1.5),list(min=0.9,max=3),list(min=0.4,max=0.9),list(min=5,max=30),list(min=5,max=30),list(min=0.4,0.7))
+q.arg <- list(list(min=0.00,max=0.3), list(min=1.0,max=3), list(min=0.4,max=0.9), list(min=5,max=30), list(min=0.4,0.7))
 
 
 ## creating parameter data.frame
