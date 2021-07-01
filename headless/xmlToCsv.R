@@ -39,8 +39,7 @@ dados_list <- lapply(my_files,get_my_data)
 dados <- do.call(rbind, dados_list)
 
 head(dados)
-today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
-myfilename=paste0("data/batch",today,"data.csv")
+myfilename=paste0("data/",groupname,"_data.csv")
 write.csv(dados,myfilename,row.names=FALSE)
 
 

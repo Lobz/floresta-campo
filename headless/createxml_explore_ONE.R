@@ -1,9 +1,9 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 20
-samplesize <- 1
-numreps <- 3
-chunksize <- 3
+finalstep <- 1000
+samplesize <- 500
+numreps <- 1
+chunksize <- 25
 
 gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
 source("createxml.utils.R")
@@ -17,7 +17,7 @@ groupname <-  paste0("greass_flammability_",rnd)
 n <- numreps*samplesize
 par.data <- data.frame(
             grass_flammability=rep(seq(0.4,0.7,length.out=samplesize),numreps),
-            wildfire_rate=rep(1,n),
+            wildfire_rate=rep(0.1,n),
             initial_pop_total=rep(0,n),
             par_group=1:n
             )
