@@ -5,16 +5,31 @@ source("plotsfuns.utils.R")
 ### script
 data <- get_data(myfilename)
 
-statistics_raw <- extract_statistics(data)
-statistics_raw$par_group <- as.numeric(statistics_raw$par_group) 
+groups <- subset(data,noAr)$par_group
+data <- subset(data,par_group %in% groups)
+statistics_full <- extract_statistics(subset(data,full))
+statistics_noAr <- extract_statistics(subset(data,noAr))
+statistics_noFi <- extract_statistics(subset(data,noFi))
+
+statistics_full_minus_noAr <- statistics_full - statistics_noAr
+statistics_noFi_minus_noAr <- statistics_noFi - statistics_noAr
+statistics_full_minus_noFi <- statistics_full - statistics_noFi
+
+
 finalvalues <- get_finalsteps(data)
-statistics <- merge(statistics_raw, subset(finalvalues, full), by="par_group")
 
 ### join back to lhs object
 load(mylhsfilename)
 library(pse)
-myLHS<-tell(my_LHS_pars, statistics_raw)
+myLHS<-tell(my_LHS_pars, statistics_full_minus_noAr$circ.broadleaf.gr, nboot=30)
 
+### lhs plots
+plotecdf(myLHS, stack=TRUE)
+plotscatter(myLHS)
+plotprcc(myLHS)
+
+
+### hypothesis testing
 results<- test.hypotheses.all(data)
 results$par_group<-as.numeric(rownames(results))
 ### merge back into values of data

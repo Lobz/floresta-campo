@@ -11,7 +11,7 @@ source("createxml.utils.R")
 ## filenaming
 rnd <- paste0(sample(chars, 5, TRUE),collapse="")
 today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
-groupname <-  paste0("greass_flammability_",rnd)
+groupname <-  paste0("grass_flammability_",rnd)
 
 ## PARAMETERS
 n <- numreps*samplesize

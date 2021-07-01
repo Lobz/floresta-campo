@@ -24,60 +24,42 @@ get_finalsteps <- function (data) {
     return(finalvalues)
 }
 
+get_statistics <- function (one.run) {
+
+    linear_growth_rate <- function(one.run, column.par) {
+        tryCatch( {
+        model <- lm(one.run[,column.par] ~ one.run$time)
+        model$coefficients[2]
+        },
+        error=function(e) NA)
+    }
+
+    ## circs linear
+    circ.araucaria.gr <- linear_growth_rate(one.run, "circ.araucaria")
+    circ.broadleaf.gr <- linear_growth_rate(one.run, "circ.broadleaf")
+    circ.max.gr <- linear_growth_rate(one.run, "circ.max")
+
+    exponential_growth_rate <- function(one.run, column.par) {
+        model <- lm(log(one.run[,column.par]) ~ one.run$time)
+        model$coefficients[2]
+    }
+
+    ## ns log
+    n.araucaria.gr <- tryCatch(exponential_growth_rate(one.run, "n.araucaria"), error=function(e)NA)
+    n.broadleaf.gr <- tryCatch(exponential_growth_rate(one.run, "n.broadleaf"), error=function(e)NA)
+
+    ## edge_range median
+
+    edge_range.med <- median(one.run$edge_range)
+
+    data.frame(circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr, n.araucaria.gr, n.broadleaf.gr, edge_range.med)
+}
+
+## this function expects only one run per group (one scenario)
 extract_statistics <- function(data) {
-    get_statistics <- function (one.run) {
-
-        linear_growth_rate <- function(one.run, column.par) {
-            tryCatch( {
-            model <- lm(one.run[,column.par] ~ one.run$time)
-            model$coefficients[2]
-            },
-            error=function(e) NA)
-        }
-
-        ## circs linear
-        circ.araucaria.gr <- linear_growth_rate(one.run, "circ.araucaria")
-        circ.broadleaf.gr <- linear_growth_rate(one.run, "circ.broadleaf")
-        circ.max.gr <- linear_growth_rate(one.run, "circ.max")
-
-        exponential_growth_rate <- function(one.run, column.par) {
-            model <- lm(log(one.run[,column.par]) ~ one.run$time)
-            model$coefficients[2]
-        }
-
-        ## ns log
-        n.araucaria.gr <- tryCatch(exponential_growth_rate(one.run, "n.araucaria"), error=function(e)NA)
-
-        ## edge_range median
-
-        edge_range.med <- median(one.run$edge_range)
-
-        data.frame(circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr, n.araucaria.gr, edge_range.med)
-    }
-
-    ## circ.max gr linear full
-    ## median adgerange full
-    ## median edgerange nofi
-    ## circ b gr noar
-    ## circ b gr full
-    ## circ b gr (full - noar)
-    ## circ b gr (nofi - full)
-    ## n a gr log (full - nofi)
-    
-    join_scenarios <- function (one.group) {
-        ## separate scenarios
-        NoAr <- get_statistics(subset(one.group,noAr))
-        NoFi <- get_statistics(subset(one.group,noFi))
-        Full <- get_statistics(subset(one.group,full))
-        par_group <- as.character(one.group$par_group[1])
-
-        data.frame (par_group, Full$circ.max.gr, Full$edge_range.med, NoFi$edge_range.med, NoAr$circ.broadleaf.gr, Full$circ.broadleaf.gr, NoFi$circ.broadleaf.gr, Full$n.araucaria.gr, NoFi$n.araucaria.gr)
-    }
-
     data$par_group <- as.factor(data$par_group)
 
-    results.raw <- by(data,data$par_group, join_scenarios)
+    results.raw <- by(data,data$par_group, get_statistics)
     statistics <- as.data.frame(do.call(rbind,results.raw))
-    statistics$circ.FullminusNoAr <- statistics$Full.circ.broadleaf.gr - statistics$NoAr.circ.broadleaf.gr 
     statistics
 }
