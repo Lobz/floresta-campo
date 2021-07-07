@@ -4,7 +4,7 @@ library(XML)
 
 
 my_outputnames <- c("par_group","n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize")
-my_parameternames <- c("wildfire_rate", "initial_pop_araucaria", "initial_pop_broadleaf","shade_threshold_ratio","araucaria_base_flammability","tree_dispersal","grass_flammability")
+my_parameternames <- c("wildfire_rate", "initial_pop_araucaria", "initial_pop_broadleaf", "shade_threshold_araucaria", "shade_threshold_ratio","araucaria_base_flammability","tree_dispersal", "tree_dispersal2","grass_flammability")
 
 myColNames <- c(my_outputnames,my_parameternames)
 mydirname <- outputdir
@@ -26,10 +26,6 @@ get_my_data <- function(filepath) {
         data
     }, error= function(e){NULL})
 }
-
-my_full_col_names <- c(myColNames,"time","sim_unique_id")
-dados <- data.frame(matrix(ncol=length(my_full_col_names),nrow=0))
-names(dados) <- my_full_col_names
 
 my_files <- list.files(mydirname, pattern=".*.xml", full.names=TRUE)
 my_files <- Filter(file.notempty,my_files)

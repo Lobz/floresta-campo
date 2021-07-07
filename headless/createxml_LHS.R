@@ -1,7 +1,7 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 20
-samplesize <- 30
+finalstep <- 2000
+samplesize <- 400
 numreps <- 1
 chunksize <- 10
 
@@ -17,7 +17,7 @@ groupname <-  paste0("LHS_",today,"_",rnd)
 
 par_names <- c("wildfire_rate", "shade_threshold_ratio", "araucaria_base_flammability", "tree_dispersal", "grass_flammability")
 
-q.arg <- list(list(min=0.00,max=0.3), list(min=1.0,max=3), list(min=0.4,max=0.9), list(min=10,max=30), list(min=0.55,0.7))
+q.arg <- list(list(min=0.00,max=0.3), list(min=1.0,max=3), list(min=0.4,max=1.0), list(min=10,max=30), list(min=0.55,0.7))
 
 
 ## creating parameter data.frame
@@ -28,7 +28,7 @@ my_LHS_pars <- LHS(model=NULL,
                   q.arg=q.arg,
                   repetitions=numreps)
 
-save(my_LHS_pars,file=paste0(groupname,".RData"))
+save(my_LHS_pars,groupname,file=paste0("data/",groupname,".RData"))
 
 par.data <- my_LHS_pars$data
 par.data$par_group <- rownames(par.data)
@@ -37,3 +37,4 @@ my_filenames <- createxml(par.data,groupname)
 ## RUNNING
 outputdir <- paste0('headless_outputs/',groupname,'-out')
 run_simulations(my_filenames, outputdir)
+
