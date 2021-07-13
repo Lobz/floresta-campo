@@ -21,7 +21,7 @@ finalvalues <- get_finalsteps(data)
 ### join back to lhs object
 load(mylhsfilename)
 library(pse)
-myLHS<-tell(my_LHS_pars, statistics_full_minus_noAr$circ.broadleaf.gr, nboot=30)
+myLHS<-tell(my_LHS_pars, statistics_full$n.araucaria.gr, nboot=30)
 
 ### lhs plots
 plotecdf(myLHS, stack=TRUE)

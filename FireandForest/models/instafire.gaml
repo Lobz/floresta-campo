@@ -62,14 +62,16 @@ global {
 	// derived values
 	list<float> tree_growth_rate <- [1.0,0.1,0.1,0.1,0];//ind_lit_growth_rate collect (each*2 > 1 ? 1 : each*2);
 	list<float> tree_canopy_size <- [0.1,0.5,1,2,5];
-	list<float> tree_height <- [0.1,0.5,1.0,10,40];
+	list<float> tree_height <- [0.1,1,2,10,40];
 	float tree_dispersal <- 10#m;
 	
 	// divergent values
-	float araucaria_base_flammability <- 0.7 parameter:true;
-	float bl_s3_fla <- 1.0 parameter:true;
-	list<float> araucaria_flammability <- [1.0,1.0,araucaria_base_flammability,araucaria_base_flammability^2,araucaria_base_flammability^4];
-	list<float> broadleaf_flammability <- [1.0,1.0,bl_s3_fla,bl_s3_fla^2,bl_s3_fla^4];
+	float araucaria_base_fire_tolerance <- 0.9 parameter:true;
+	float araucaria_s5_fire_tolerance <- araucaria_base_fire_tolerance parameter:true;
+	float araucaria_s4_fire_tolerance <- araucaria_s5_fire_tolerance^2 parameter:true;
+	float araucaria_s3_fire_tolerance <- araucaria_s5_fire_tolerance^4 parameter:true;
+	list<float> araucaria_fire_tolerance <- [0,0,araucaria_s3_fire_tolerance,araucaria_s4_fire_tolerance,araucaria_s5_fire_tolerance];
+	list<float> broadleaf_fire_tolerance <- [0,0,0,0,0];
 	float shade_threshold_araucaria <- 1.0;
 	float shade_threshold_ratio <- 2.0;
 	float shade_threshold_broadleaf <- shade_threshold_araucaria*shade_threshold_ratio;
@@ -112,6 +114,8 @@ global {
 		
 	}
 	
+	float araucaria_growthrate -> araucaria mean_of (each.my_growth_rate);
+	float broadleaf_growthrate -> broadleaf mean_of (each.my_growth_rate);
 
 
 }
@@ -124,7 +128,7 @@ grid wildfire width:1 height:1 schedules: [] use_regular_agents: false {
 	reflex start_fire when: wildfires and flip(wildfire_rate) {
 		list<grass> potential <- grass where (each.biomass > 0.9);
 		if(empty(potential)){
-			potential <- grass where (each.biomass > 0.0);
+			return;
 		}
 		grass random_tile <- first (shuffle(potential));
 		do spread_fire(random_tile);
@@ -225,13 +229,13 @@ species tree schedules: [] {
 	rgb my_color;
 	int my_first_cycle <- -1;
 	
-	list<float> flammability;
+	list<float> fire_tolerance;
 	
 	float my_reproduction_rate1;
 	float my_reproduction_rate2;
 	float my_death_rate;
 	float my_growth_rate;
-	float my_flamability;
+	float my_fire_tolerance;
 	float my_canopy_size;
 	float my_height;
 	float my_canopy_area;
@@ -246,7 +250,7 @@ species tree schedules: [] {
 		self.my_growth_rate <- tree_growth_rate[self.stage] * self.shade_ratio;
 		self.my_canopy_size <- tree_canopy_size[self.stage];
 		self.my_height <- tree_height[self.stage];
-		self.my_flamability <- self.flammability[self.stage];
+		self.my_fire_tolerance <- self.fire_tolerance[self.stage];
 		
 		self.my_canopy_area <- 3.14*self.my_canopy_size^2;
 		if graphic {self.shape <- circle(my_canopy_size);}
@@ -270,7 +274,7 @@ species tree schedules: [] {
 	}
 	
 	action burn {
-		if(flip(my_flamability)){
+		if(!flip(my_fire_tolerance)){
 			ask place { do remove_tree(myself); }
 			do die;
 		}
@@ -324,14 +328,14 @@ species tree schedules: [] {
 }
 
 species araucaria parent:tree schedules: []{
-	list<float> flammability <- araucaria_flammability;
+	list<float> fire_tolerance <- araucaria_fire_tolerance;
 	float my_shade_threshold <- shade_threshold_araucaria;
 	float my_dispersal <- araucaria_dispersal;
 	rgb my_color <- rgb(0,200,0,0.5);
 }
 
 species broadleaf parent:tree schedules: []{
-	list<float> flammability <- broadleaf_flammability;
+	list<float> fire_tolerance <- broadleaf_fire_tolerance;
 	float my_shade_threshold <- shade_threshold_broadleaf;
 	float my_dispersal <- broadleaf_dispersal;
 	rgb my_color <- rgb(200,0,150,0.5);
@@ -352,7 +356,7 @@ experiment fireandforest type: gui {
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
 	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0 max:1.0;
-	parameter "araucaria_base_flammability" var: araucaria_base_flammability min:0.0 max:1.0;
+	parameter "araucaria_fire_tolerance" var: araucaria_base_fire_tolerance min:0.0 max:1.0;
 	parameter "grass_flammability" category: "Grass" var: grass_flammability min:0.0;
 	
 	parameter "par_group" var: par_group min:1;
@@ -370,12 +374,14 @@ experiment fireandforest type: gui {
 		monitor "Circle size for araucaria trees" value: rad_araucaria.y;
         monitor "Circle size for broadleaved trees" value: rad_broadleaf.y;
 		monitor "Size of fire" value:firesize;
+		monitor "araucaria_growthrate" value: araucaria_growthrate;
+		monitor "broadleaf_growthrate" value: broadleaf_growthrate;
 		monitor "wildfire_rate" value: wildfires? wildfire_rate : 0;
 		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
 		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
 		monitor "Araucaria shade tolerance" value: shade_threshold_araucaria;
 		monitor "Shade tolerance ratio" value: shade_threshold_ratio;
-		monitor "araucaria_base_flammability" value: araucaria_base_flammability;
+		monitor "araucaria_fire_tolerance" value: araucaria_base_fire_tolerance;
 		monitor "araucaria_dispersal" value: araucaria_dispersal;
 		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
 		monitor "grass_flammability" value: grass_flammability;

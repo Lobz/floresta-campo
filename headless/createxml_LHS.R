@@ -1,7 +1,7 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 2000
-samplesize <- 400
+finalstep <- 20
+samplesize <- 40
 numreps <- 1
 chunksize <- 10
 
@@ -15,9 +15,17 @@ groupname <-  paste0("LHS_",today,"_",rnd)
 
 ## parametrizing
 
-par_names <- c("wildfire_rate", "shade_threshold_ratio", "araucaria_base_flammability", "tree_dispersal", "grass_flammability")
+par_names <- c("wildfire_rate",
+                "shade_threshold_ratio", 
+                "araucaria_fire_tolerance", 
+                "tree_dispersal", 
+                "grass_flammability")
 
-q.arg <- list(list(min=0.00,max=0.3), list(min=1.0,max=3), list(min=0.4,max=1.0), list(min=10,max=30), list(min=0.55,0.7))
+q.arg <- list(list(min=0.00,max=0.3), 
+                list(min=1.0,max=3.0), 
+                list(min=0.5,max=1.0), 
+                list(min=5,max=30), 
+                list(min=0.55,0.7))
 
 
 ## creating parameter data.frame
