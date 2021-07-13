@@ -3,10 +3,12 @@
 library(XML)
 
 
-my_outputnames <- c("par_group","n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf", "firesize")
-my_parameternames <- c("wildfire_rate", "initial_pop_araucaria", "initial_pop_broadleaf", "shade_threshold_araucaria", "shade_threshold_ratio","araucaria_base_flammability","tree_dispersal", "tree_dispersal2","grass_flammability")
+myColNames <- c("par_group","n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf",
+                    "firesize","wildfire_rate", "initial_pop_araucaria", "initial_pop_broadleaf",
+                    "shade_threshold_araucaria", "shade_threshold_ratio","araucaria_fire_tolerance",
+                    "tree_dispersal", "tree_dispersal2","grass_flammability",
+                    "araucaria_growthrate", "broadleaf_growthrate")
 
-myColNames <- c(my_outputnames,my_parameternames)
 mydirname <- outputdir
 
 get.sim.name <- function(filepath) {
