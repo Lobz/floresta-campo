@@ -373,6 +373,8 @@ experiment fireandforest type: gui {
     	monitor "Number of broadleaved trees" value: nb_broadleaf;
 		monitor "Circle size for araucaria trees" value: rad_araucaria.y;
         monitor "Circle size for broadleaved trees" value: rad_broadleaf.y;
+		monitor "circle05_araucaria" value: rad_araucaria.x;
+        monitor "circle05_broadleaf" value: rad_broadleaf.x;
 		monitor "Size of fire" value:firesize;
 		monitor "araucaria_growthrate" value: araucaria_growthrate;
 		monitor "broadleaf_growthrate" value: broadleaf_growthrate;

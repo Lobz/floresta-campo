@@ -16,4 +16,6 @@
         <Output id="14" name="grass_flammability" framerate="1" />
         <Output id="15" name="araucaria_growthrate" framerate="1" />
         <Output id="16" name="broadleaf_growthrate" framerate="1" />
+        <Output id="17" name="circle05_araucaria" framerate="1" />
+        <Output id="18" name="circle05_broadleaf" framerate="1" />
     </Outputs>

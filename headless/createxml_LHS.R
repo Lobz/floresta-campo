@@ -36,7 +36,8 @@ my_LHS_pars <- LHS(model=NULL,
                   q.arg=q.arg,
                   repetitions=numreps)
 
-save(my_LHS_pars,groupname,file=paste0("data/",groupname,".RData"))
+mylhsfilename<- paste0("data/",groupname,".RData")
+save(my_LHS_pars,groupname,file=mylhsfilename)
 
 par.data <- my_LHS_pars$data
 par.data$par_group <- rownames(par.data)
