@@ -1,8 +1,8 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 20
+finalstep <- 2000
 samplesize <- 1
-numreps <- 10
+numreps <- 100
 chunksize <- 10
 
 gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
@@ -15,7 +15,7 @@ groupname <-  paste0("LHS_",today(),"_",rnd)
 ## parametrizing
 
 par.data <- data.frame(
-    wildfire_rate=0.05,
+    wildfire_rate=0.1,
     shade_threshold_ratio=2,
     araucaria_fire_tolerance=0.9, 
     tree_dispersal=10, 
@@ -27,3 +27,4 @@ my_filenames <- createxml(par.data, groupname, numreps=numreps)
 ## RUNNING
 outputdir <- paste0('headless_outputs/',groupname,'-out')
 run_simulations(my_filenames, outputdir)
+
