@@ -37,6 +37,8 @@ get_statistics <- function (one.run) {
     ## circs linear
     circ.araucaria.gr <- linear_growth_rate(one.run, "circ.araucaria")
     circ.broadleaf.gr <- linear_growth_rate(one.run, "circ.broadleaf")
+    circ05.araucaria.gr <- linear_growth_rate(one.run, "circ05.araucaria")
+    circ05.broadleaf.gr <- linear_growth_rate(one.run, "circ05.broadleaf")
     circ.max.gr <- linear_growth_rate(one.run, "circ.max")
 
     exponential_growth_rate <- function(one.run, column.par) {
@@ -52,7 +54,10 @@ get_statistics <- function (one.run) {
 
     edge_range.med <- median(one.run$edge_range)
 
-    data.frame(circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr, n.araucaria.gr, n.broadleaf.gr, edge_range.med)
+    data.frame(
+                circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr,
+                circ05.araucaria.gr, circ05.broadleaf.gr,
+                n.araucaria.gr, n.broadleaf.gr, edge_range.med)
 }
 
 ## this function expects only one run per group (one scenario)

@@ -10,8 +10,7 @@ source("createxml.utils.R")
 
 ## filenaming
 rnd <- paste0(sample(chars, 5, TRUE),collapse="")
-today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
-groupname <-  paste0("LHS_",today,"_",rnd)
+groupname <-  paste0("LHS_",today(),"_",rnd)
 
 ## parametrizing
 

@@ -1,5 +1,6 @@
 #createxml.utils.R
 
+today <- function() paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 
 par.line <- function(name,p) {
     paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
@@ -14,7 +15,7 @@ chars <- c(LETTERS,letters,0:9)
 
 ### MAIN FUNCTION
 
-createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE) {
+createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE, stop.at.area.limit=TRUE, numreps=1) {
 
     header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <Experiment_plan>
@@ -23,16 +24,22 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
 
     simheadbeg <- '
         <Simulation id="'
-    until='until="max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
-    if(stop.at.extinction) {
+    until=''
+    if(stop.at.extinction && stop.at.area.limit) {
         until='until="length(araucaria) + length(broadleaf) = 0 or max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+    }
+    else if(stop.at.extinction) {
+        until='until="length(araucaria) + length(broadleaf) = 0"'
+    }
+    else if(stop.at.area.limit) {
+        until='until="max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
     }
     simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="fireandforest" ', until, ' >')
     
     footer <- '</Experiment_plan>'
 
     ### Parameters
-    sim.params<-apply(par.data,1,par.row)
+    sim.params<-rep(apply(par.data,1,par.row), numreps)
     ## scenarios
     if (scenarios) {
         FMparams <- paste0(sim.params,'')

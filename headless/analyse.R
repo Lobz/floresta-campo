@@ -5,8 +5,6 @@ source("plotsfuns.utils.R")
 ### script
 data <- get_data(myfilename)
 
-groups <- subset(data,noAr)$par_group
-data <- subset(data,par_group %in% groups)
 statistics_full <- extract_statistics(subset(data,full))
 statistics_noAr <- extract_statistics(subset(data,noAr))
 statistics_noFi <- extract_statistics(subset(data,noFi))
@@ -21,7 +19,7 @@ finalvalues <- get_finalsteps(data)
 ### join back to lhs object
 load(mylhsfilename)
 library(pse)
-myLHS<-tell(my_LHS_pars, statistics_full$n.araucaria.gr, nboot=30)
+myLHS<-tell(my_LHS_pars, statistics_noFi$circ05.broadleaf.gr, nboot=30)
 
 ### lhs plots
 plotecdf(myLHS, stack=TRUE)
