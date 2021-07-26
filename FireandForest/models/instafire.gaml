@@ -67,9 +67,9 @@ global {
 	
 	// divergent values
 	float araucaria_base_fire_tolerance <- 0.9 parameter:true;
-	float araucaria_s5_fire_tolerance <- araucaria_base_fire_tolerance parameter:true;
-	float araucaria_s4_fire_tolerance <- araucaria_s5_fire_tolerance^2 parameter:true;
-	float araucaria_s3_fire_tolerance <- araucaria_s5_fire_tolerance^4 parameter:true;
+	float araucaria_s5_fire_tolerance <- araucaria_base_fire_tolerance;
+	float araucaria_s4_fire_tolerance <- araucaria_s5_fire_tolerance^2;
+	float araucaria_s3_fire_tolerance <- araucaria_s5_fire_tolerance^4;
 	list<float> araucaria_fire_tolerance <- [0,0,araucaria_s3_fire_tolerance,araucaria_s4_fire_tolerance,araucaria_s5_fire_tolerance];
 	list<float> broadleaf_fire_tolerance <- [0,0,0,0,0];
 	float shade_threshold_araucaria <- 1.0;
