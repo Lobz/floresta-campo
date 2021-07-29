@@ -2,7 +2,7 @@
 
 finalstep <- 2000
 samplesize <- 1
-numreps <- 100
+numreps <- 10
 chunksize <- 10
 
 gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
@@ -27,4 +27,3 @@ my_filenames <- createxml(par.data, groupname, numreps=numreps)
 ## RUNNING
 outputdir <- paste0('headless_outputs/',groupname,'-out')
 run_simulations(my_filenames, outputdir)
-

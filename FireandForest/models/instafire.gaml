@@ -114,8 +114,14 @@ global {
 		
 	}
 	
-	float araucaria_growthrate -> araucaria mean_of (each.my_growth_rate);
-	float broadleaf_growthrate -> broadleaf mean_of (each.my_growth_rate);
+	float araucaria_growthrate_0 -> (araucaria where (each.stage = 0)) mean_of (each.my_growth_rate);
+	float broadleaf_growthrate_0 -> (broadleaf where (each.stage = 0)) mean_of (each.my_growth_rate);
+	float araucaria_growthrate_1 -> (araucaria where (each.stage = 1)) mean_of (each.my_growth_rate);
+	float broadleaf_growthrate_1 -> (broadleaf where (each.stage = 1)) mean_of (each.my_growth_rate);
+	float araucaria_growthrate_2 -> (araucaria where (each.stage = 2)) mean_of (each.my_growth_rate);
+	float broadleaf_growthrate_2 -> (broadleaf where (each.stage = 2)) mean_of (each.my_growth_rate);
+	float araucaria_growthrate_3 -> (araucaria where (each.stage = 3)) mean_of (each.my_growth_rate);
+	float broadleaf_growthrate_3 -> (broadleaf where (each.stage = 3)) mean_of (each.my_growth_rate);
 
 
 }
@@ -376,8 +382,6 @@ experiment fireandforest type: gui {
 		monitor "circle05_araucaria" value: rad_araucaria.x;
         monitor "circle05_broadleaf" value: rad_broadleaf.x;
 		monitor "Size of fire" value:firesize;
-		monitor "araucaria_growthrate" value: araucaria_growthrate;
-		monitor "broadleaf_growthrate" value: broadleaf_growthrate;
 		monitor "wildfire_rate" value: wildfires? wildfire_rate : 0;
 		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
 		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
@@ -387,6 +391,16 @@ experiment fireandforest type: gui {
 		monitor "araucaria_dispersal" value: araucaria_dispersal;
 		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
 		monitor "grass_flammability" value: grass_flammability;
+		
+		
+		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
+		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
+		monitor "araucaria_growthrate_1" value: araucaria_growthrate_1;
+		monitor "broadleaf_growthrate_1" value: broadleaf_growthrate_1;
+		monitor "araucaria_growthrate_2" value: araucaria_growthrate_2;
+		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
+		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
+		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
 		
 	}
 }

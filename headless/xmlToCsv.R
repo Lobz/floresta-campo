@@ -7,8 +7,12 @@ myColNames <- c("par_group","n.araucaria", "n.broadleaf", "circ.araucaria", "cir
                     "firesize","wildfire_rate", "initial_pop_araucaria", "initial_pop_broadleaf",
                     "shade_threshold_araucaria", "shade_threshold_ratio","araucaria_fire_tolerance",
                     "tree_dispersal", "tree_dispersal2","grass_flammability",
-                    "araucaria_growthrate", "broadleaf_growthrate",
-                    "circ05.araucaria", "circ05.broadleaf")
+                    "circ05.araucaria", "circ05.broadleaf",
+                    "araucaria_growthrate_0", "broadleaf_growthrate_0",
+                    "araucaria_growthrate_1", "broadleaf_growthrate_1",
+                    "araucaria_growthrate_2", "broadleaf_growthrate_2",
+                    "araucaria_growthrate_3", "broadleaf_growthrate_3"
+                    )
 
 mydirname <- outputdir
 

@@ -14,8 +14,15 @@
         <Output id="12" name="araucaria_dispersal" framerate="1" />
         <Output id="13" name="broadleaf_dispersal" framerate="1" />
         <Output id="14" name="grass_flammability" framerate="1" />
-        <Output id="15" name="araucaria_growthrate" framerate="1" />
-        <Output id="16" name="broadleaf_growthrate" framerate="1" />
-        <Output id="17" name="circle05_araucaria" framerate="1" />
-        <Output id="18" name="circle05_broadleaf" framerate="1" />
+        <Output id="15" name="circle05_araucaria" framerate="1" />
+        <Output id="16" name="circle05_broadleaf" framerate="1" />
+
+        <Output id="20" name="araucaria_growthrate_0" framerate="1" />
+        <Output id="30" name="broadleaf_growthrate_0" framerate="1" />
+        <Output id="21" name="araucaria_growthrate_1" framerate="1" />
+        <Output id="31" name="broadleaf_growthrate_1" framerate="1" />
+        <Output id="22" name="araucaria_growthrate_2" framerate="1" />
+        <Output id="32" name="broadleaf_growthrate_2" framerate="1" />
+        <Output id="23" name="araucaria_growthrate_3" framerate="1" />
+        <Output id="33" name="broadleaf_growthrate_3" framerate="1" />
     </Outputs>
