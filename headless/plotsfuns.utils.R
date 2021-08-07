@@ -1,5 +1,22 @@
 
-lines.par <- function(data,column.data, column.par,colors = make_colors(data[,column.par])) {
+plot.lines <- function(data, column.data, color=1, ...) {
+    ymax <- max(data[,column.data])
+    xmax <- max(data$time)
+    plot(NULL,NULL,ylim=c(0,ymax),xlim=c(0,xmax),xlab="Time",ylab=column.data, ...)
+    lines.each(data,column.data,color)
+}
+
+plot.scenarios <- function(data, column.data, colors=c("purple", "orange", "darkgreen"), lwd=2, ...) {
+    ymax <- max(data[,column.data])
+    xmax <- max(data$time)
+    plot(NULL,NULL,ylim=c(0,ymax),xlim=c(0,xmax),xlab="Time",ylab=column.data, ...)
+    lines.each(subset(data,full),column.data,colors[1], lwd=lwd)
+    lines.each(subset(data,noAr),column.data,colors[2], lwd=lwd)
+    lines.each(subset(data,noFi),column.data,colors[3], lwd=lwd)
+    legend(x=0, y=ymax, legend=c("Full", "NoAr", "NoFi"), col=colors, bg="white", lwd=c(lwd,lwd,lwd))
+}
+
+lines.par <- function(data, column.data, column.par,colors = make_colors(data[,column.par])) {
     ymax <- max(data[,column.data])
     xmax <- max(data$time)
     plot(NULL,NULL,ylim=c(0,ymax),xlim=c(0,xmax),xlab="Time",ylab=column.data)
@@ -10,13 +27,14 @@ lines.par <- function(data,column.data, column.par,colors = make_colors(data[,co
     }
 }
 
-lines.each <- function(data,column.data,color) {
+lines.each <- function(data, column.data, color, alpha=0.2, ...) {
     if(length(unique(data$sim_unique_id)) == 1) {
-        lines(data[,column.data] ~ data$time,col=color)
+        lines(data[,column.data] ~ data$time,col=color, ...)
     }
     else {
+        color = adjustcolor(color, alpha=alpha)
         by (data,data$sim_unique_id, function (x) {
-            lines(x[,column.data] ~ x$time,col=color)
+            lines(x[,column.data] ~ x$time,col=color, ...)
         })
     }
 }

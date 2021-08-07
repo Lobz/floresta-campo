@@ -5,6 +5,8 @@ source("plotsfuns.utils.R")
 ### script
 data <- get_data(myfilename)
 
+plot.fours.columns(data, plot.scenarios)
+
 statistics_full <- extract_statistics(subset(data,full))
 statistics_noAr <- extract_statistics(subset(data,noAr))
 statistics_noFi <- extract_statistics(subset(data,noFi))

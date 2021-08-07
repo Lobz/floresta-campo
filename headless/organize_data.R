@@ -3,6 +3,7 @@
 get_data <- function (myfilename) {
     data <- read.csv(file=myfilename,stringsAsFactors=T)
     data$edge_range <- data$circ.araucaria - data$circ.broadleaf
+    data$inner_range <- data$circ05.araucaria - data$circ05.broadleaf
     data$noAr <- data$initial_pop_araucaria ==0
     data$noFi <- data$wildfire_rate ==0
     data$full <- !data$noAr & !data$noFi
@@ -25,6 +26,9 @@ get_finalsteps <- function (data) {
 }
 
 get_statistics <- function (one.run) {
+
+    time.to.extinction.araucaria <- min(subset(one.run, n.araucaria==0)$time)
+    time.to.extinction.broadleaf <- min(subset(one.run, n.broadleaf==0)$time)
 
     linear_growth_rate <- function(one.run, column.par) {
         tryCatch( {
