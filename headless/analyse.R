@@ -4,7 +4,7 @@ source("test_hypothesis.R")
 source("plotsfuns.utils.R")
 ### script
 data <- get_data(myfilename)
-
+summary(data)
 plot.fours.columns(data, plot.scenarios)
 
 statistics_full <- extract_statistics(subset(data,full))
@@ -17,7 +17,7 @@ statistics_full_minus_noFi <- statistics_full - statistics_noFi
 
 
 finalvalues <- get_finalsteps(data)
-
+summary(finalvalues)
 ### join back to lhs object
 load(mylhsfilename)
 library(pse)
