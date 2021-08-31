@@ -83,20 +83,26 @@ global {
 	int nb_araucaria -> {length(araucaria where (each.stage > 3))};
 	int nb_broadleaf -> {length(broadleaf where (each.stage > 3))};
 	int firesize -> {first(wildfire).firesize};
-	point forest_radius (list<tree> valid_trees) {
+	list<float> forest_radius (list<tree> valid_trees, list<float> props) {
 		if(empty(valid_trees)) {
-			return {0,0};
+			return props accumulate (0);
 		}
-		int n95 <- round(floor(length(valid_trees)*0.95));
-		int n05 <- round(floor(length(valid_trees)*0.05));
+		
+		// calculate distance for each tree
 		list<float> sq_dists <- valid_trees accumulate ((each.location.x-center.x)^2 + (each.location.y-center.y)^2);
 		sq_dists <- sq_dists sort each;
 		
-		return {sqrt(sq_dists[n05]),sqrt(sq_dists[n95])};
+		// turn props into indexes
+		list<int> indexes <- props accumulate floor((length(valid_trees)-1)*each); 
+		
+		return indexes accumulate (sqrt(sq_dists[each]));
 	}
 	
-	point rad_araucaria -> forest_radius(araucaria where (each.stage = 4));
-	point rad_broadleaf -> forest_radius(broadleaf where (each.stage = 4));
+	list<float> quantiles <- [0.05, 0.50, 0.95];
+	list<float> rad_A_adults -> forest_radius(araucaria where (each.stage = 4), quantiles);
+	list<float> rad_B_adults -> forest_radius(broadleaf where (each.stage = 4), quantiles);
+	//list<float> rad_A_all -> forest_radius(araucaria where (true), quantiles);
+	//list<float> rad_B_all -> forest_radius(broadleaf where (true), quantiles);
 	
 	init {		
 		geometry c <- circle(initial_forest_size);
@@ -377,10 +383,6 @@ experiment fireandforest type: gui {
     	monitor "par_group" value: par_group;
     	monitor "Number of araucaria trees" value: nb_araucaria;
     	monitor "Number of broadleaved trees" value: nb_broadleaf;
-		monitor "Circle size for araucaria trees" value: rad_araucaria.y;
-        monitor "Circle size for broadleaved trees" value: rad_broadleaf.y;
-		monitor "circle05_araucaria" value: rad_araucaria.x;
-        monitor "circle05_broadleaf" value: rad_broadleaf.x;
 		monitor "Size of fire" value:firesize;
 		monitor "wildfire_rate" value: wildfires? wildfire_rate : 0;
 		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
@@ -392,6 +394,10 @@ experiment fireandforest type: gui {
 		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
 		monitor "grass_flammability" value: grass_flammability;
 		
+		monitor "Circle size for araucaria trees" value: rad_A_adults[2];
+        monitor "Circle size for broadleaved trees" value: rad_B_adults[2];
+		monitor "circle05_araucaria" value: rad_A_adults[0];
+        monitor "circle05_broadleaf" value: rad_B_adults[0];
 		
 		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
 		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
@@ -401,6 +407,7 @@ experiment fireandforest type: gui {
 		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
 		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
 		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
+		
 		
 	}
 }
@@ -443,14 +450,41 @@ experiment fireandforest_graphic type: gui until: time>10  {
         	}
         }
         
-		display "Radius of circle with 95% of adult trees" {
-			chart "Distance from center of adult trees" type: series size: {1,0.5} position: {0, 0} {
-        		data "araucaria trees - outer" value: rad_araucaria.y color: #darkgreen ;
-        		data "broadleaved trees - outer" value: rad_broadleaf.y color: #red ;
-        		data "araucaria trees - inner" value: rad_araucaria.x color: #darkgreen ;
-        		data "broadleaved trees - inner" value: rad_broadleaf.x color: #red ;
+		display "Radius adults a" {
+			chart "Distance from center of adult a trees" type: series size: {1,0.5} position: {0, 0} {
+        		data "araucaria trees - 05" value: rad_A_adults[0] color: #darkgreen ;
+        		data "araucaria trees - 50" value: rad_A_adults[1] color: #darkgreen ;
+        		data "araucaria trees - 95" value: rad_A_adults[2] color: #darkgreen ;
         	}
-        }
+        } 
+        display "Radius adults b" {
+			chart "Distance from center of adult b trees" type: series size: {1,0.5} position: {0, 0} {
+        		
+        		data "broadleaf trees - 00" value: rad_B_adults[0] color: #purple ;
+        		data "broadleaf trees - 50" value: rad_B_adults[1] color: #purple ;
+        		data "broadleaf trees - 95" value: rad_B_adults[2] color: #purple ;
+        	}
+        } 
+//        display "Radius all a" {
+//			chart "Distance from center of all a trees" type: series size: {1,0.5} position: {0, 0} {
+//        		data "araucaria trees - 0" value: rad_A_all[0] color: #darkgreen ;
+//        		data "araucaria trees - 5" value: rad_A_all[1] color: #darkgreen ;
+//        		data "araucaria trees - 50" value: rad_A_all[2] color: #darkgreen ;
+//        		data "araucaria trees - 95" value: rad_A_all[3] color: #darkgreen ;
+//        		data "araucaria trees - 100" value: rad_A_all[4] color: #darkgreen ;
+//        	}
+//        } 
+//        display "Radius all b" {
+//			chart "Distance from center of all b trees" type: series size: {1,0.5} position: {0, 0} {
+//        		
+//        		
+//        		data "broadleaf trees - 0" value: rad_B_all[0] color: #purple ;
+//        		data "broadleaf trees - 5" value: rad_B_all[1] color: #purple ;
+//        		data "broadleaf trees - 50" value: rad_B_all[2] color: #purple ;
+//        		data "broadleaf trees - 95" value: rad_B_all[3] color: #purple ;
+//        		data "broadleaf trees - 100" value: rad_B_all[4] color: #purple ;
+//        	}
+//        } 
         
         display "Wildfires" {
 			chart "Size of the last fire" type: series style: stack size: {1,0.5} position: {0, 0} y_range: {0,size^2} {

@@ -64,3 +64,20 @@ expected_crowd <- function(shade_threshold) {
     ceiling(shade_threshold/shade_percent)
 }
 
+# plot inner, mid, edge areas in a simulation
+
+full <- subset(data, full)
+summary(full)
+id_ex <- full$sim_unique_id[1]
+example <- subset(full, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, edge_range, time))
+
+ex <- aggregate(full, by=list(full$time), mean)
+n <- nrow(ex)
+
+barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf - ex$circ05.araucaria, ex$edge_range), nrow=3, byrow=T)
+colnames(barlengths) <- ex$time
+barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
+        angle=c(90,45,0), density=c(100,20,100),
+        axes=T, ylab="average meters from center", xlab="years",
+        legend.text=c("broadleaf dominance area (interior)", "coexistance area", "araucaria dominance area (edge)"),
+        args.legend=list(x="topleft"))
