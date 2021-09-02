@@ -2,8 +2,8 @@
         <Output id="0" name="par_group" framerate="1" />
         <Output id="1" name="Number of araucaria trees" framerate="1" />
         <Output id="2" name="Number of broadleaved trees" framerate="1" />
-        <Output id="3" name="Circle size for araucaria trees" framerate="1" />
-        <Output id="4" name="Circle size for broadleaved trees" framerate="1" />
+        <Output id="3" name="rad95A" framerate="1" />
+        <Output id="4" name="rad95B" framerate="1" />
         <Output id="5" name="Size of fire" framerate="1" />
         <Output id="6" name="wildfire_rate" framerate="1" />
         <Output id="7" name="Initial Araucaria pop" framerate="1" />
@@ -14,8 +14,16 @@
         <Output id="12" name="araucaria_dispersal" framerate="1" />
         <Output id="13" name="broadleaf_dispersal" framerate="1" />
         <Output id="14" name="grass_flammability" framerate="1" />
-        <Output id="15" name="circle05_araucaria" framerate="1" />
-        <Output id="16" name="circle05_broadleaf" framerate="1" />
+        <Output id="15" name="rad05A" framerate="1" />
+        <Output id="16" name="rad05B" framerate="1" />
+
+        <Output id="150" name="rad50A" framerate="1" />
+        <Output id="160" name="rad50B" framerate="1" />
+        <Output id="151" name="inner_10_A" framerate="1" />
+        <Output id="161" name="inner_10_B" framerate="1" />
+        <Output id="152" name="outer_10_A" framerate="1" />
+        <Output id="162" name="outer_10_B" framerate="1" />
+        
 
         <Output id="20" name="araucaria_growthrate_0" framerate="1" />
         <Output id="30" name="broadleaf_growthrate_0" framerate="1" />

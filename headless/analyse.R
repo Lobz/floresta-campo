@@ -69,15 +69,49 @@ expected_crowd <- function(shade_threshold) {
 full <- subset(data, full)
 summary(full)
 id_ex <- full$sim_unique_id[1]
-example <- subset(full, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, edge_range, time))
+example <- subset(full, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
 
 ex <- aggregate(full, by=list(full$time), mean)
+#ex <- aggregate(example, by=list(example$time), mean)
 n <- nrow(ex)
 
-barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf - ex$circ05.araucaria, ex$edge_range), nrow=3, byrow=T)
+barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria), nrow=3, byrow=T)
 colnames(barlengths) <- ex$time
+barlengths[3,] <- barlengths[3,] - barlengths[2,]
+barlengths[2,] <- barlengths[2,] - barlengths[1,]
+
+
+pdf("images/arealengths_jul20_mkub_average.pdf", width=7, height=5)
+par(lwd=3)
 barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
-        angle=c(90,45,0), density=c(100,20,100),
+        angle=c(90,45,90), density=c(100,20,100),
         axes=T, ylab="average meters from center", xlab="years",
-        legend.text=c("broadleaf dominance area (interior)", "coexistance area", "araucaria dominance area (edge)"),
-        args.legend=list(x="topleft"))
+        legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
+        args.legend=list(x="topleft", border=F, bty = "n"))
+dev.off()
+
+# just for fun, do the same with NoFi
+
+nofi <- subset(data, noFi & time < 1000, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
+summary(nofi)
+id_ex <- unique(nofi$sim_unique_id)[10]
+example <- subset(nofi, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
+
+ex <- aggregate(nofi, by=list(nofi$time), mean)
+ex <- aggregate(example, by=list(example$time), mean)
+n <- nrow(ex)
+
+barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria), nrow=3, byrow=T)
+colnames(barlengths) <- ex$time
+barlengths[3,] <- barlengths[3,] - barlengths[2,]
+barlengths[2,] <- barlengths[2,] - barlengths[1,]
+
+
+pdf("images/arealengths_jul20_mkub_average_NoFi.pdf", width=7, height=5)
+par(lwd=3)
+barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
+        angle=c(90,45,90), density=c(100,20,100),
+        axes=T, ylab="average meters from center", xlab="years",
+        legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
+        args.legend=list(x="topleft", border=F, bty = "n"))
+dev.off()

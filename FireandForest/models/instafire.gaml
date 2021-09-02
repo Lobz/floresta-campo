@@ -83,9 +83,20 @@ global {
 	int nb_araucaria -> {length(araucaria where (each.stage > 3))};
 	int nb_broadleaf -> {length(broadleaf where (each.stage > 3))};
 	int firesize -> {first(wildfire).firesize};
-	list<float> forest_radius (list<tree> valid_trees, list<float> props) {
-		if(empty(valid_trees)) {
-			return props accumulate (0);
+	
+	list<float> forest_radius (list<tree> valid_trees, list<float> props, int outliers) {
+		if (empty(valid_trees)) {
+			return (props accumulate (0)) + [0,0];
+		}
+		
+		int n <- length(valid_trees);
+		
+		if (outliers > floor(n/2)-1) {
+			outliers <- floor(n/2)-1;
+		}
+		
+		if (n = 1) {
+			outliers <- 0;
 		}
 		
 		// calculate distance for each tree
@@ -93,14 +104,20 @@ global {
 		sq_dists <- sq_dists sort each;
 		
 		// turn props into indexes
-		list<int> indexes <- props accumulate floor((length(valid_trees)-1)*each); 
+		list<int> indexes <- props accumulate floor((n-1)*each);
 		
-		return indexes accumulate (sqrt(sq_dists[each]));
+		list<float> quants <- indexes accumulate (sq_dists[each]);
+		float inner_outlier <- sq_dists[outliers];
+		float outer_outlier <- sq_dists[n-outliers-1];
+		
+		list<float> ret <- quants + [inner_outlier, outer_outlier];
+		return ret accumulate (sqrt(each));
 	}
 	
 	list<float> quantiles <- [0.05, 0.50, 0.95];
-	list<float> rad_A_adults -> forest_radius(araucaria where (each.stage = 4), quantiles);
-	list<float> rad_B_adults -> forest_radius(broadleaf where (each.stage = 4), quantiles);
+	int outliers <- 10;
+	list<float> rad_A_adults -> forest_radius(araucaria where (each.stage = 4), quantiles, outliers);
+	list<float> rad_B_adults -> forest_radius(broadleaf where (each.stage = 4), quantiles, outliers);
 	//list<float> rad_A_all -> forest_radius(araucaria where (true), quantiles);
 	//list<float> rad_B_all -> forest_radius(broadleaf where (true), quantiles);
 	
@@ -394,10 +411,18 @@ experiment fireandforest type: gui {
 		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
 		monitor "grass_flammability" value: grass_flammability;
 		
-		monitor "Circle size for araucaria trees" value: rad_A_adults[2];
-        monitor "Circle size for broadleaved trees" value: rad_B_adults[2];
-		monitor "circle05_araucaria" value: rad_A_adults[0];
-        monitor "circle05_broadleaf" value: rad_B_adults[0];
+		monitor "rad05A" value: rad_A_adults[0];
+		monitor "rad50A" value: rad_A_adults[1];
+		monitor "rad95A" value: rad_A_adults[2];
+		monitor "inner_10_A" value: rad_A_adults[3];
+		monitor "outer_10_A" value: rad_A_adults[4];
+        
+		monitor "rad05B" value: rad_B_adults[0];
+		monitor "rad50B" value: rad_B_adults[1];
+		monitor "rad95B" value: rad_B_adults[2];
+		monitor "inner_10_B" value: rad_B_adults[3];
+		monitor "outer_10_B" value: rad_B_adults[4];
+        
 		
 		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
 		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
@@ -455,6 +480,8 @@ experiment fireandforest_graphic type: gui until: time>10  {
         		data "araucaria trees - 05" value: rad_A_adults[0] color: #darkgreen ;
         		data "araucaria trees - 50" value: rad_A_adults[1] color: #darkgreen ;
         		data "araucaria trees - 95" value: rad_A_adults[2] color: #darkgreen ;
+        		data "araucaria trees - inner10" value: rad_A_adults[3] color: #black ;
+        		data "araucaria trees - outer10" value: rad_A_adults[4] color: #black ;
         	}
         } 
         display "Radius adults b" {
@@ -463,6 +490,8 @@ experiment fireandforest_graphic type: gui until: time>10  {
         		data "broadleaf trees - 00" value: rad_B_adults[0] color: #purple ;
         		data "broadleaf trees - 50" value: rad_B_adults[1] color: #purple ;
         		data "broadleaf trees - 95" value: rad_B_adults[2] color: #purple ;
+        		data "broadleaf trees - inner10" value: rad_B_adults[3] color: #black ;
+        		data "broadleaf trees - outer10" value: rad_B_adults[4] color: #black ;
         	}
         } 
 //        display "Radius all a" {
