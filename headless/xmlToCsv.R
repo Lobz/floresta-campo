@@ -12,7 +12,7 @@ myColNames <- c("par_group","n.araucaria", "n.broadleaf", "circ.araucaria", "cir
                     "araucaria_growthrate_0", "broadleaf_growthrate_0",
                     "araucaria_growthrate_1", "broadleaf_growthrate_1",
                     "araucaria_growthrate_2", "broadleaf_growthrate_2",
-                    "araucaria_growthrate_3", "broadleaf_growthrate_3",
+                    "araucaria_growthrate_3", "broadleaf_growthrate_3"
                     )
 
 mydirname <- outputdir
