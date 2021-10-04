@@ -1,7 +1,7 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 20
-samplesize <- 40
+finalstep <- 2000
+samplesize <- 100
 numreps <- 1
 chunksize <- 10
 
@@ -20,11 +20,11 @@ par_names <- c("wildfire_rate",
                 "tree_dispersal", 
                 "grass_flammability")
 
-q.arg <- list(list(min=0.00,max=0.3), 
-                list(min=1.0,max=3.0), 
-                list(min=0.5,max=1.0), 
-                list(min=5,max=30), 
-                list(min=0.55,0.7))
+q.arg <- list(list(min=0.05,max=0.15), 
+                list(min=1.5,max=2.5), 
+                list(min=0.8,max=1.0), 
+                list(min=5,max=15), 
+                list(min=0.55,0.65))
 
 
 ## creating parameter data.frame
