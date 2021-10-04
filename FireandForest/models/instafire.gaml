@@ -121,6 +121,8 @@ global {
 	//list<float> rad_A_all -> forest_radius(araucaria where (true), quantiles);
 	//list<float> rad_B_all -> forest_radius(broadleaf where (true), quantiles);
 	
+	float rad_patch -> max(rad_A_adults[2], rad_B_adults[2]);
+	
 	init {		
 		geometry c <- circle(initial_forest_size);
 		create broadleaf number: initial_pop_broadleaf{
@@ -432,6 +434,8 @@ experiment fireandforest type: gui {
 		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
 		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
 		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
+		
+		monitor "rad_patch" value: rad_patch;
 		
 		
 	}

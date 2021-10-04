@@ -26,13 +26,13 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
         <Simulation id="'
     until=''
     if(stop.at.extinction && stop.at.area.limit) {
-        until='until="length(araucaria) + length(broadleaf) = 0 or max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+        until='until="length(araucaria) + length(broadleaf) = 0 or rad_patch > landscape_size/2"'
     }
     else if(stop.at.extinction) {
         until='until="length(araucaria) + length(broadleaf) = 0"'
     }
     else if(stop.at.area.limit) {
-        until='until="max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+        until='until="rad_patch > landscape_size/2"'
     }
     simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="fireandforest" ', until, ' >')
     
