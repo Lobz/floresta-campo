@@ -4,6 +4,7 @@ source("test_hypothesis.R")
 source("plotsfuns.utils.R")
 ### script
 data <- get_data(myfilename)
+groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
 plot.fours.columns(data, plot.scenarios)
 
@@ -20,8 +21,9 @@ finalvalues <- get_finalsteps(data)
 summary(finalvalues)
 ### join back to lhs object
 load(mylhsfilename)
+summary(my_LHS_pars$data)
 library(pse)
-myLHS<-tell(my_LHS_pars, statistics_noFi$circ05.broadleaf.gr, nboot=30)
+myLHS<-tell(my_LHS_pars, statistics_full$circ.broadleaf.gr, nboot=30)
 
 ### lhs plots
 plotecdf(myLHS, stack=TRUE)
@@ -81,7 +83,7 @@ barlengths[3,] <- barlengths[3,] - barlengths[2,]
 barlengths[2,] <- barlengths[2,] - barlengths[1,]
 
 
-pdf("images/arealengths_jul20_mkub_average.pdf", width=7, height=5)
+pdf(paste0("images/arealengths_",groupname,"_average.pdf"), width=7, height=5)
 par(lwd=3)
 barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
         angle=c(90,45,90), density=c(100,20,100),
@@ -92,13 +94,13 @@ dev.off()
 
 # just for fun, do the same with NoFi
 
-nofi <- subset(data, noFi & time < 1000, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
+nofi <- subset(data, noFi, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
 summary(nofi)
 id_ex <- unique(nofi$sim_unique_id)[10]
 example <- subset(nofi, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
 
 ex <- aggregate(nofi, by=list(nofi$time), mean)
-ex <- aggregate(example, by=list(example$time), mean)
+#ex <- aggregate(example, by=list(example$time), mean)
 n <- nrow(ex)
 
 barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria), nrow=3, byrow=T)
@@ -107,7 +109,7 @@ barlengths[3,] <- barlengths[3,] - barlengths[2,]
 barlengths[2,] <- barlengths[2,] - barlengths[1,]
 
 
-pdf("images/arealengths_jul20_mkub_average_NoFi.pdf", width=7, height=5)
+pdf(paste0("images/arealengths",groupname,"_average_NoFi.pdf", width=7, height=5)
 par(lwd=3)
 barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
         angle=c(90,45,90), density=c(100,20,100),
@@ -115,3 +117,12 @@ barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgre
         legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
         args.legend=list(x="topleft", border=F, bty = "n"))
 dev.off()
+
+## area lengths comparison one timestep boxplots
+
+t <- 700
+
+v <- subset(data,!noAr & time==t)
+summary(v)
+boxplot(edge_range~full, v, xlab="wildfires")
+boxplot(inner10A~full, v, xlab="wildfires")
