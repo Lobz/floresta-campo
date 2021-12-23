@@ -15,15 +15,24 @@ chars <- c(LETTERS,letters,0:9)
 
 ### MAIN FUNCTION
 
-createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE, stop.at.area.limit=TRUE, numreps=1) {
+createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE, stop.at.area.limit=TRUE, numreps=1, graphics=FALSE, graphics_framerate=10) {
+
+    expname <- 'fireandforest'
+    if(graphics) {
+        expname <- 'fireandforest_graphic'
+    }
 
     header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <Experiment_plan>
 "
     outputs <- readChar("outputs.xmlpart", file.info("outputs.xmlpart")$size)
+    if(graphics) {
+        outputs <- paste0(outputs, "\n\t", '<Output id="graphics" name="model" framerate="',graphics_framerate,'" />')
+    }
+    outputs <- paste('<Outputs>', outputs, '</Outputs>', collapse="\n")
 
     simheadbeg <- '
-        <Simulation id="'
+    <Simulation id="'
     until=''
     if(stop.at.extinction && stop.at.area.limit) {
         until='until="length(araucaria) + length(broadleaf) = 0 or rad_patch > landscape_size/2"'
@@ -34,7 +43,7 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
     else if(stop.at.area.limit) {
         until='until="rad_patch > landscape_size/2"'
     }
-    simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="fireandforest" ', until, ' >')
+    simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="', expname,'" ', until, ' >')
     
     footer <- '</Experiment_plan>'
 

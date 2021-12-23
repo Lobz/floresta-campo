@@ -450,54 +450,91 @@ experiment fireandforest_graphic type: gui until: time>10  {
 
 	
 	// Parameters
-	parameter "Landscape size" category: "Init" var: landscape_size min:0.0;
-	parameter "Patch size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Tile size" category: "Init" var: tile_size min:1#m;
-	parameter "Initial light demanding pop" category: "Init" var: initial_pop_araucaria min:0;
-	parameter "Initial shade tolerant pop" category: "Init" var: initial_pop_broadleaf min:0;
-	parameter "Initial forest size" category: "Init" var: initial_forest_size min:0.0;
-	parameter "Average araucaria dispersal" category: "Init" var: araucaria_dispersal min:0.0;
-	parameter "Average broadleaf dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
-	parameter "Araucaria shade tolerance" category: "Init" var: shade_threshold_araucaria min:0.0;
-	parameter "Broadleaf shade tolerance" category: "Init" var: shade_threshold_broadleaf min:0.0;
+	parameter "landscape_size" category: "Init" var: landscape_size min:0.0;
+	parameter "initial_forest_size" category: "Init" var: initial_forest_size min:0.0;
+	parameter "tile_size" category: "Init" var: tile_size min:1#m;
+	parameter "initial_pop_total" category: "Init" var: initial_pop_total min:0;
+	parameter "initial_pop_ratio" category: "Init" var: initial_pop_ratio min:0 max:1.0;
+	parameter "tree_dispersal" category: "Init" var: tree_dispersal min:0.0;
+	parameter "araucaria_dispersal" category: "Init" var: araucaria_dispersal min:0.0;
+	parameter "broadleaf_dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
+	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;
+	parameter "shade_threshold_ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
 	
 	parameter "Wildfires" category: "Fire" var:wildfires;
-	
-	parameter "Grass growth rate" category: "Grass" var: grass_growthrate min:0.001 max:0.5;
+	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0 max:1.0;
+	parameter "araucaria_fire_tolerance" var: araucaria_base_fire_tolerance min:0.0 max:1.0;
 	parameter "grass_flammability" category: "Grass" var: grass_flammability min:0.0;
-	parameter "wildfire_rate" category: "Fire" var: wildfire_rate min:0.0;
 	
-	// Define attributes, actions, a init section and behaviors if necessary
-	
+	parameter "par_group" var: par_group min:1;
 	
 	
 	output {
-		display "Number of trees" {
-			chart "Number of adult trees" type: series size: {1,0.5} position: {0, 0} {
-        		data "Number of araucaria trees" value: nb_araucaria color: #darkgreen ;
-        		data "Number of broadleaf trees" value: nb_broadleaf color: #red ;
-        	}
-        }
+		
+		monitor "par_group" value: par_group;
+    	monitor "Number of araucaria trees" value: nb_araucaria;
+    	monitor "Number of broadleaved trees" value: nb_broadleaf;
+		monitor "Size of fire" value:firesize;
+		monitor "wildfire_rate" value: wildfires? wildfire_rate : 0;
+		monitor "Initial Araucaria pop"  value: initial_pop_araucaria;
+		monitor "Initial broadleaved pop"  value: initial_pop_broadleaf;
+		monitor "Araucaria shade tolerance" value: shade_threshold_araucaria;
+		monitor "Shade tolerance ratio" value: shade_threshold_ratio;
+		monitor "araucaria_fire_tolerance" value: araucaria_base_fire_tolerance;
+		monitor "araucaria_dispersal" value: araucaria_dispersal;
+		monitor "broadleaf_dispersal" value: broadleaf_dispersal;
+		monitor "grass_flammability" value: grass_flammability;
+		
+		monitor "rad05A" value: rad_A_adults[0];
+		monitor "rad50A" value: rad_A_adults[1];
+		monitor "rad95A" value: rad_A_adults[2];
+		monitor "inner_10_A" value: rad_A_adults[3];
+		monitor "outer_10_A" value: rad_A_adults[4];
         
-		display "Radius adults a" {
-			chart "Distance from center of adult a trees" type: series size: {1,0.5} position: {0, 0} {
-        		data "araucaria trees - 05" value: rad_A_adults[0] color: #darkgreen ;
-        		data "araucaria trees - 50" value: rad_A_adults[1] color: #darkgreen ;
-        		data "araucaria trees - 95" value: rad_A_adults[2] color: #darkgreen ;
-        		data "araucaria trees - inner10" value: rad_A_adults[3] color: #black ;
-        		data "araucaria trees - outer10" value: rad_A_adults[4] color: #black ;
-        	}
-        } 
-        display "Radius adults b" {
-			chart "Distance from center of adult b trees" type: series size: {1,0.5} position: {0, 0} {
-        		
-        		data "broadleaf trees - 00" value: rad_B_adults[0] color: #purple ;
-        		data "broadleaf trees - 50" value: rad_B_adults[1] color: #purple ;
-        		data "broadleaf trees - 95" value: rad_B_adults[2] color: #purple ;
-        		data "broadleaf trees - inner10" value: rad_B_adults[3] color: #black ;
-        		data "broadleaf trees - outer10" value: rad_B_adults[4] color: #black ;
-        	}
-        } 
+		monitor "rad05B" value: rad_B_adults[0];
+		monitor "rad50B" value: rad_B_adults[1];
+		monitor "rad95B" value: rad_B_adults[2];
+		monitor "inner_10_B" value: rad_B_adults[3];
+		monitor "outer_10_B" value: rad_B_adults[4];
+        
+		
+		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
+		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
+		monitor "araucaria_growthrate_1" value: araucaria_growthrate_1;
+		monitor "broadleaf_growthrate_1" value: broadleaf_growthrate_1;
+		monitor "araucaria_growthrate_2" value: araucaria_growthrate_2;
+		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
+		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
+		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
+		
+		monitor "rad_patch" value: rad_patch;
+		
+//		display "Number of trees" {
+//			chart "Number of adult trees" type: series size: {1,0.5} position: {0, 0} {
+//        		data "Number of araucaria trees" value: nb_araucaria color: #darkgreen ;
+//        		data "Number of broadleaf trees" value: nb_broadleaf color: #red ;
+//        	}
+//        }
+//        
+//		display "Radius adults a" {
+//			chart "Distance from center of adult a trees" type: series size: {1,0.5} position: {0, 0} {
+//        		data "araucaria trees - 05" value: rad_A_adults[0] color: #darkgreen ;
+//        		data "araucaria trees - 50" value: rad_A_adults[1] color: #darkgreen ;
+//        		data "araucaria trees - 95" value: rad_A_adults[2] color: #darkgreen ;
+//        		data "araucaria trees - inner10" value: rad_A_adults[3] color: #black ;
+//        		data "araucaria trees - outer10" value: rad_A_adults[4] color: #black ;
+//        	}
+//        } 
+//        display "Radius adults b" {
+//			chart "Distance from center of adult b trees" type: series size: {1,0.5} position: {0, 0} {
+//        		
+//        		data "broadleaf trees - 00" value: rad_B_adults[0] color: #purple ;
+//        		data "broadleaf trees - 50" value: rad_B_adults[1] color: #purple ;
+//        		data "broadleaf trees - 95" value: rad_B_adults[2] color: #purple ;
+//        		data "broadleaf trees - inner10" value: rad_B_adults[3] color: #black ;
+//        		data "broadleaf trees - outer10" value: rad_B_adults[4] color: #black ;
+//        	}
+//        } 
 //        display "Radius all a" {
 //			chart "Distance from center of all a trees" type: series size: {1,0.5} position: {0, 0} {
 //        		data "araucaria trees - 0" value: rad_A_all[0] color: #darkgreen ;
@@ -519,17 +556,17 @@ experiment fireandforest_graphic type: gui until: time>10  {
 //        	}
 //        } 
         
-        display "Wildfires" {
-			chart "Size of the last fire" type: series style: stack size: {1,0.5} position: {0, 0} y_range: {0,size^2} {
-        		data "Number of terrain tiles" value:firesize color: #black ;
-        	}
-        }
+//        display "Wildfires" {
+//			chart "Size of the last fire" type: series style: stack size: {1,0.5} position: {0, 0} y_range: {0,size^2} {
+//        		data "Number of terrain tiles" value:firesize color: #black ;
+//        	}
+//        }
         
 		display "model" {
 			grid grass;
 			species broadleaf;
 			species araucaria;
-			//event mouse_up action: click;
+			
 		}
 		
 		//display "model 3D" camera_interaction:false camera_pos:{world.shape.width/2,world.shape.height*2,world.shape.width*2} 
