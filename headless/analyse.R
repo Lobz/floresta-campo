@@ -3,14 +3,22 @@ source("organize_data.R")
 source("test_hypothesis.R")
 source("plotsfuns.utils.R")
 ### script
+##myfilename<-
 data <- get_data(myfilename)
 groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
+load(paste0("data/",groupname,".RData"))
+length(unique(data$sim_unique_id)) # number of sims
+my_LHS_pars$N ## number of sims (should match)
+
 plot.fours.columns(data, plot.scenarios)
 
 statistics_full <- extract_statistics(subset(data,full))
+summary(statistics_full)
 statistics_noAr <- extract_statistics(subset(data,noAr))
+summary(statistics_noAr)
 statistics_noFi <- extract_statistics(subset(data,noFi))
+summary(statistics_noFi)
 
 statistics_full_minus_noAr <- statistics_full - statistics_noAr
 statistics_noFi_minus_noAr <- statistics_noFi - statistics_noAr

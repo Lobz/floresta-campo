@@ -58,6 +58,7 @@ get_statistics <- function (one.run) {
 
     edge_range.med <- median(one.run$edge_range)
 
+
     data.frame(
                 circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr,
                 circ05.araucaria.gr, circ05.broadleaf.gr,
@@ -66,9 +67,19 @@ get_statistics <- function (one.run) {
 
 ## this function expects only one run per group (one scenario)
 extract_statistics <- function(data) {
-    data$par_group <- as.factor(data$par_group)
 
-    results.raw <- by(data,data$par_group, get_statistics)
+    # Add these:
+    #         frequency of extinction
+    #         mean time to extinction
+    #         frequency of complete afforestation
+    #         mean time to complete afforestation
+    #         rate of expansion
+    #         frequency of competitive exclusion of \emph{Araucaria}
+    #         patterns of spatial distribution
+
+    data$sim_unique_id <- as.factor(data$sim_unique_id)
+    results.raw <- by(data,data$sim_unique_id, get_statistics)
     statistics <- as.data.frame(do.call(rbind,results.raw))
+
     statistics
 }
