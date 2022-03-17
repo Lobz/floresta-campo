@@ -32,7 +32,7 @@ get_my_data <- function(filepath) {
         data$time <- 1:nrow(data) # allow for incomplete simulations
         data$sim_unique_id <- get.sim.name(filepath)
         data
-    }, error= function(e){NULL})
+    }, error = function(e){NULL}) # nolint
 }
 
 my_files <- list.files(mydirname, pattern=".*.xml", full.names=TRUE)
@@ -43,7 +43,5 @@ dados_list <- lapply(my_files,get_my_data)
 dados <- do.call(rbind, dados_list)
 
 head(dados)
-myfilename=paste0("data/",groupname,"_data.csv")
-write.csv(dados,myfilename,row.names=FALSE)
-
-
+myfilename <- paste0("data/", groupname, "_data.csv")
+write.csv(dados, myfilename, row.names = FALSE)
