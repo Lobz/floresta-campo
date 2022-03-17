@@ -1,12 +1,12 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 2000
+finalstep <- 200
 samplesize <- 1
-numreps <- 10
+numreps <- 1
 chunksize <- 10
 
-gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
-source("createxml.utils.R")
+gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
+source("./headless/createxml.utils.R")
 
 ## filenaming
 rnd <- paste0(sample(chars, 5, TRUE),collapse="")

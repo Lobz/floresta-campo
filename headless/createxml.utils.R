@@ -25,7 +25,7 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
     header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <Experiment_plan>
 "
-    outputs <- readChar("outputs.xmlpart", file.info("outputs.xmlpart")$size)
+    outputs <- readChar("headless/outputs.xmlpart", file.info("headless/outputs.xmlpart")$size)
     if(graphics) {
         outputs <- paste0(outputs, "\n\t", '<Output id="graphics" name="model" framerate="',graphics_framerate,'" />')
     }
@@ -94,6 +94,6 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
 
 run_simulations <- function(my_filenames, outputdir) {
     for (filename in my_filenames) {
-        system(paste0('gama-headless.bat ',filename,' ',outputdir))
+        system(paste0('headless/gama-headless.bat ',filename,' ',outputdir))
     }
 }

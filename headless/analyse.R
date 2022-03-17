@@ -1,7 +1,7 @@
 
-source("organize_data.R")
-source("test_hypothesis.R")
-source("plotsfuns.utils.R")
+source("headless/organize_data.R")
+source("headless/test_hypothesis.R")
+source("headless/plotsfuns.utils.R")
 ### script
 ##myfilename<-
 data <- get_data(myfilename)

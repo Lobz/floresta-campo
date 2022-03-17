@@ -13,11 +13,9 @@ FireandForest/models/instafire copy.gaml
 *.csv
 headless/examples_external/*
 *.xml
-headless/*/console-outputs*
-headless/*/simulation-outputs*
-headless/headless_outputs/
-headless/set-gamadir.bat
 headless/*.RData
 FireandForest/models/benchmarks/
 *.Rdata
 headless/images/*
+headless_outputs/*
+headless/set-gamadir.bat
