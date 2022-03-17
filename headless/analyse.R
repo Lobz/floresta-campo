@@ -13,16 +13,8 @@ my_LHS_pars$N ## number of sims (should match)
 
 plot.fours.columns(data, plot.scenarios)
 
-statistics_full <- extract_statistics(subset(data,full))
-summary(statistics_full)
-statistics_noAr <- extract_statistics(subset(data,noAr))
-summary(statistics_noAr)
-statistics_noFi <- extract_statistics(subset(data,noFi))
-summary(statistics_noFi)
-
-statistics_full_minus_noAr <- statistics_full - statistics_noAr
-statistics_noFi_minus_noAr <- statistics_noFi - statistics_noAr
-statistics_full_minus_noFi <- statistics_full - statistics_noFi
+statistics <- extract_statistics(data)
+summary(statistics)
 
 ## extract image files
 imagedir <- "./data/scenarios_Dec232021_kv20u-out/scenarios_Dec232021_kv20u-out/snapshot/"
@@ -35,8 +27,6 @@ file.rename(paste0(imagedir,nofiimages),paste0(imagedir,'/nofi/',nofiimages))
 file.rename(paste0(imagedir,noarimages),paste0(imagedir,'/noar/',noarimages))
 
 
-finalvalues <- get_finalsteps(data)
-summary(finalvalues)
 ### join back to lhs object
 load(mylhsfilename)
 summary(my_LHS_pars$data)

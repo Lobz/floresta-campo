@@ -1,4 +1,5 @@
 # make sure you've used createxml to create the xml for gama_headless and xmlToCsv to save the results in csv format
+CONST_ARENA_RADIUS <- 300
 
 get_data <- function (myfilename) {
     data <- read.csv(file=myfilename,stringsAsFactors=T)
@@ -11,33 +12,25 @@ get_data <- function (myfilename) {
     return(data)
 }
 
-get_finalsteps <- function (data) {
-    finalstep <- function (one.run) {
-        subset(one.run, time == max(one.run$time))
-    }
+finalstep <- function (one.run) {
+    subset(one.run, time == max(one.run$time))
+}
 
+get_finalsteps <- function (data, time_limit = 2000) {
     finalvalues <- by(data, data$sim_unique_id, finalstep)
     finalvalues <- as.data.frame(do.call(rbind,finalvalues))
 
     finalvalues$extinction <- finalvalues$n.araucaria + finalvalues$n.broadleaf == 0
-    finalvalues$area_limit <- finalvalues$circ.max >= 300
-    finalvalues$time_limit <- finalvalues$time == 2000
+    finalvalues$area_limit <- finalvalues$circ.max >= CONST_ARENA_RADIUS
+    finalvalues$time_limit <- finalvalues$time == time_limit
+    finalvalues$extinction.araucaria <- finalvalues$n.araucaria == 0
     return(finalvalues)
 }
 
-get_statistics <- function (one.run) {
-
-    ## extinction
-    time.to.extinction.araucaria <- min(subset(one.run, n.araucaria==0)$time)
-    time.to.extinction.broadleaf <- min(subset(one.run, n.broadleaf==0)$time)
-    time.to.extinction <- max(time.to.extinction.araucaria, time.to.extinction.broadleaf)
-    extinction <- !is.na(time.to.extinction)
-    
-    ## complete afforestation
-    time.to.afforestation.araucaria <- min(subset(one.run, c.araucaria>=300)$time)
-    time.to.afforestation.broadleaf <- min(subset(one.run, c.broadleaf==0)$time)
-    time.to.afforestation <- max(time.to.afforestation.araucaria, time.to.afforestation.broadleaf)
-    afforestation <- !is.na(time.to.afforestation)
+get_statistics <- function (one.run, time_limit = 2000) {
+    time.to.extinction.araucaria <- min(one.run$time[one.run$n.araucaria == 0])
+    time.to.extinction <- min(one.run$time[one.run$n.araucaria + one.run$n.broadleaf == 0])
+    time.to.afforestation <- min(one.run$time[one.run$circ.max >= CONST_ARENA_RADIUS])
 
     linear_growth_rate <- function(one.run, column.par) {
         tryCatch( {
@@ -72,8 +65,9 @@ get_statistics <- function (one.run) {
                 circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr,
                 circ05.araucaria.gr, circ05.broadleaf.gr,
                 n.araucaria.gr, n.broadleaf.gr, edge_range.med,
-                extinction, time.to.extinction,
-                )
+                time.to.extinction.araucaria, time.to.afforestation, time.to.extinction,
+                sim_unique_id = finalvalues$sim_unique_id
+            )
 }
 
 ## this function expects only one run per group (one scenario)
@@ -92,5 +86,7 @@ extract_statistics <- function(data) {
     results.raw <- by(data,data$sim_unique_id, get_statistics)
     statistics <- as.data.frame(do.call(rbind,results.raw))
 
-    statistics
+    finalvalues <- get_finalsteps(data, time_limit=2000)
+
+    merge(statistics,finalvalues, by="sim_unique_id")
 }

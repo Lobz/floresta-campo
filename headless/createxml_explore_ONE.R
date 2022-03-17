@@ -5,13 +5,11 @@ samplesize <- 500
 numreps <- 1
 chunksize <- 25
 
-gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
-source("createxml.utils.R")
+gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
+source("./headless/createxml.utils.R")
 
 ## filenaming
-rnd <- paste0(sample(chars, 5, TRUE),collapse="")
-today <- paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
-groupname <-  paste0("grass_flammability_",rnd)
+groupname <-  gen_groupname("explore")
 
 ## PARAMETERS
 n <- numreps*samplesize
