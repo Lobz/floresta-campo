@@ -27,8 +27,17 @@ get_finalsteps <- function (data) {
 
 get_statistics <- function (one.run) {
 
+    ## extinction
     time.to.extinction.araucaria <- min(subset(one.run, n.araucaria==0)$time)
     time.to.extinction.broadleaf <- min(subset(one.run, n.broadleaf==0)$time)
+    time.to.extinction <- max(time.to.extinction.araucaria, time.to.extinction.broadleaf)
+    extinction <- !is.na(time.to.extinction)
+    
+    ## complete afforestation
+    time.to.afforestation.araucaria <- min(subset(one.run, c.araucaria>=300)$time)
+    time.to.afforestation.broadleaf <- min(subset(one.run, c.broadleaf==0)$time)
+    time.to.afforestation <- max(time.to.afforestation.araucaria, time.to.afforestation.broadleaf)
+    afforestation <- !is.na(time.to.afforestation)
 
     linear_growth_rate <- function(one.run, column.par) {
         tryCatch( {
@@ -62,7 +71,9 @@ get_statistics <- function (one.run) {
     data.frame(
                 circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr,
                 circ05.araucaria.gr, circ05.broadleaf.gr,
-                n.araucaria.gr, n.broadleaf.gr, edge_range.med)
+                n.araucaria.gr, n.broadleaf.gr, edge_range.med,
+                extinction, time.to.extinction,
+                )
 }
 
 ## this function expects only one run per group (one scenario)
