@@ -1,8 +1,8 @@
 ## CONSTANTS & UTILS
 
 finalstep <- 200
-samplesize <- 1
-numreps <- 1
+samplesize <- 10
+numreps <- 10
 chunksize <- 10
 
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
