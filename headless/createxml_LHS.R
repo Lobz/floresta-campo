@@ -14,16 +14,16 @@ groupname <-  gen_groupname("LHS")
 ## parametrizing
 
 par_names <- c("wildfire_rate",
-                "shade_threshold_ratio", 
                 "araucaria_fire_tolerance", 
+                "shade_threshold_ratio", 
                 "tree_dispersal", 
                 "grass_flammability")
 
-q.arg <- list(list(min=0.05,max=0.15), 
-                list(min=1.5,max=2.5), 
+q.arg <- list(list(min=0.00,max=0.3), 
                 list(min=0.8,max=1.0), 
-                list(min=5,max=15), 
-                list(min=0.55,0.65))
+                list(min=1.0,max=3.0), 
+                list(min=5,max=30), 
+                list(min=0.55,0.70))
 
 
 ## creating parameter data.frame
