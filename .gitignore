@@ -7,15 +7,12 @@
 .gama*
 .built_in*
 *.png
-headless/.Rhistory
-headless/.RData
-FireandForest/models/instafire copy.gaml
 *.csv
-headless/examples_external/*
 *.xml
-headless/*.RData
+*.RData
 FireandForest/models/benchmarks/
 *.Rdata
-headless/images/*
+images/*
 headless_outputs/*
 headless/set-gamadir.bat
+examples_external/

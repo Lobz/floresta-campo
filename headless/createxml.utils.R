@@ -1,7 +1,18 @@
 #createxml.utils.R
 
+# naming utils
 today <- function() paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 
+chars <- c(LETTERS,letters,0:9)
+
+rndstr <- function(n = 5) {
+    paste0(sample(chars, n, TRUE),collapse="")
+}
+
+gen_groupname <- function(prefix, n=5) paste0(prefix,"_",today(),"_",rndstr(n))
+
+
+# expand pars into lines
 par.line <- function(name,p) {
     paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
 }
@@ -10,7 +21,6 @@ par.row <- function(row) {
     paste(par.line(names(row),row),collapse="\n")
 }
 
-chars <- c(LETTERS,letters,0:9)
 
 
 ### MAIN FUNCTION

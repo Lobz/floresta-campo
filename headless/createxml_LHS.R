@@ -8,9 +8,9 @@ chunksize <- 10
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
 source("headless/createxml.utils.R")
 
+
 ## filenaming
-rnd <- paste0(sample(chars, 5, TRUE),collapse="")
-groupname <-  paste0("LHS_",today(),"_",rnd)
+groupname <-  gen_groupname("LHS")
 
 ## parametrizing
 
