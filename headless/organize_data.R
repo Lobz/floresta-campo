@@ -16,7 +16,7 @@ finalstep <- function (one.run) {
     subset(one.run, time == max(one.run$time))
 }
 
-get_finalsteps <- function (data, time_limit = 2000) {
+get_finalsteps <- function (data, time_limit) {
     finalvalues <- by(data, data$sim_unique_id, finalstep)
     finalvalues <- as.data.frame(do.call(rbind,finalvalues))
 
@@ -27,11 +27,6 @@ get_finalsteps <- function (data, time_limit = 2000) {
     return(finalvalues)
 }
 
-get_statistics <- function (one.run, time_limit = 2000) {
-    time.to.extinction.araucaria <- min(one.run$time[one.run$n.araucaria == 0])
-    time.to.extinction <- min(one.run$time[one.run$n.araucaria + one.run$n.broadleaf == 0])
-    time.to.afforestation <- min(one.run$time[one.run$circ.max >= CONST_ARENA_RADIUS])
-
     linear_growth_rate <- function(one.run, column.par) {
         tryCatch( {
         model <- lm(one.run[,column.par] ~ one.run$time)
@@ -40,17 +35,22 @@ get_statistics <- function (one.run, time_limit = 2000) {
         error=function(e) NA)
     }
 
+    exponential_growth_rate <- function(one.run, column.par) {
+        model <- lm(log(one.run[,column.par]) ~ one.run$time)
+        model$coefficients[2]
+    }
+
+get_statistics <- function (one.run) {
+    time.to.extinction.araucaria <- min(one.run$time[one.run$n.araucaria == 0])
+    time.to.extinction <- min(one.run$time[one.run$n.araucaria + one.run$n.broadleaf == 0])
+    time.to.afforestation <- min(one.run$time[one.run$circ.max >= CONST_ARENA_RADIUS])
+
     ## circs linear
     circ.araucaria.gr <- linear_growth_rate(one.run, "circ.araucaria")
     circ.broadleaf.gr <- linear_growth_rate(one.run, "circ.broadleaf")
     circ05.araucaria.gr <- linear_growth_rate(one.run, "circ05.araucaria")
     circ05.broadleaf.gr <- linear_growth_rate(one.run, "circ05.broadleaf")
     circ.max.gr <- linear_growth_rate(one.run, "circ.max")
-
-    exponential_growth_rate <- function(one.run, column.par) {
-        model <- lm(log(one.run[,column.par]) ~ one.run$time)
-        model$coefficients[2]
-    }
 
     ## ns log
     n.araucaria.gr <- tryCatch(exponential_growth_rate(one.run, "n.araucaria"), error=function(e)NA)
@@ -61,17 +61,18 @@ get_statistics <- function (one.run, time_limit = 2000) {
     edge_range.med <- median(one.run$edge_range)
 
 
+    sim_unique_id <- one.run$sim_unique_id[1]
     data.frame(
                 circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr,
                 circ05.araucaria.gr, circ05.broadleaf.gr,
                 n.araucaria.gr, n.broadleaf.gr, edge_range.med,
                 time.to.extinction.araucaria, time.to.afforestation, time.to.extinction,
-                sim_unique_id = finalvalues$sim_unique_id
+                sim_unique_id
             )
 }
 
 ## this function expects only one run per group (one scenario)
-extract_statistics <- function(data) {
+extract_statistics <- function(data, time_limit=max(data$time)) {
 
     # Add these:
     #         frequency of extinction
@@ -86,7 +87,7 @@ extract_statistics <- function(data) {
     results.raw <- by(data,data$sim_unique_id, get_statistics)
     statistics <- as.data.frame(do.call(rbind,results.raw))
 
-    finalvalues <- get_finalsteps(data, time_limit=2000)
+    finalvalues <- get_finalsteps(data, time_limit)
 
     merge(statistics,finalvalues, by="sim_unique_id")
 }

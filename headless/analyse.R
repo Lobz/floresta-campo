@@ -7,45 +7,37 @@ source("headless/plotsfuns.utils.R")
 data <- get_data(myfilename)
 groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
-load(paste0("data/",groupname,".RData"))
 length(unique(data$sim_unique_id)) # number of sims
-my_LHS_pars$N ## number of pargroups
 
-plot.fours.columns(data, plot.scenarios)
-
-statistics <- extract_statistics(data)
+### several per-sim statistics
+statistics <- extract_statistics(data, time_limit=max(data$time))
 summary(statistics)
 
-## extract image files
-imagedir <- "./data/scenarios_Dec232021_kv20u-out/scenarios_Dec232021_kv20u-out/snapshot/"
-fullimages<- as.character(subset(data,full & !is.na(image_file))$image_file)
-nofiimages<- as.character(subset(data,noFi & !is.na(image_file))$image_file)
-noarimages<- as.character(subset(data,noAr & !is.na(image_file))$image_file)
-
-file.rename(paste0(imagedir,fullimages),paste0(imagedir,'/full/',fullimages))
-file.rename(paste0(imagedir,nofiimages),paste0(imagedir,'/nofi/',nofiimages))
-file.rename(paste0(imagedir,noarimages),paste0(imagedir,'/noar/',noarimages))
-
-
 ### join back to lhs object
-load(mylhsfilename)
+load(paste0("data/",groupname,".RData"))
+my_LHS_pars$N ## number of pargroups
 summary(my_LHS_pars$data)
 library(pse)
-myLHS<-tell(my_LHS_pars, statistics_full$circ.broadleaf.gr, nboot=30)
+## example
+myLHS<-tell(my_LHS_pars, statistics$circ.broadleaf.gr, nboot=30)
 
 ### lhs plots
 plotecdf(myLHS, stack=TRUE)
 plotscatter(myLHS)
 plotprcc(myLHS)
 
+
+plot.fours.columns(data, plot.scenarios)
+
+
 ### hypothesis testing
 results<- test.hypotheses.all(data)
 results$par_group<-as.numeric(rownames(results))
 ### merge back into values of data
-results_par <- merge(results,finalvalues,by="par_group")
+results_par <- merge(results,statistics,by="par_group")
 data_hyps<- merge(data,results,by="par_group")
 
-plot_final_values(subset(finalvalues,full),"grass_flammability")
+plot_final_values(subset(statistics,full),"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 
 batchname <- tools::file_path_sans_ext(basename(myfilename))
@@ -74,12 +66,10 @@ expected_crowd <- function(shade_threshold) {
 }
 
 # plot inner, mid, edge areas in a simulation
-
 full <- subset(data, full)
 summary(full)
 id_ex <- full$sim_unique_id[1]
 example <- subset(full, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
-
 ex <- aggregate(full, by=list(full$time), mean)
 #ex <- aggregate(example, by=list(example$time), mean)
 n <- nrow(ex)
@@ -88,7 +78,6 @@ barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria
 colnames(barlengths) <- ex$time
 barlengths[3,] <- barlengths[3,] - barlengths[2,]
 barlengths[2,] <- barlengths[2,] - barlengths[1,]
-
 
 pdf(paste0("images/arealengths_",groupname,"_average.pdf"), width=7, height=5)
 par(lwd=3)
@@ -100,7 +89,6 @@ barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgre
 dev.off()
 
 # just for fun, do the same with NoFi
-
 nofi <- subset(data, noFi, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
 summary(nofi)
 id_ex <- unique(nofi$sim_unique_id)[10]
@@ -114,7 +102,6 @@ barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria
 colnames(barlengths) <- ex$time
 barlengths[3,] <- barlengths[3,] - barlengths[2,]
 barlengths[2,] <- barlengths[2,] - barlengths[1,]
-
 
 pdf(paste0("images/arealengths",groupname,"_average_NoFi.pdf", width=7, height=5)
 par(lwd=3)
