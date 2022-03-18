@@ -9,6 +9,10 @@ groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_d
 summary(data)
 length(unique(data$sim_unique_id)) # number of sims
 
+## image dir
+imagedir <- paste0("images/",groupname,"/")
+dir.create(imagedir)
+
 ### several per-sim statistics
 statistics <- extract_statistics(data, time_limit=max(data$time))
 summary(statistics)
@@ -40,9 +44,8 @@ data_hyps<- merge(data,results,by="par_group")
 plot_final_values(subset(statistics,full),"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 
-batchname <- tools::file_path_sans_ext(basename(myfilename))
 save.plots <- function(name) {
-    pdf(paste0("images/",batchname,"/",name,".pdf"), width=12, height=8)
+    pdf(paste0(imagedir,name,".pdf"), width=12, height=8)
     plot_all_hyps(results_par,name)
     dev.off()
 }
