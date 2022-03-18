@@ -23,12 +23,3 @@
         <Output id="152" name="outer_10_A" framerate="1" />
         <Output id="162" name="outer_10_B" framerate="1" />
         
-
-        <Output id="20" name="araucaria_growthrate_0" framerate="1" />
-        <Output id="30" name="broadleaf_growthrate_0" framerate="1" />
-        <Output id="21" name="araucaria_growthrate_1" framerate="1" />
-        <Output id="31" name="broadleaf_growthrate_1" framerate="1" />
-        <Output id="22" name="araucaria_growthrate_2" framerate="1" />
-        <Output id="32" name="broadleaf_growthrate_2" framerate="1" />
-        <Output id="23" name="araucaria_growthrate_3" framerate="1" />
-        <Output id="33" name="broadleaf_growthrate_3" framerate="1" />

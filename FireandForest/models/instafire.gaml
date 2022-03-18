@@ -63,7 +63,7 @@ global {
 	list<float> tree_growth_rate <- [1.0,0.1,0.1,0.1,0];//ind_lit_growth_rate collect (each*2 > 1 ? 1 : each*2);
 	list<float> tree_canopy_size <- [0.1,0.5,1,2,5];
 	list<float> tree_height <- [0.1,1,2,10,40];
-	float tree_dispersal <- 10#m;
+	float tree_dispersal <- 10#m parameter:true;
 	
 	// divergent values
 	float araucaria_base_fire_tolerance <- 0.9 parameter:true;
@@ -138,17 +138,15 @@ global {
 		
 		
 	}
-	
-	float araucaria_growthrate_0 -> (araucaria where (each.stage = 0)) mean_of (each.my_growth_rate);
-	float broadleaf_growthrate_0 -> (broadleaf where (each.stage = 0)) mean_of (each.my_growth_rate);
-	float araucaria_growthrate_1 -> (araucaria where (each.stage = 1)) mean_of (each.my_growth_rate);
-	float broadleaf_growthrate_1 -> (broadleaf where (each.stage = 1)) mean_of (each.my_growth_rate);
-	float araucaria_growthrate_2 -> (araucaria where (each.stage = 2)) mean_of (each.my_growth_rate);
-	float broadleaf_growthrate_2 -> (broadleaf where (each.stage = 2)) mean_of (each.my_growth_rate);
-	float araucaria_growthrate_3 -> (araucaria where (each.stage = 3)) mean_of (each.my_growth_rate);
-	float broadleaf_growthrate_3 -> (broadleaf where (each.stage = 3)) mean_of (each.my_growth_rate);
-
-
+//	
+//	float araucaria_growthrate_0 -> (araucaria where (each.stage = 0)) mean_of (each.my_growth_rate);
+//	float broadleaf_growthrate_0 -> (broadleaf where (each.stage = 0)) mean_of (each.my_growth_rate);
+//	float araucaria_growthrate_1 -> (araucaria where (each.stage = 1)) mean_of (each.my_growth_rate);
+//	float broadleaf_growthrate_1 -> (broadleaf where (each.stage = 1)) mean_of (each.my_growth_rate);
+//	float araucaria_growthrate_2 -> (araucaria where (each.stage = 2)) mean_of (each.my_growth_rate);
+//	float broadleaf_growthrate_2 -> (broadleaf where (each.stage = 2)) mean_of (each.my_growth_rate);
+//	float araucaria_growthrate_3 -> (araucaria where (each.stage = 3)) mean_of (each.my_growth_rate);
+//	float broadleaf_growthrate_3 -> (broadleaf where (each.stage = 3)) mean_of (each.my_growth_rate);
 }
 
 species scheduler schedules: wildfire + grass + shuffle(broadleaf + araucaria); // explicit scheduling in the world
@@ -380,8 +378,6 @@ experiment fireandforest type: gui {
 	parameter "initial_pop_total" category: "Init" var: initial_pop_total min:0;
 	parameter "initial_pop_ratio" category: "Init" var: initial_pop_ratio min:0 max:1.0;
 	parameter "tree_dispersal" category: "Init" var: tree_dispersal min:0.0;
-	parameter "araucaria_dispersal" category: "Init" var: araucaria_dispersal min:0.0;
-	parameter "broadleaf_dispersal" category: "Init" var: broadleaf_dispersal min:0.0;
 	parameter "shade_threshold_araucaria" category: "Init" var: shade_threshold_araucaria min:0.0;
 	parameter "shade_threshold_ratio" category: "Init" var: shade_threshold_ratio min:1.0 max:5.0;
 	
@@ -425,15 +421,15 @@ experiment fireandforest type: gui {
 		monitor "inner_10_B" value: rad_B_adults[3];
 		monitor "outer_10_B" value: rad_B_adults[4];
         
-		
-		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
-		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
-		monitor "araucaria_growthrate_1" value: araucaria_growthrate_1;
-		monitor "broadleaf_growthrate_1" value: broadleaf_growthrate_1;
-		monitor "araucaria_growthrate_2" value: araucaria_growthrate_2;
-		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
-		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
-		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
+//		
+//		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
+//		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
+//		monitor "araucaria_growthrate_1" value: araucaria_growthrate_1;
+//		monitor "broadleaf_growthrate_1" value: broadleaf_growthrate_1;
+//		monitor "araucaria_growthrate_2" value: araucaria_growthrate_2;
+//		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
+//		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
+//		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
 		
 		monitor "rad_patch" value: rad_patch;
 		
@@ -497,15 +493,15 @@ experiment fireandforest_graphic type: gui until: time>10  {
 		monitor "inner_10_B" value: rad_B_adults[3];
 		monitor "outer_10_B" value: rad_B_adults[4];
         
-		
-		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
-		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
-		monitor "araucaria_growthrate_1" value: araucaria_growthrate_1;
-		monitor "broadleaf_growthrate_1" value: broadleaf_growthrate_1;
-		monitor "araucaria_growthrate_2" value: araucaria_growthrate_2;
-		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
-		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
-		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
+//		
+//		monitor "araucaria_growthrate_0" value: araucaria_growthrate_0;
+//		monitor "broadleaf_growthrate_0" value: broadleaf_growthrate_0;
+//		monitor "araucaria_growthrate_1" value: araucaria_growthrate_1;
+//		monitor "broadleaf_growthrate_1" value: broadleaf_growthrate_1;
+//		monitor "araucaria_growthrate_2" value: araucaria_growthrate_2;
+//		monitor "broadleaf_growthrate_2" value: broadleaf_growthrate_2;
+//		monitor "araucaria_growthrate_3" value: araucaria_growthrate_3;
+//		monitor "broadleaf_growthrate_3" value: broadleaf_growthrate_3;
 		
 		monitor "rad_patch" value: rad_patch;
 		
