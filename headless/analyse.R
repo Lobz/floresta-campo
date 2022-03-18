@@ -9,7 +9,7 @@ groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_d
 summary(data)
 load(paste0("data/",groupname,".RData"))
 length(unique(data$sim_unique_id)) # number of sims
-my_LHS_pars$N ## number of sims (should match)
+my_LHS_pars$N ## number of pargroups
 
 plot.fours.columns(data, plot.scenarios)
 
@@ -37,7 +37,6 @@ myLHS<-tell(my_LHS_pars, statistics_full$circ.broadleaf.gr, nboot=30)
 plotecdf(myLHS, stack=TRUE)
 plotscatter(myLHS)
 plotprcc(myLHS)
-
 
 ### hypothesis testing
 results<- test.hypotheses.all(data)
