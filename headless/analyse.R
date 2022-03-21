@@ -5,6 +5,7 @@ source("headless/plotsfuns.utils.R")
 ### script
 ##myfilename<-
 data <- get_data(myfilename)
+data$tree_dispersal <- data$araucaria_dispersal
 groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
 length(unique(data$sim_unique_id)) # number of sims
@@ -45,8 +46,15 @@ plot_final_values(subset(statistics,full),"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 
 save.plots <- function(name) {
-    pdf(paste0(imagedir,name,".pdf"), width=12, height=8)
+    pdf(paste0(imagedir,name,"-hyps.pdf"), width=12, height=8)
     plot_all_hyps(results_par,name)
+    dev.off()
+}
+lapply(par_names,save.plots)
+
+save.plots <- function(name) {
+    pdf(paste0(imagedir,name,"-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(data,lines.par,column.par=name)
     dev.off()
 }
 lapply(par_names,save.plots)

@@ -1,9 +1,9 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 200
-samplesize <- 10
+finalstep <- 2000
+samplesize <- 100
 numreps <- 1
-chunksize <- 10
+chunksize <- 1
 
 gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
 source("headless/createxml.utils.R")
@@ -41,7 +41,7 @@ save(my_LHS_pars,groupname,file=mylhsfilename)
 par.data <- my_LHS_pars$data
 par.data$par_group <- rownames(par.data)
 ## WRITING
-my_filenames <- createxml(par.data,groupname)
+my_filenames <- createxml(par.data, groupname, stop.at.area.limit=FALSE)
 ## RUNNING
 outputdir <- paste0('headless_outputs/',groupname,'-out')
 run_simulations(my_filenames, outputdir)

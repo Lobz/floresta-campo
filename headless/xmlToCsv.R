@@ -37,16 +37,16 @@ get_my_data <- function(filepath) {
 
 my_files <- list.files(mydirname, pattern=".*.xml", full.names=TRUE)
 length(my_files)
-my_files <- Filter(file.notempty,my_files)
-length(my_files)
+#my_files <- Filter(file.notempty,my_files)
+#length(my_files)
 
 dados_list <- lapply(my_files,get_my_data)
 length(dados_list)
-lapply(dados_list,length)
+sapply(dados_list,length)
 dados <- do.call(rbind, dados_list)
 dim(dados)
 
 groupname <- paste0(strsplit(dados$sim_unique_id[1],'_')[[1]][1:3],collapse='_')
 head(dados)
-myfilename <- paste0("data/", groupname, "_data.csv")
+myfilename <- paste0("data/", groupname, "_2_data.csv")
 write.csv(dados, myfilename, row.names = FALSE)

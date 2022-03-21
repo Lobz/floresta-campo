@@ -21,7 +21,8 @@ par.row <- function(row) {
     paste(par.line(names(row),row),collapse="\n")
 }
 
-
+# read a file ffs
+read.file <- function(filename) readChar(filename, file.info(filename)$size)
 
 ### MAIN FUNCTION
 
@@ -35,7 +36,7 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
     header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <Experiment_plan>
 "
-    outputs <- readChar("headless/outputs.xmlpart", file.info("headless/outputs.xmlpart")$size)
+    outputs <- read.file("headless/outputs.xmlpart")
     if(graphics) {
         outputs <- paste0(outputs, "\n\t", '<Output id="graphics" name="model" framerate="',graphics_framerate,'" />')
     }
@@ -105,5 +106,8 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
 run_simulations <- function(my_filenames, outputdir) {
     for (filename in my_filenames) {
         system(paste0('headless/gama-headless.bat ',filename,' ',outputdir))
+        file.rename(filename, paste0("DONE", filename))
+        print("Finished batch:")
+        print(filename)
     }
 }
