@@ -7,8 +7,8 @@
 .gama*
 .built_in*
 *.png
-headless/.Rhistory
-headless/.RData
+*.Rhistory
+*.RData
 FireandForest/models/instafire copy.gaml
 *.csv
 headless/examples_external/*
