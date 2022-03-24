@@ -1,7 +1,18 @@
 #createxml.utils.R
 
+# naming utils
 today <- function() paste0(strsplit(date()," ")[[1]][c(2:3,5)],collapse="")
 
+chars <- c(LETTERS,letters,0:9)
+
+rndstr <- function(n = 5) {
+    paste0(sample(chars, n, TRUE),collapse="")
+}
+
+gen_groupname <- function(prefix, n=5) paste0(prefix,"_",today(),"_",rndstr(n))
+
+
+# expand pars into lines
 par.line <- function(name,p) {
     paste0('<Parameter name="',name,'" type="FLOAT" value="',p,'" />')
 }
@@ -10,31 +21,40 @@ par.row <- function(row) {
     paste(par.line(names(row),row),collapse="\n")
 }
 
-chars <- c(LETTERS,letters,0:9)
-
+# read a file ffs
+read.file <- function(filename) readChar(filename, file.info(filename)$size)
 
 ### MAIN FUNCTION
 
-createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE, stop.at.area.limit=TRUE, numreps=1) {
+createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TRUE, stop.at.area.limit=TRUE, numreps=1, graphics=FALSE, graphics_framerate=10) {
+
+    expname <- 'fireandforest'
+    if(graphics) {
+        expname <- 'fireandforest_graphic'
+    }
 
     header <- "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <Experiment_plan>
 "
-    outputs <- readChar("outputs.xmlpart", file.info("outputs.xmlpart")$size)
+    outputs <- read.file("headless/outputs.xmlpart")
+    if(graphics) {
+        outputs <- paste0(outputs, "\n\t", '<Output id="graphics" name="model" framerate="',graphics_framerate,'" />')
+    }
+    outputs <- paste('<Outputs>', outputs, '</Outputs>', collapse="\n")
 
     simheadbeg <- '
-        <Simulation id="'
+    <Simulation id="'
     until=''
     if(stop.at.extinction && stop.at.area.limit) {
-        until='until="length(araucaria) + length(broadleaf) = 0 or max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+        until='until="length(araucaria) + length(broadleaf) = 0 or rad_patch > landscape_size/2"'
     }
     else if(stop.at.extinction) {
         until='until="length(araucaria) + length(broadleaf) = 0"'
     }
     else if(stop.at.area.limit) {
-        until='until="max(rad_broadleaf.y, rad_araucaria.y) > landscape_size/2"'
+        until='until="rad_patch > landscape_size/2"'
     }
-    simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="fireandforest" ', until, ' >')
+    simheadend <- paste0('" sourcePath="', gamlfile, '" finalStep="', finalstep, '" experiment="', expname,'" ', until, ' >')
     
     footer <- '</Experiment_plan>'
 
@@ -85,6 +105,9 @@ createxml <- function(par.data, groupname, scenarios=TRUE, stop.at.extinction=TR
 
 run_simulations <- function(my_filenames, outputdir) {
     for (filename in my_filenames) {
-        system(paste0('gama-headless.bat ',filename,' ',outputdir))
+        system(paste0('headless/gama-headless.bat ',filename,' ',outputdir))
+        file.rename(filename, paste0("DONE", filename))
+        print("Finished batch:")
+        print(filename)
     }
 }

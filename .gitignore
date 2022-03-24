@@ -9,15 +9,11 @@
 *.png
 *.Rhistory
 *.RData
-FireandForest/models/instafire copy.gaml
 *.csv
-headless/examples_external/*
 *.xml
-headless/*/console-outputs*
-headless/*/simulation-outputs*
-headless/headless_outputs/
-headless/set-gamadir.bat
-headless/*.RData
+*.RData
 FireandForest/models/benchmarks/
-*.Rdata
-headless/images/*
+images/*
+headless_outputs/*
+headless/set-gamadir.bat
+examples_external/

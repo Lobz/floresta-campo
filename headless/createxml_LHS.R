@@ -1,30 +1,30 @@
 ## CONSTANTS & UTILS
 
-finalstep <- 20
-samplesize <- 40
+finalstep <- 2000
+samplesize <- 100
 numreps <- 1
-chunksize <- 10
+chunksize <- 1
 
-gamlfile <- '..\\..\\FireandForest\\models\\instafire.gaml'
-source("createxml.utils.R")
+gamlfile <- '..\\FireandForest\\models\\instafire.gaml'
+source("headless/createxml.utils.R")
+
 
 ## filenaming
-rnd <- paste0(sample(chars, 5, TRUE),collapse="")
-groupname <-  paste0("LHS_",today(),"_",rnd)
+groupname <-  gen_groupname("LHS")
 
 ## parametrizing
 
 par_names <- c("wildfire_rate",
-                "shade_threshold_ratio", 
                 "araucaria_fire_tolerance", 
+                "shade_threshold_ratio", 
                 "tree_dispersal", 
                 "grass_flammability")
 
 q.arg <- list(list(min=0.00,max=0.3), 
+                list(min=0.8,max=1.0), 
                 list(min=1.0,max=3.0), 
-                list(min=0.5,max=1.0), 
                 list(min=5,max=30), 
-                list(min=0.55,0.7))
+                list(min=0.55,0.70))
 
 
 ## creating parameter data.frame
@@ -35,14 +35,13 @@ my_LHS_pars <- LHS(model=NULL,
                   q.arg=q.arg,
                   repetitions=numreps)
 
-mylhsfilename<- paste0("data/",groupname,".RData")
+mylhsfilename <- paste0("data/",groupname,".RData")
 save(my_LHS_pars,groupname,file=mylhsfilename)
 
 par.data <- my_LHS_pars$data
 par.data$par_group <- rownames(par.data)
 ## WRITING
-my_filenames <- createxml(par.data,groupname)
+my_filenames <- createxml(par.data, groupname, stop.at.area.limit=FALSE)
 ## RUNNING
 outputdir <- paste0('headless_outputs/',groupname,'-out')
 run_simulations(my_filenames, outputdir)
-
