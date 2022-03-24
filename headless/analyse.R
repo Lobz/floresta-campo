@@ -9,6 +9,7 @@ data$tree_dispersal <- data$araucaria_dispersal
 groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
 length(unique(data$sim_unique_id)) # number of sims
+length(unique(data$par_group)) # number of groups
 
 ## image dir
 imagedir <- paste0("images/",groupname,"/")
@@ -23,6 +24,40 @@ load(paste0("data/",groupname,".RData"))
 my_LHS_pars$N ## number of pargroups
 summary(my_LHS_pars$data)
 library(pse)
+
+
+##############################################################################################
+
+# basic statistics:
+#
+# • frequency of extinction
+# • mean time to extinction
+# • frequency of complete afforestation
+# • mean time to complete afforestation
+# • frequency of competitive exclusion of Araucaria
+# • patterns of spatial distribution
+
+basic_statistics <- function(statistics) {
+    statistics[statistics==Inf] <- NA
+    freq.extinction <- mean(statistics$extinction)
+    mean.time.to.extinction <- mean(statistics$time.to.extinction, na.rm=T)
+    freq.afforestation <- mean(statistics$area_limit)
+    mean.time.to.afforestation <- mean(statistics$time.to.afforestation, na.rm=T)
+    freq.extinction.araucaria <- mean(statistics$extinction.araucaria)
+    mean.time.to.extinction.araucaria <- mean(statistics$time.to.extinction.araucaria, na.rm=T)
+
+    data.frame(freq.extinction, freq.afforestation, freq.extinction.araucaria,
+      mean.time.to.extinction, mean.time.to.afforestation, mean.time.to.extinction.araucaria)
+}
+
+bstats <- basic_statistics(subset(statistics,full))
+bstats <- rbind(bstats, basic_statistics(subset(statistics,noAr)))
+bstats <- rbind(bstats, basic_statistics(subset(statistics,noFi)))
+bstats <- cbind(Scenario=c("full","noAr","noFi"),bstats)
+bstats
+
+latex_table(bstats, "tabela_bstats_YapWs.tex")
+
 ## example
 myLHS<-tell(my_LHS_pars, statistics$circ.broadleaf.gr, nboot=30)
 
