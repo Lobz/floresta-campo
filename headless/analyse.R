@@ -36,30 +36,36 @@ library(pse)
 # • mean time to complete afforestation
 # • frequency of competitive exclusion of Araucaria
 # • patterns of spatial distribution
-
+mystats <- function (x) {
+    x <- as.numeric(x)
+    m <- round(min(x,na.rm=T),digits=2)
+    M <- round(max(x,na.rm=T),digits=2)
+    paste0(m," - ",M)
+}
+library(scales)
 basic_statistics <- function(statistics) {
     statistics[statistics==Inf] <- NA
-    freq.extinction <- mean(statistics$extinction)
-    mean.time.to.extinction <- mean(statistics$time.to.extinction, na.rm=T)
-    freq.afforestation <- mean(statistics$area_limit)
-    mean.time.to.afforestation <- mean(statistics$time.to.afforestation, na.rm=T)
-    freq.extinction.araucaria <- mean(statistics$extinction.araucaria)
-    mean.time.to.extinction.araucaria <- mean(statistics$time.to.extinction.araucaria, na.rm=T)
-
-    data.frame(freq.extinction, freq.afforestation, freq.extinction.araucaria,
-      mean.time.to.extinction, mean.time.to.afforestation, mean.time.to.extinction.araucaria)
+    r1 <- sapply(statistics[,c(2:12,14:18,42)],mystats)
+    r2 <- percent(sapply(statistics[,44:47], mean))
+    c(r2,r1)
 }
 
-bstats <- basic_statistics(subset(statistics,full))
-bstats <- rbind(bstats, basic_statistics(subset(statistics,noAr)))
-bstats <- rbind(bstats, basic_statistics(subset(statistics,noFi)))
-bstats <- cbind(Scenario=c("full","noAr","noFi"),bstats)
-bstats
+statsFull <- subset(statistics,full)
+statsnoAr <- subset(statistics,noAr)
+statsnoFi <- subset(statistics,noFi)
 
-latex_table(bstats, "tabela_bstats_YapWs.tex")
+bstats <- basic_statistics(statsFull)
+bstats <- cbind(bstats, basic_statistics(statsnoAr))
+bstats <- cbind(bstats, basic_statistics(statsnoFi))
+bstats <- as.data.frame(bstats)
+bstats <- cbind(rownames(bstats),bstats)
+names(bstats) <- c("","full","noAr","noFi")
+str(bstats)
+
+latex_table(bstats, "tabela_bstats_YapWs_complete.tex")
 
 ## example
-myLHS<-tell(my_LHS_pars, statistics$circ.broadleaf.gr, nboot=30)
+myLHS<-tell(my_LHS_pars, statsFull$circ.broadleaf.gr, nboot=30)
 
 ### lhs plots
 plotecdf(myLHS, stack=TRUE)
@@ -77,7 +83,7 @@ results$par_group<-as.numeric(rownames(results))
 results_par <- merge(results,statistics,by="par_group")
 data_hyps<- merge(data,results,by="par_group")
 
-plot_final_values(subset(statistics,full),"grass_flammability")
+plot_final_values(statsFull,"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 
 save.plots <- function(name) {
