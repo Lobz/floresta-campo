@@ -47,6 +47,7 @@ outputdir <- paste0('headless_outputs/',groupname,'-out')
 run_simulations(my_filenames, outputdir)
 
 ## pick up running if interrupted
+source("headless/createxml.utils.R")
 my_filenames <- list.files("xmls", pattern=".*.xml", full.names=TRUE)
 run_simulations(my_filenames, outputdir)
  
