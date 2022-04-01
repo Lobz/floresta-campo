@@ -91,14 +91,20 @@ save.plots <- function(name) {
     plot_all_hyps(results_par,name)
     dev.off()
 }
-lapply(par_names,save.plots)
+lapply(my_LHS_pars$factors,save.plots)
 
-save.plots <- function(name) {
-    pdf(paste0(imagedir,name,"-dynamics.pdf"), width=12, height=8)
-    plot.fours.columns(data,lines.par,column.par=name)
+save.plots.dyn <- function(name) {
+    pdf(paste0(imagedir,name,"-full-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(subset(data,full),lines.par,column.par=name)
+    dev.off()
+    pdf(paste0(imagedir,name,"-noAr-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(subset(data,noAr),lines.par,column.par=name)
+    dev.off()
+    pdf(paste0(imagedir,name,"-noFi-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(subset(data,noFi),lines.par,column.par=name)
     dev.off()
 }
-lapply(par_names,save.plots)
+lapply(my_LHS_pars$factors,save.plots.dyn)
 
 plot.hypotheses(results[!results$full_extinction,],function(x,c,...) barplot(table(x[,c]),...))
 plot.hyp(results_par,"Full_extinction","wildfire_rate")
@@ -155,7 +161,7 @@ colnames(barlengths) <- ex$time
 barlengths[3,] <- barlengths[3,] - barlengths[2,]
 barlengths[2,] <- barlengths[2,] - barlengths[1,]
 
-pdf(paste0("images/arealengths",groupname,"_average_NoFi.pdf", width=7, height=5)
+pdf(paste0("images/arealengths",groupname,"_average_NoFi.pdf", width=7, height=5))
 par(lwd=3)
 barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
         angle=c(90,45,90), density=c(100,20,100),
