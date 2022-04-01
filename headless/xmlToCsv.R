@@ -48,5 +48,5 @@ dim(dados)
 
 groupname <- paste0(strsplit(dados$sim_unique_id[1],'_')[[1]][1:3],collapse='_')
 head(dados)
-myfilename <- paste0("data/", groupname, "_2_data.csv")
+myfilename <- paste0("data/", groupname, "_data.csv")
 write.csv(dados, myfilename, row.names = FALSE)
