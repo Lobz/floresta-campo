@@ -1,6 +1,10 @@
 # make sure you've used createxml to create the xml for gama_headless and xmlToCsv to save the results in csv format
 CONST_ARENA_RADIUS <- 300
 
+my_writecsv <- function(data, filename) {
+    write.csv(data,filename, row.names=F, fileEncoding="utf-8", na="")
+}
+
 get_data <- function (myfilename) {
     data <- read.csv(file=myfilename,stringsAsFactors=T)
     data$edge_range <- data$circ.araucaria - data$circ.broadleaf
@@ -9,6 +13,7 @@ get_data <- function (myfilename) {
     data$noFi <- data$wildfire_rate ==0
     data$full <- !data$noAr & !data$noFi
     data$circ.max <- pmax(data$circ.araucaria, data$circ.broadleaf)
+    data$scenario <- factor(data$full + 2*data$noAr + 3*data$noFi, labels=c("full", "noAr", "noFi"))
     return(data)
 }
 
@@ -22,8 +27,8 @@ get_finalsteps <- function (data, time_limit) {
 
     finalvalues$extinction <- finalvalues$n.araucaria + finalvalues$n.broadleaf == 0
     finalvalues$area_limit <- finalvalues$circ.max >= CONST_ARENA_RADIUS
-    finalvalues$time_limit <- finalvalues$time == time_limit
-    finalvalues$extinction.araucaria <- finalvalues$n.araucaria == 0
+    finalvalues$time_limit <- finalvalues$time == time_limit & !finalvalues$extinction & !finalvalues$area_limit
+    finalvalues$extinction_araucaria <- finalvalues$n.araucaria == 0 & !finalvalues$extinction
     return(finalvalues)
 }
 
@@ -71,7 +76,6 @@ get_statistics <- function (one.run) {
             )
 }
 
-## this function expects only one run per group (one scenario)
 extract_statistics <- function(data, time_limit=max(data$time)) {
 
     # Add these:

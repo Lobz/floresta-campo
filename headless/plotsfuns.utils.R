@@ -121,3 +121,21 @@ pancake.plot <- function (results, x.par, y.par, col.par) {
     colors <- make_colors(results[,col.par])
     plot(results[,x.par], results[,y.par], col=colors[as.character(results[,col.par])], xlab=x.par, ylab=y.par)
 }
+
+## plot areas over time
+arealengths <- function (filename, data, title="Lengths of dominance areas") {
+    n <- nrow(data)
+
+    barlengths <- matrix(c(data$circ05.araucaria, data$circ.broadleaf, data$circ.araucaria), nrow=3, byrow=T)
+    colnames(barlengths) <- data$time
+    barlengths[3,] <- barlengths[3,] - barlengths[2,]
+    barlengths[2,] <- barlengths[2,] - barlengths[1,]
+    pdf(filename, width=7, height=5)
+    par(lwd=3)
+    barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
+            angle=c(90,45,90), density=c(100,20,100),
+            axes=T, ylab="average meters from center", xlab="years", main=title,
+            legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
+            args.legend=list(x="topleft", border=F, bty = "n"))
+    dev.off()
+}
