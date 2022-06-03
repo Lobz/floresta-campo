@@ -9,6 +9,7 @@ groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_d
 summary(data)
 length(unique(data$sim_unique_id)) # number of sims
 length(unique(data$par_group)) # number of groups
+names(data) # check outputs
 
 ## image dir
 imagedir <- paste0("images/",groupname,"/")
@@ -36,19 +37,6 @@ library(pse)
 # • mean time to complete afforestation
 # • frequency of competitive exclusion of Araucaria
 # • patterns of spatial distribution
-mystats <- function (x) {
-    x <- as.numeric(x)
-    m <- round(min(x,na.rm=T),digits=2)
-    M <- round(max(x,na.rm=T),digits=2)
-    paste0(m," - ",M)
-}
-library(scales)
-basic_statistics <- function(statistics) {
-    statistics[statistics==Inf] <- NA
-    r1 <- sapply(statistics,mystats)
-    r2 <- percent(sapply(statistics[,c("extinction", "area_limit", "time_limit", "extinction_araucaria")], mean))
-    c(r2,r1)
-}
 
 statsFull <- subset(statistics,full)
 statsnoAr <- subset(statistics,noAr)
@@ -66,6 +54,7 @@ bstats[,2:4]
 latex_table(bstats, paste0("tabela_bstats_",groupname,".tex"))
 
 ### nice place for a image save/load
+save.image('./data/scenarios_dQSm9.RData')
 
 ## example
 myLHS<-tell(my_LHS_pars, statsnoAr$circ.max.gr, nboot=30)
