@@ -9,6 +9,7 @@ data$tree_dispersal <- data$araucaria_dispersal
 groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
 length(unique(data$sim_unique_id)) # number of sims
+length(unique(data$par_group)) # number of sims
 
 ## image dir
 imagedir <- paste0("images/",groupname,"/")
