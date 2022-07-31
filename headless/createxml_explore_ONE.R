@@ -19,6 +19,15 @@ par.data <- data.frame(
             initial_pop_total=rep(0,n),
             par_group=1:n
             )
+
+# par.data <- data.frame(
+#     wildfire_rate=0.1,
+#     shade_threshold_ratio=2,
+#     araucaria_fire_tolerance=0.9, 
+#     tree_dispersal=10, 
+#     grass_flammability=0.6)
+
+# par.data$par_group <- 1
 ## WRITING
 my_filenames <- createxml(par.data,groupname,scenarios=FALSE, stop.at.extinction=FALSE)
 ## RUNNING

@@ -1,4 +1,3 @@
-
 source("headless/organize_data.R")
 source("headless/test_hypothesis.R")
 source("headless/plotsfuns.utils.R")
@@ -9,7 +8,8 @@ data$tree_dispersal <- data$araucaria_dispersal
 groupname <- substring(myfilename,nchar("data/")+1,nchar(myfilename) - nchar("_data.csv"))
 summary(data)
 length(unique(data$sim_unique_id)) # number of sims
-length(unique(data$par_group)) # number of sims
+length(unique(data$par_group)) # number of groups
+names(data) # check outputs
 
 ## image dir
 imagedir <- paste0("images/",groupname,"/")
@@ -21,11 +21,43 @@ summary(statistics)
 
 ### join back to lhs object
 load(paste0("data/",groupname,".RData"))
-my_LHS_pars$N ## number of pargroups
+my_LHS_pars$N ## number of pargroupso
+parameters <- my_LHS_pars$factors
 summary(my_LHS_pars$data)
 library(pse)
+
+
+##############################################################################################
+
+# basic statistics:
+#
+# • frequency of extinction
+# • mean time to extinction
+# • frequency of complete afforestation
+# • mean time to complete afforestation
+# • frequency of competitive exclusion of Araucaria
+# • patterns of spatial distribution
+
+statsFull <- subset(statistics,full)
+statsnoAr <- subset(statistics,noAr)
+statsnoFi <- subset(statistics,noFi)
+
+bstats <- basic_statistics(statsFull)
+bstats <- cbind(bstats, basic_statistics(statsnoAr))
+bstats <- cbind(bstats, basic_statistics(statsnoFi))
+bstats <- as.data.frame(bstats)
+bstats <- cbind(rownames(bstats),bstats)
+names(bstats) <- c("","full","noAr","noFi")
+str(bstats)
+bstats[,2:4]
+
+latex_table(bstats, paste0("tabela_bstats_",groupname,".tex"))
+
+### nice place for a image save/load
+save.image('./data/scenarios_dQSm9.RData')
+
 ## example
-myLHS<-tell(my_LHS_pars, statistics$circ.broadleaf.gr, nboot=30)
+myLHS<-tell(my_LHS_pars, statsnoAr$circ.max.gr, nboot=30)
 
 ### lhs plots
 plotecdf(myLHS, stack=TRUE)
@@ -43,7 +75,7 @@ results$par_group<-as.numeric(rownames(results))
 results_par <- merge(results,statistics,by="par_group")
 data_hyps<- merge(data,results,by="par_group")
 
-plot_final_values(subset(statistics,full),"grass_flammability")
+plot_final_values(statsFull,"grass_flammability")
 plot_all_hyps(results_par,"grass_flammability")
 
 save.plots <- function(name) {
@@ -51,14 +83,20 @@ save.plots <- function(name) {
     plot_all_hyps(results_par,name)
     dev.off()
 }
-lapply(par_names,save.plots)
+lapply(my_LHS_pars$factors,save.plots)
 
-save.plots <- function(name) {
-    pdf(paste0(imagedir,name,"-dynamics.pdf"), width=12, height=8)
-    plot.fours.columns(data,lines.par,column.par=name)
+save.plots.dyn <- function(name) {
+    pdf(paste0(imagedir,name,"-full-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(subset(data,full),lines.par,column.par=name)
+    dev.off()
+    pdf(paste0(imagedir,name,"-noAr-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(subset(data,noAr),lines.par,column.par=name)
+    dev.off()
+    pdf(paste0(imagedir,name,"-noFi-dynamics.pdf"), width=12, height=8)
+    plot.fours.columns(subset(data,noFi),lines.par,column.par=name)
     dev.off()
 }
-lapply(par_names,save.plots)
+lapply(my_LHS_pars$factors,save.plots.dyn)
 
 plot.hypotheses(results[!results$full_extinction,],function(x,c,...) barplot(table(x[,c]),...))
 plot.hyp(results_par,"Full_extinction","wildfire_rate")
@@ -77,58 +115,28 @@ expected_crowd <- function(shade_threshold) {
     ceiling(shade_threshold/shade_percent)
 }
 
-# plot inner, mid, edge areas in a simulation
+### AREA LENGTHS
+# plot inner, mid, edge areas
 full <- subset(data, full)
-summary(full)
-id_ex <- full$sim_unique_id[1]
-example <- subset(full, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
-ex <- aggregate(full, by=list(full$time), mean)
-#ex <- aggregate(example, by=list(example$time), mean)
-n <- nrow(ex)
-
-barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria), nrow=3, byrow=T)
-colnames(barlengths) <- ex$time
-barlengths[3,] <- barlengths[3,] - barlengths[2,]
-barlengths[2,] <- barlengths[2,] - barlengths[1,]
-
-pdf(paste0("images/arealengths_",groupname,"_average.pdf"), width=7, height=5)
-par(lwd=3)
-barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
-        angle=c(90,45,90), density=c(100,20,100),
-        axes=T, ylab="average meters from center", xlab="years",
-        legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
-        args.legend=list(x="topleft", border=F, bty = "n"))
-dev.off()
-
+full_means <- aggregate(full, by=list(full$time), mean)
+filename <- paste0(imagedir,"arealengths_average_full.pdf")
+arealengths(filename, full_means, "Evolution of species dominace areas (Full)")
 # just for fun, do the same with NoFi
 nofi <- subset(data, noFi, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
-summary(nofi)
-id_ex <- unique(nofi$sim_unique_id)[10]
-example <- subset(nofi, sim_unique_id==id_ex, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
+nofi_means <- aggregate(nofi, by=list(nofi$time), mean)
+filename <- paste0(imagedir,"arealengths_average_nofi.pdf")
+arealengths(filename, nofi_means, "Evolution of species dominace areas (NoFi)")
 
-ex <- aggregate(nofi, by=list(nofi$time), mean)
-#ex <- aggregate(example, by=list(example$time), mean)
-n <- nrow(ex)
-
-barlengths <- matrix(c(ex$circ05.araucaria, ex$circ.broadleaf, ex$circ.araucaria), nrow=3, byrow=T)
-colnames(barlengths) <- ex$time
-barlengths[3,] <- barlengths[3,] - barlengths[2,]
-barlengths[2,] <- barlengths[2,] - barlengths[1,]
-
-pdf(paste0("images/arealengths",groupname,"_average_NoFi.pdf", width=7, height=5)
-par(lwd=3)
-barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
-        angle=c(90,45,90), density=c(100,20,100),
-        axes=T, ylab="average meters from center", xlab="years",
-        legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
-        args.legend=list(x="topleft", border=F, bty = "n"))
-dev.off()
 
 ## area lengths comparison one timestep boxplots
-
 t <- 700
 
-v <- subset(data,!noAr & time==t)
+v <- subset(data, !noAr & time==t)
+v <- subset(statistics, !noAr)
 summary(v)
-boxplot(edge_range~full, v, xlab="wildfires")
-boxplot(inner10A~full, v, xlab="wildfires")
+filename <- paste0(imagedir,"edge_range700")
+boxplot(edge_range~full, v, xlab="Wildfires", main="Length of Araucaria-dominated edge (LHS/700y)", ylab="rad95A-rad95B (m)")
+savePlot(filename,"png")
+filename <- paste0(imagedir,"inner10A700")
+boxplot(inner10A~full, v, xlab="Wildfires", main="Radius of broadleaf-dominated interior (LHS/700y)", ylab="radius of circle containing 10 or less A. (m)")
+savePlot(filename,"png")
