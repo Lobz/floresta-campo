@@ -8,7 +8,7 @@ my_writecsv <- function(data, filename) {
 get_data <- function (myfilename) {
     data <- read.csv(file=myfilename,stringsAsFactors=T)
     data$edge_range <- data$rad95A - data$rad95B
-    data$inner_range <- data$circ05.araucaria - data$circ05.broadleaf
+    data$inner_range <- data$rad05A - data$rad05B
     data$noAr <- data$initial_pop_araucaria ==0
     data$noFi <- data$wildfire_rate ==0
     data$full <- !data$noAr & !data$noFi
@@ -53,8 +53,8 @@ get_statistics <- function (one.run) {
     ## circs linear
     rad95A.gr <- linear_growth_rate(one.run, "rad95A")
     rad95B.gr <- linear_growth_rate(one.run, "rad95B")
-    circ05.araucaria.gr <- linear_growth_rate(one.run, "circ05.araucaria")
-    circ05.broadleaf.gr <- linear_growth_rate(one.run, "circ05.broadleaf")
+    rad05A.gr <- linear_growth_rate(one.run, "rad05A")
+    rad05B.gr <- linear_growth_rate(one.run, "rad05B")
     circ.max.gr <- linear_growth_rate(one.run, "circ.max")
 
     ## ns log
@@ -74,7 +74,7 @@ get_statistics <- function (one.run) {
     sim_unique_id <- one.run$sim_unique_id[1]
     data.frame(
                 rad95A.gr, rad95B.gr, circ.max.gr,
-                circ05.araucaria.gr, circ05.broadleaf.gr,
+                rad05A.gr, rad05B.gr,
                 nA.gr, nB.gr,
                 time.to.extinctionA, time.to.afforestation, time.to.extinction,
                 edge_range.med, edge_range.max, edge_range.min,

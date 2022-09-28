@@ -126,7 +126,7 @@ pancake.plot <- function (results, x.par, y.par, col.par) {
 arealengths <- function (filename, data, title="Lengths of dominance areas") {
     n <- nrow(data)
 
-    barlengths <- matrix(c(data$circ05.araucaria, data$rad95B, data$rad95A), nrow=3, byrow=T)
+    barlengths <- matrix(c(data$rad05A, data$rad95B, data$rad95A), nrow=3, byrow=T)
     colnames(barlengths) <- data$time
     barlengths[3,] <- barlengths[3,] - barlengths[2,]
     barlengths[2,] <- barlengths[2,] - barlengths[1,]
