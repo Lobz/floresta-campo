@@ -122,7 +122,7 @@ full_means <- aggregate(full, by=list(full$time), mean)
 filename <- paste0(imagedir,"arealengths_average_full.pdf")
 arealengths(filename, full_means, "Evolution of species dominace areas (Full)")
 # just for fun, do the same with NoFi
-nofi <- subset(data, noFi, select=c(circ05.araucaria, circ.broadleaf, circ.araucaria, time))
+nofi <- subset(data, noFi, select=c(circ05.araucaria, rad95B, rad95A, time))
 nofi_means <- aggregate(nofi, by=list(nofi$time), mean)
 filename <- paste0(imagedir,"arealengths_average_nofi.pdf")
 arealengths(filename, nofi_means, "Evolution of species dominace areas (NoFi)")

@@ -41,13 +41,13 @@ lines.each <- function(data, column.data, color, alpha=0.2, ...) {
 
 plot.fours.columns <- function(data, fun, label = "over time", ...) {
     par(mfrow=c(2,2))
-    fun(data,"n.broadleaf",...)
+    fun(data,"nB",...)
     title(paste0("Broadleaved population ",label))
-    fun(data,"n.araucaria",...)
+    fun(data,"nA",...)
     title(paste0("Araucaria population ",label))
-    fun(data,"circ.broadleaf",...)
+    fun(data,"rad95B",...)
     title(paste0("Broadleaf radius ",label))
-    fun(data,"circ.araucaria",...)
+    fun(data,"rad95A",...)
     title(paste0("Araucaria radius ",label))
     par(mfrow=c(1,1))
 }
@@ -126,13 +126,13 @@ pancake.plot <- function (results, x.par, y.par, col.par) {
 arealengths <- function (filename, data, title="Lengths of dominance areas") {
     n <- nrow(data)
 
-    barlengths <- matrix(c(data$circ05.araucaria, data$circ.broadleaf, data$circ.araucaria), nrow=3, byrow=T)
+    barlengths <- matrix(c(data$circ05.araucaria, data$rad95B, data$rad95A), nrow=3, byrow=T)
     colnames(barlengths) <- data$time
     barlengths[3,] <- barlengths[3,] - barlengths[2,]
     barlengths[2,] <- barlengths[2,] - barlengths[1,]
     pdf(filename, width=7, height=5)
     par(lwd=3)
-    barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"), 
+    barplot(height=barlengths, border=F, space=0, col=c("purple", "purple", "darkgreen"),
             angle=c(90,45,90), density=c(100,20,100),
             axes=T, ylab="average meters from center", xlab="years", main=title,
             legend.text=c("broadleaf dominance area (interior)", "coexistence area", "araucaria dominance area (edge)"),
