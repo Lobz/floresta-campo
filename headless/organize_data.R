@@ -109,6 +109,14 @@ minmax <- function (x) {
     M <- round(max(x,na.rm=T),digits=2)
     paste0(m," - ",M)
 }
+
+minmaxmed <- function (x) {
+    x <- as.numeric(x)
+    m <- round(min(x,na.rm=T),digits=2)
+    M <- round(max(x,na.rm=T),digits=2)
+    med <-  round(median(x,na.rm=T),digits=2)
+    paste0(m," - ",M, "(", med,")")
+}
 library(scales)
 basic_statistics <- function(statistics) {
     statistics[statistics==Inf] <- NA

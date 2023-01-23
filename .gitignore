@@ -7,13 +7,10 @@
 .gama*
 .built_in*
 *.png
-*.Rhistory
-*.RData
-*.csv
 *.xml
-*.RData
 FireandForest/models/benchmarks/
 images/*
 headless_outputs/*
 headless/set-gamadir.bat
 examples_external/
+data/
