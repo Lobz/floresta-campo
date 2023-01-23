@@ -7,12 +7,12 @@ my_writecsv <- function(data, filename) {
 
 get_data <- function (myfilename) {
     data <- read.csv(file=myfilename,stringsAsFactors=T)
-    data$edge_range <- data$circ.araucaria - data$circ.broadleaf
-    data$inner_range <- data$circ05.araucaria - data$circ05.broadleaf
+    data$edge_range <- data$rad95A - data$rad95B
+    data$inner_range <- data$rad05A - data$rad05B
     data$noAr <- data$initial_pop_araucaria ==0
     data$noFi <- data$wildfire_rate ==0
     data$full <- !data$noAr & !data$noFi
-    data$circ.max <- pmax(data$circ.araucaria, data$circ.broadleaf)
+    data$circ.max <- pmax(data$rad95A, data$rad95B)
     data$scenario <- factor(data$full + 2*data$noAr + 3*data$noFi, labels=c("full", "noAr", "noFi"))
     return(data)
 }
@@ -25,10 +25,10 @@ get_finalsteps <- function (data, time_limit) {
     finalvalues <- by(data, data$sim_unique_id, finalstep)
     finalvalues <- as.data.frame(do.call(rbind,finalvalues))
 
-    finalvalues$extinction <- finalvalues$n.araucaria + finalvalues$n.broadleaf == 0
+    finalvalues$extinction <- finalvalues$nA + finalvalues$nB == 0
     finalvalues$area_limit <- finalvalues$circ.max >= CONST_ARENA_RADIUS
     finalvalues$time_limit <- finalvalues$time == time_limit & !finalvalues$extinction & !finalvalues$area_limit
-    finalvalues$extinction_araucaria <- finalvalues$n.araucaria == 0 & !finalvalues$extinction
+    finalvalues$extinction_araucaria <- finalvalues$nA == 0 & !finalvalues$extinction
     return(finalvalues)
 }
 
@@ -46,20 +46,20 @@ get_finalsteps <- function (data, time_limit) {
     }
 
 get_statistics <- function (one.run) {
-    time.to.extinction.araucaria <- min(one.run$time[one.run$n.araucaria == 0])
-    time.to.extinction <- min(one.run$time[one.run$n.araucaria + one.run$n.broadleaf == 0])
+    time.to.extinctionA <- min(one.run$time[one.run$nA == 0])
+    time.to.extinction <- min(one.run$time[one.run$nA + one.run$nB == 0])
     time.to.afforestation <- min(one.run$time[one.run$circ.max >= CONST_ARENA_RADIUS])
 
     ## circs linear
-    circ.araucaria.gr <- linear_growth_rate(one.run, "circ.araucaria")
-    circ.broadleaf.gr <- linear_growth_rate(one.run, "circ.broadleaf")
-    circ05.araucaria.gr <- linear_growth_rate(one.run, "circ05.araucaria")
-    circ05.broadleaf.gr <- linear_growth_rate(one.run, "circ05.broadleaf")
+    rad95A.gr <- linear_growth_rate(one.run, "rad95A")
+    rad95B.gr <- linear_growth_rate(one.run, "rad95B")
+    rad05A.gr <- linear_growth_rate(one.run, "rad05A")
+    rad05B.gr <- linear_growth_rate(one.run, "rad05B")
     circ.max.gr <- linear_growth_rate(one.run, "circ.max")
 
     ## ns log
-    n.araucaria.gr <- tryCatch(exponential_growth_rate(one.run, "n.araucaria"), error=function(e)NA)
-    n.broadleaf.gr <- tryCatch(exponential_growth_rate(one.run, "n.broadleaf"), error=function(e)NA)
+    nA.gr <- tryCatch(exponential_growth_rate(one.run, "nA"), error=function(e)NA)
+    nB.gr <- tryCatch(exponential_growth_rate(one.run, "nB"), error=function(e)NA)
 
     ## edge_range median
 
@@ -73,10 +73,10 @@ get_statistics <- function (one.run) {
 
     sim_unique_id <- one.run$sim_unique_id[1]
     data.frame(
-                circ.araucaria.gr, circ.broadleaf.gr, circ.max.gr,
-                circ05.araucaria.gr, circ05.broadleaf.gr,
-                n.araucaria.gr, n.broadleaf.gr,
-                time.to.extinction.araucaria, time.to.afforestation, time.to.extinction,
+                rad95A.gr, rad95B.gr, circ.max.gr,
+                rad05A.gr, rad05B.gr,
+                nA.gr, nB.gr,
+                time.to.extinctionA, time.to.afforestation, time.to.extinction,
                 edge_range.med, edge_range.max, edge_range.min,
                 inner10A.med, inner10A.max, inner10A.min,
                 sim_unique_id

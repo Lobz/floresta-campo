@@ -13,5 +13,4 @@ images/*
 headless_outputs/*
 headless/set-gamadir.bat
 examples_external/
-*.csv
 data/

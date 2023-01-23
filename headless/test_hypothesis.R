@@ -58,13 +58,13 @@ test.hypotheses <- function(data) {
     NoFi.final <- subset(NoFi, time==max(NoFi$time))
 
     ## extinction full check
-    ext_full_a <- Full.final$n.araucaria < 10
-    ext_full_b <- Full.final$n.broadleaf < 10
+    ext_full_a <- Full.final$nA < 10
+    ext_full_b <- Full.final$nB < 10
     ext_full <- ext_full_a && ext_full_b
-    ext_NoAr <- NoAr.final$n.araucaria + NoAr.final$n.broadleaf < 10
-    ext_NoFi_a <- NoFi.final$n.araucaria < 10 
-    ext_NoFi_b <- NoFi.final$n.broadleaf < 10
-   
+    ext_NoAr <- NoAr.final$nA + NoAr.final$nB < 10
+    ext_NoFi_a <- NoFi.final$nA < 10
+    ext_NoFi_b <- NoFi.final$nB < 10
+
     ## hyp1 : patch will grow
     if (ext_full) {
         hyp1 <- FALSE
@@ -83,15 +83,15 @@ test.hypotheses <- function(data) {
     }
     else if (ext_full && !ext_NoAr) {
         hyp3a <- FALSE
-        model_NoAr <- lm(circ.broadleaf ~ time, NoAr)
+        model_NoAr <- lm(rad95B ~ time, NoAr)
         growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
         hyp3b <- !growth_NoAr
     }
     else {
-        aic <- compare.two(Full$circ.broadleaf, Full$time, NoAr$circ.broadleaf, NoAr$time)
+        aic <- compare.two(Full$rad95B, Full$time, NoAr$rad95B, NoAr$time)
         hyp3a <- (aic == 1)
 
-        model_NoAr <- lm(circ.broadleaf ~ time, NoAr)
+        model_NoAr <- lm(rad95B ~ time, NoAr)
         growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
         hyp3b <- !growth_NoAr
     }
@@ -100,7 +100,7 @@ test.hypotheses <- function(data) {
         hyp4a <- TRUE
     }
     else {
-        aic <- compare.two(Full$circ.broadleaf, Full$time, NoFi$circ.broadleaf, NoFi$time)
+        aic <- compare.two(Full$rad95B, Full$time, NoFi$rad95B, NoFi$time)
         hyp4a <- (aic == 2)
     }
     if (!ext_full_a && ext_NoFi_a) {
@@ -110,7 +110,7 @@ test.hypotheses <- function(data) {
         hyp4b <- FALSE
     }
     else {
-        aic <- compare.two(Full$n.araucaria, Full$time, NoFi$n.araucaria, NoFi$time, log=TRUE)
+        aic <- compare.two(Full$nA, Full$time, NoFi$nA, NoFi$time, log=TRUE)
         hyp4b <- (aic == 1)
     }
     ## hyp5 : broadleaf expansion tracks araucaria expansion
@@ -118,7 +118,7 @@ test.hypotheses <- function(data) {
         hyp5 <- FALSE
     }
     else {
-        model <- lm(circ.broadleaf ~ time, Full)
+        model <- lm(rad95B ~ time, Full)
         hyp5 <- hyp2a && coef(model)[2] > 0 && summary(model)$coefficients[2,4] < 0.05
     }
 
@@ -141,19 +141,19 @@ test.hypotheses.noexts <- function(data) {
     hyp2a <- median(Full$edge_range) > 10
     hyp2b <- median(NoFi$edge_range) > 10
     ## hyp3 : broadleaf grows better with araucaria / can't grow without araucaria
-    aic <- compare.two(Full$circ.broadleaf, Full$time, NoAr$circ.broadleaf, NoAr$time)
+    aic <- compare.two(Full$rad95B, Full$time, NoAr$rad95B, NoAr$time)
     hyp3a <- (aic == 1)
 
-    model_NoAr <- lm(circ.broadleaf ~ time, NoAr)
+    model_NoAr <- lm(rad95B ~ time, NoAr)
     growth_NoAr <- coef(model_NoAr)[2] > 0 && summary(model_NoAr)$coefficients[2,4] < 0.05
     hyp3b <- !growth_NoAr
     ## hyp4 : without fire, broadleaf grows and competes with araucaria
-    aic <- compare.two(Full$circ.broadleaf, Full$time, NoFi$circ.broadleaf, NoFi$time)
+    aic <- compare.two(Full$rad95B, Full$time, NoFi$rad95B, NoFi$time)
     hyp4a <- (aic == 2)
-    aic <- compare.two(Full$n.araucaria, Full$time, NoFi$n.araucaria, NoFi$time, log=TRUE)
+    aic <- compare.two(Full$nA, Full$time, NoFi$nA, NoFi$time, log=TRUE)
     hyp4b <- (aic == 1)
     ## hyp5 : broadleaf expansion tracks araucaria expansion
-    model <- lm(circ.broadleaf ~ time, Full)
+    model <- lm(rad95B ~ time, Full)
     hyp5 <- hyp2a && coef(model)[2] > 0 && summary(model)$coefficients[2,4] < 0.05
 
     ## array of hypotheses

@@ -3,11 +3,11 @@
 library(XML)
 
 
-myColNames <- c("par_group","n.araucaria", "n.broadleaf", "circ.araucaria", "circ.broadleaf",
+myColNames <- c("par_group","nA", "nB", "rad95A", "rad95B",
                     "firesize","wildfire_rate", "initial_pop_araucaria", "initial_pop_broadleaf",
                     "shade_threshold_araucaria", "shade_threshold_ratio","araucaria_fire_tolerance",
                     "araucaria_dispersal", "broadleaf_dispersal","grass_flammability",
-                    "circ05.araucaria", "circ05.broadleaf",
+                    "rad05A", "rad05B",
                     "rad50A", "rad50B", "inner10A", "inner10B", "outer10A", "outer10B"
                     # ,"araucaria_growthrate_0", "broadleaf_growthrate_0",
                     # "araucaria_growthrate_1", "broadleaf_growthrate_1",
