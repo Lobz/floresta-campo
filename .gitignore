@@ -8,9 +8,10 @@
 .built_in*
 *.png
 *.xml
-*.RData
 FireandForest/models/benchmarks/
 images/*
 headless_outputs/*
 headless/set-gamadir.bat
 examples_external/
+*.csv
+data/
